@@ -24,7 +24,7 @@ function RegisterPage() {
     e.preventDefault();
     setMessage('');
     
-    // Validation
+    // Validation côté client
     if (formData.password !== formData.confirmPassword) {
       setMessage('Les mots de passe ne correspondent pas');
       return;
@@ -35,21 +35,48 @@ function RegisterPage() {
       return;
     }
 
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setMessage('Le prénom et le nom sont obligatoires');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setMessage('L\'email est obligatoire');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Simulation d'une requête d'inscription
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simuler un succès d'inscription
-      setMessage('Inscription réussie ! Redirection vers la page de connexion...');
-      
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      // Appel réel à l'API Spring Boot
+      const response = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setMessage('Inscription réussie ! Redirection vers la page de connexion...');
+        
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        throw new Error(data.message || 'Erreur lors de l\'inscription');
+      }
       
     } catch (error) {
-      setMessage("Une erreur s'est produite lors de l'inscription");
+      console.error('Erreur inscription:', error);
+      setMessage(error.message || 'Erreur de connexion au serveur');
     } finally {
       setLoading(false);
     }
@@ -109,6 +136,7 @@ function RegisterPage() {
             onChange={handleChange}
             placeholder="Créez un mot de passe (min. 6 caractères)"
             required
+            minLength="6"
           />
         </div>
 
@@ -139,6 +167,15 @@ function RegisterPage() {
 
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <p>Déjà un compte ? <Link to="/login" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>Se connecter</Link></p>
+      </div>
+
+      {/* Information sur l'API */}
+      <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(67, 97, 238, 0.1)', borderRadius: 'var(--border-radius)', fontSize: '0.9rem' }}>
+        <p style={{ margin: 0, color: 'var(--primary-color)' }}>
+          <strong>API Backend :</strong><br />
+          URL: http://localhost:8080<br />
+          Endpoint: /api/auth/register
+        </p>
       </div>
     </div>
   );

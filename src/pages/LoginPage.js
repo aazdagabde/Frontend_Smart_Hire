@@ -14,21 +14,41 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      // Simulation d'une requête API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Validation simple
-      if (email === 'admin@example.com' && password === 'password') {
-        localStorage.setItem('user', JSON.stringify({ email, name: 'Admin' }));
+      // Appel réel à l'API Spring Boot
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Stocker le token JWT et les infos utilisateur
+        localStorage.setItem('token', data.data.jwt);
+        localStorage.setItem('user', JSON.stringify({
+          id: data.data.id,
+          email: data.data.email,
+          firstName: data.data.firstName,
+          lastName: data.data.lastName,
+          roles: data.data.roles
+        }));
+        
         setMessage('Connexion réussie ! Redirection...');
         setTimeout(() => {
           navigate('/dashboard');
         }, 1000);
       } else {
-        throw new Error('Email ou mot de passe incorrect');
+        throw new Error(data.message || 'Erreur lors de la connexion');
       }
     } catch (error) {
-      setMessage(error.message);
+      console.error('Erreur connexion:', error);
+      setMessage(error.message || 'Erreur de connexion au serveur');
     } finally {
       setLoading(false);
     }
@@ -81,12 +101,12 @@ function LoginPage() {
         <p>Pas encore de compte ? <Link to="/register" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>S'inscrire</Link></p>
       </div>
 
-      {/* Compte de démonstration */}
+      {/* Information sur l'API */}
       <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(67, 97, 238, 0.1)', borderRadius: 'var(--border-radius)', fontSize: '0.9rem' }}>
         <p style={{ margin: 0, color: 'var(--primary-color)' }}>
-          <strong>Compte de test :</strong><br />
-          Email: admin@example.com<br />
-          Mot de passe: password
+          <strong>API Backend :</strong><br />
+          URL: http://localhost:8080<br />
+          Endpoint: /api/auth/login
         </p>
       </div>
     </div>
