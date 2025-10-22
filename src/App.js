@@ -1,103 +1,79 @@
+// src/App.js
 import React from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-import './App.css';
+import { Routes, Route, Link } from 'react-router-dom';
+// Importer le CSS global (chemin mis à jour)
+import './styles/App.css';
 
-// Importe tes composants de page
+// Importer les pages depuis leur nouveau dossier
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import OfferListPage from './pages/OfferListPage';
+import OfferDetailPage from './pages/OfferDetailPage';
+import OfferManagePage from './pages/OfferManagePage';
+import OfferCreateEditPage from './pages/OfferCreateEditPage';
+// Importer d'autres pages ici au besoin...
 
-// Composant HomePage amélioré
-const HomePage = () => (
-  <div className="hero-section">
-    <h1 className="hero-title">Bienvenue sur Notre Plateforme</h1>
-    <p className="hero-subtitle">
-      Découvrez une expérience utilisateur exceptionnelle avec notre application moderne et sécurisée.
-    </p>
-    <div className="hero-buttons">
-      <Link to="/login" className="btn btn-primary">Se connecter</Link>
-      <Link to="/register" className="btn btn-primary" style={{background: 'transparent', border: '2px solid white'}}>
-        S'inscrire
-      </Link>
+// Importer les composants structurels
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Un composant simple pour la page Non Autorisé
+const UnauthorizedPage = () => (
+    <div className="form-card" style={{ textAlign: 'center' }}>
+        <h2 className='form-title' style={{ color: 'var(--danger-color)'}}>Accès Interdit</h2>
+        <p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
+        <Link to="/" className="btn btn-primary" style={{ marginTop: '1.5rem', width: 'auto' }}>Retour à l'accueil</Link>
     </div>
-  </div>
 );
 
-// Composant Dashboard amélioré
-const DashboardPage = () => {
-  const navigate = useNavigate();
-  
-  const handleLogout = () => {
-    // Simuler une déconnexion
-    localStorage.removeItem('user');
-    navigate('/');
-  };
-
-  return (
-    <div className="dashboard-card">
-      <h2 className="dashboard-title">Tableau de Bord</h2>
-      <p>Bienvenue dans votre espace personnel !</p>
-      <p>Vous êtes maintenant connecté à votre compte.</p>
-      <button className="btn btn-primary" onClick={handleLogout} style={{marginTop: '2rem', width: 'auto'}}>
-        Se déconnecter
-      </button>
+// Un composant simple pour la page 404
+const NotFoundPage = () => (
+     <div className="form-card" style={{ textAlign: 'center' }}>
+        <h2 className='form-title'>404 - Page Non Trouvée</h2>
+        <p>Désolé, la page que vous cherchez n'existe pas.</p>
+        <Link to="/" className="btn btn-primary" style={{ marginTop: '1.5rem', width: 'auto' }}>Retour à l'accueil</Link>
     </div>
-  );
-};
+);
 
 function App() {
-  const user = localStorage.getItem('user'); // Simulation simple d'authentification
-
   return (
-    <div className="App">
-      {/* Barre de navigation améliorée */}
-      <nav className="navbar">
-        <div className="nav-container">
-          <Link to="/" className="nav-logo">MonApp</Link>
-          <ul className="nav-menu">
-            <li>
-              <Link to="/" className="nav-link">Accueil</Link>
-            </li>
-            {!user ? (
-              <>
-                <li>
-                  <Link to="/login" className="nav-link">Connexion</Link>
-                </li>
-                <li>
-                  <Link to="/register" className="nav-button">Inscription</Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link to="/dashboard" className="nav-link">Dashboard</Link>
-                </li>
-                <li>
-                  <button 
-                    className="nav-button" 
-                    onClick={() => {
-                      localStorage.removeItem('user');
-                      window.location.reload();
-                    }}
-                  >
-                    Déconnexion
-                  </button>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
-      </nav>
+    <Routes>
+      {/* Route de base utilisant le Layout */}
+      <Route path="/" element={<Layout />}>
 
-      {/* Contenu principal */}
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
-      </div>
-    </div>
+        {/* Routes Publiques accessibles via <Outlet /> dans Layout */}
+        <Route index element={<HomePage />} /> {/* La page d'accueil à la racine */}
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="unauthorized" element={<UnauthorizedPage />} />
+        <Route path="offers" element={<OfferListPage />} />       {/* Liste publique des offres */}
+        <Route path="offers/:id" element={<OfferDetailPage />} /> {/* Détail public d'une offre */}
+
+        {/* Routes Protégées (nécessitent d'être connecté) */}
+        <Route element={<ProtectedRoute />}> {/* Wrapper pour les routes nécessitant une connexion */}
+          <Route path="dashboard" element={<DashboardPage />} />
+          {/* <Route path="profile" element={<ProfilePage />} /> */} {/* Ex: Page profil utilisateur */}
+          {/* <Route path="applications/status" element={<ApplicationStatusPage />} /> */} {/* Pour candidats */}
+          {/* <Route path="/apply/:offerId" element={<ApplyPage />} /> */} {/* Page pour postuler (Sprint 2) */}
+
+          {/* Routes spécifiques RH/Admin (pourraient nécessiter une vérification de rôle supplémentaire dans ProtectedRoute ou un composant dédié) */}
+          <Route path="offers/manage" element={<OfferManagePage />} />      {/* Gestion des offres par RH */}
+          <Route path="offers/create" element={<OfferCreateEditPage />} />    {/* Création d'offre par RH */}
+          <Route path="offers/edit/:id" element={<OfferCreateEditPage />} />  {/* Édition d'offre par RH */}
+          {/* <Route path="offers/:id/applications" element={<OfferApplicationsPage />} /> */} {/* Voir candidats (Sprint 2) */}
+          {/* <Route path="candidates/analysis" element={<CandidateAnalysisPage />} /> */}
+
+          {/* Ajoutez d'autres routes protégées ici */}
+
+        </Route> {/* Fin des routes protégées générales */}
+
+        {/* Route pour toutes les autres URL non correspondantes (404) */}
+        <Route path="*" element={<NotFoundPage />} />
+
+      </Route> {/* Fin de la route Layout */}
+    </Routes>
   );
 }
 
