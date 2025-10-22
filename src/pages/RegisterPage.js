@@ -1,5 +1,7 @@
+// src/pages/RegisterPage.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +14,7 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -23,15 +26,15 @@ function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage('');
-    
+
     // Validation côté client
     if (formData.password !== formData.confirmPassword) {
-      setMessage('Les mots de passe ne correspondent pas');
+      setMessage('Les mots de passe ne correspondent pas.');
       return;
     }
 
     if (formData.password.length < 6) {
-      setMessage('Le mot de passe doit contenir au moins 6 caractères');
+      setMessage('Le mot de passe doit contenir au moins 6 caractères.');
       return;
     }
 
@@ -48,35 +51,23 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      // Appel réel à l'API Spring Boot
-      const response = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
-          email: formData.email.trim(),
-          password: formData.password
-        })
-      });
+      await register(
+        formData.firstName.trim(),
+        formData.lastName.trim(),
+        formData.email.trim(),
+        formData.password
+      );
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setMessage('Inscription réussie ! Redirection vers la page de connexion...');
-        
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        throw new Error(data.message || 'Erreur lors de l\'inscription');
-      }
+      setMessage('Inscription réussie ! Vous allez être redirigé vers la page de connexion.');
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 2500);
       
     } catch (error) {
-      console.error('Erreur inscription:', error);
-      setMessage(error.message || 'Erreur de connexion au serveur');
+      // Afficher un message d'erreur plus spécifique si possible
+      const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de l\'inscription';
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -97,6 +88,7 @@ function RegisterPage() {
             onChange={handleChange}
             placeholder="Entrez votre prénom"
             required
+            autoComplete="given-name"
           />
         </div>
 
@@ -110,6 +102,7 @@ function RegisterPage() {
             onChange={handleChange}
             placeholder="Entrez votre nom"
             required
+            autoComplete="family-name"
           />
         </div>
 
@@ -123,6 +116,7 @@ function RegisterPage() {
             onChange={handleChange}
             placeholder="Entrez votre email"
             required
+            autoComplete="email"
           />
         </div>
 
@@ -137,6 +131,7 @@ function RegisterPage() {
             placeholder="Créez un mot de passe (min. 6 caractères)"
             required
             minLength="6"
+            autoComplete="new-password"
           />
         </div>
 
@@ -150,6 +145,7 @@ function RegisterPage() {
             onChange={handleChange}
             placeholder="Confirmez votre mot de passe"
             required
+            autoComplete="new-password"
           />
         </div>
 
@@ -167,15 +163,6 @@ function RegisterPage() {
 
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <p>Déjà un compte ? <Link to="/login" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>Se connecter</Link></p>
-      </div>
-
-      {/* Information sur l'API */}
-      <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(67, 97, 238, 0.1)', borderRadius: 'var(--border-radius)', fontSize: '0.9rem' }}>
-        <p style={{ margin: 0, color: 'var(--primary-color)' }}>
-          <strong>API Backend :</strong><br />
-          URL: http://localhost:8080<br />
-          Endpoint: /api/auth/register
-        </p>
       </div>
     </div>
   );

@@ -1,103 +1,71 @@
+// src/App.js
 import React from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-import './App.css';
+import { Routes, Route } from 'react-router-dom';
+import './styles/App.css';
 
-// Importe tes composants de page
+// Pages
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import OfferListPage from './pages/OfferListPage';     // <-- Ajout
+import OfferDetailPage from './pages/OfferDetailPage';   // <-- Ajout
+import OfferManagePage from './pages/OfferManagePage'; // <-- Ajout
+import OfferCreateEditPage from './pages/OfferCreateEditPage'; // <-- Ajout
+// Importer ProfilePage, ApplicationStatusPage etc. quand créées
 
-// Composant HomePage amélioré
-const HomePage = () => (
-  <div className="hero-section">
-    <h1 className="hero-title">Bienvenue sur Notre Plateforme</h1>
-    <p className="hero-subtitle">
-      Découvrez une expérience utilisateur exceptionnelle avec notre application moderne et sécurisée.
-    </p>
-    <div className="hero-buttons">
-      <Link to="/login" className="btn btn-primary">Se connecter</Link>
-      <Link to="/register" className="btn btn-primary" style={{background: 'transparent', border: '2px solid white'}}>
-        S'inscrire
-      </Link>
+// Composants structurels
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+
+const UnauthorizedPage = () => (
+    <div>
+        <h2>Accès non autorisé</h2>
+        <p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
     </div>
-  </div>
 );
 
-// Composant Dashboard amélioré
-const DashboardPage = () => {
-  const navigate = useNavigate();
-  
-  const handleLogout = () => {
-    // Simuler une déconnexion
-    localStorage.removeItem('user');
-    navigate('/');
-  };
-
-  return (
-    <div className="dashboard-card">
-      <h2 className="dashboard-title">Tableau de Bord</h2>
-      <p>Bienvenue dans votre espace personnel !</p>
-      <p>Vous êtes maintenant connecté à votre compte.</p>
-      <button className="btn btn-primary" onClick={handleLogout} style={{marginTop: '2rem', width: 'auto'}}>
-        Se déconnecter
-      </button>
-    </div>
-  );
-};
-
 function App() {
-  const user = localStorage.getItem('user'); // Simulation simple d'authentification
-
   return (
-    <div className="App">
-      {/* Barre de navigation améliorée */}
-      <nav className="navbar">
-        <div className="nav-container">
-          <Link to="/" className="nav-logo">MonApp</Link>
-          <ul className="nav-menu">
-            <li>
-              <Link to="/" className="nav-link">Accueil</Link>
-            </li>
-            {!user ? (
-              <>
-                <li>
-                  <Link to="/login" className="nav-link">Connexion</Link>
-                </li>
-                <li>
-                  <Link to="/register" className="nav-button">Inscription</Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link to="/dashboard" className="nav-link">Dashboard</Link>
-                </li>
-                <li>
-                  <button 
-                    className="nav-button" 
-                    onClick={() => {
-                      localStorage.removeItem('user');
-                      window.location.reload();
-                    }}
-                  >
-                    Déconnexion
-                  </button>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
-      </nav>
+    <Routes>
+      <Route path="/" element={<Layout />}>
 
-      {/* Contenu principal */}
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
-      </div>
-    </div>
+        {/* Routes Publiques */}
+        <Route index element={<HomePage />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="unauthorized" element={<UnauthorizedPage />} />
+        <Route path="offers" element={<OfferListPage />} />       {/* <-- Ajout liste publique */}
+        <Route path="offers/:id" element={<OfferDetailPage />} /> {/* <-- Ajout détail public */}
+
+        {/* Routes Protégées (nécessitent connexion) */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="dashboard" element={<DashboardPage />} />
+          {/* <Route path="profile" element={<ProfilePage />} /> */}
+          {/* <Route path="applications/status" element={<ApplicationStatusPage />} /> */} {/* Pour candidats */}
+          {/* <Route path="/apply/:offerId" element={<ApplyPage />} /> */} {/* Page pour postuler (Sprint 2) */}
+
+          {/* Routes Protégées pour RH/Admin */}
+          {/* Note: Pour une protection basée sur les rôles plus fine,
+               il faudrait passer `allowedRoles` à ProtectedRoute,
+               ou créer un composant spécifique comme `AdminRoute` */}
+          <Route path="offers/manage" element={<OfferManagePage />} />      {/* <-- Ajout gestion RH */}
+          <Route path="offers/create" element={<OfferCreateEditPage />} />    {/* <-- Ajout création RH */}
+          <Route path="offers/edit/:id" element={<OfferCreateEditPage />} />  {/* <-- Ajout édition RH */}
+          {/* <Route path="offers/:id/applications" element={<OfferApplicationsPage />} /> */} {/* Voir candidats (Sprint 2) */}
+          {/* <Route path="candidates/analysis" element={<CandidateAnalysisPage />} /> */}
+        </Route> {/* Fin des routes protégées */}
+
+        {/* Route fourre-tout pour les pages non trouvées */}
+        <Route path="*" element={
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <h2>404 - Page Non Trouvée</h2>
+            <p>La page que vous cherchez n'existe pas.</p>
+          </div>
+        } />
+
+      </Route> {/* Fin du Layout */}
+    </Routes>
   );
 }
 

@@ -1,5 +1,7 @@
+// src/pages/LoginPage.js
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -7,6 +9,11 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const location = useLocation(); // Pour savoir d'où vient l'utilisateur
+  const { login } = useAuth();
+
+  // Déterminer où rediriger après connexion
+  const from = location.state?.from?.pathname || "/dashboard"; // Default to dashboard
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -14,41 +21,14 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      // Appel réel à l'API Spring Boot
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        // Stocker le token JWT et les infos utilisateur
-        localStorage.setItem('token', data.data.jwt);
-        localStorage.setItem('user', JSON.stringify({
-          id: data.data.id,
-          email: data.data.email,
-          firstName: data.data.firstName,
-          lastName: data.data.lastName,
-          roles: data.data.roles
-        }));
-        
-        setMessage('Connexion réussie ! Redirection...');
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
-      } else {
-        throw new Error(data.message || 'Erreur lors de la connexion');
-      }
+      await login(email, password);
+      setMessage('Connexion réussie ! Redirection...');
+      // Rediriger vers la page d'origine ou le dashboard
+      navigate(from, { replace: true });
     } catch (error) {
-      console.error('Erreur connexion:', error);
-      setMessage(error.message || 'Erreur de connexion au serveur');
+      // Afficher un message d'erreur plus spécifique si possible
+      const errorMessage = error.response?.data?.message || error.message || 'Email ou mot de passe incorrect.';
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -69,6 +49,7 @@ function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Entrez votre email"
             required
+            autoComplete="email"
           />
         </div>
         
@@ -82,6 +63,7 @@ function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Entrez votre mot de passe"
             required
+            autoComplete="current-password"
           />
         </div>
 
@@ -99,15 +81,6 @@ function LoginPage() {
 
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <p>Pas encore de compte ? <Link to="/register" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>S'inscrire</Link></p>
-      </div>
-
-      {/* Information sur l'API */}
-      <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(67, 97, 238, 0.1)', borderRadius: 'var(--border-radius)', fontSize: '0.9rem' }}>
-        <p style={{ margin: 0, color: 'var(--primary-color)' }}>
-          <strong>API Backend :</strong><br />
-          URL: http://localhost:8080<br />
-          Endpoint: /api/auth/login
-        </p>
       </div>
     </div>
   );
