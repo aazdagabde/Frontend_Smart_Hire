@@ -1,33 +1,33 @@
 // src/components/ProtectedRoute.js
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'; // Ajustez le chemin si nécessaire
 
-// On peut aussi passer les rôles autorisés en props si nécessaire
-// const ProtectedRoute = ({ allowedRoles }) => {
+/**
+ * Composant de Route Protégée.
+ * Vérifie si l'utilisateur est connecté via le AuthContext.
+ * Redirige vers la page de connexion si non connecté, en mémorisant la page cible.
+ */
 const ProtectedRoute = ({ children }) => {
-  const { currentUser, loading } = useAuth();
-  const location = useLocation(); // Pour se souvenir où l'utilisateur voulait aller
+  const { currentUser, loading } = useAuth(); // Récupère l'utilisateur et l'état de chargement du contexte
+  const location = useLocation(); // Hook pour obtenir l'URL actuelle
 
-  // Si on charge encore l'état d'authentification, ne rien afficher ou un spinner
+  // Si l'état d'authentification est encore en cours de chargement, attendre
   if (loading) {
-    return <div>Vérification de l'authentification...</div>; // Ou un composant Spinner global
+    // Afficher un état de chargement pendant la vérification
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Vérification de l'authentification...</div>;
   }
 
-  // Si l'utilisateur n'est pas connecté
+  // Si le chargement est terminé et qu'il n'y a pas d'utilisateur connecté
   if (!currentUser) {
-    // Rediriger vers login, en gardant en mémoire la page d'origine
+    // Rediriger vers la page de connexion
+    // 'state={{ from: location }}' permet de mémoriser l'URL demandée initialement
+    // 'replace' remplace l'entrée actuelle dans l'historique de navigation
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Optionnel : Vérification des rôles (si vous implémentez allowedRoles)
-  // const userRoles = currentUser?.roles || [];
-  // if (allowedRoles && !allowedRoles.some(role => userRoles.includes(role))) {
-  //   // Rediriger vers une page "Non autorisé" ou l'accueil
-  //   return <Navigate to="/unauthorized" replace />;
-  // }
-
-  // Rendre le composant enfant demandé (via children ou Outlet)
+  // Si l'utilisateur est connecté, afficher le contenu demandé
+  // Utilise `children` si fourni (pour layouts complexes) ou `Outlet` pour les routes imbriquées standard
   return children ? children : <Outlet />;
 };
 

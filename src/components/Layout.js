@@ -1,51 +1,59 @@
 // src/components/Layout.js
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import '../styles/App.css'; // Assurez-vous que les styles sont accessibles
+import { useAuth } from '../contexts/AuthContext'; // Ajustez le chemin si nécessaire
+import '../styles/App.css'; // Ajustez le chemin si nécessaire
 
 const Layout = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout } = useAuth(); // Utilise le contexte pour l'état et la déconnexion
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login'); // Rediriger vers login après déconnexion
+    logout(); // Appel de la fonction de déconnexion du contexte
+    navigate('/login'); // Rediriger vers la page de connexion après logout
   };
-const isRecruiter = currentUser?.roles?.some(role => role === 'ROLE_RH' || role === 'ROLE_ADMIN');
+
+  // Détermine si l'utilisateur a un rôle RH/Admin (simplifié)
+  const isRecruiter = currentUser?.roles?.some(role => role === 'ROLE_RH' || role === 'ROLE_ADMIN');
+
   return (
     <div className="App">
+      {/* Barre de Navigation */}
       <nav className="navbar">
         <div className="nav-container">
+          {/* Logo/Titre cliquable ramenant à l'accueil */}
           <Link to="/" className="nav-logo">SmartHire</Link>
+
+          {/* Menu de navigation */}
           <ul className="nav-menu">
             <li><Link to="/" className="nav-link">Accueil</Link></li>
 
-            {/* Liens visibles par tous */}
+            {/* Lien pour voir les offres, visible par tous */}
             <li><Link to="/offers" className="nav-link">Voir les Offres</Link></li>
 
+            {/* Liens conditionnels : Non connecté */}
             {!currentUser ? (
               <>
                 <li><Link to="/login" className="nav-link">Connexion</Link></li>
                 <li><Link to="/register" className="nav-button">Inscription</Link></li>
               </>
             ) : (
+              // Liens conditionnels : Connecté
               <>
                 <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
-                {/* <li><Link to="/profile" className="nav-link">Profil</Link></li> */}
 
-                {/* Lien spécifique RH/Admin */}
+                {/* Lien pour gérer les offres si RH/Admin */}
                 {isRecruiter && (
-                   <li><Link to="/offers/manage" className="nav-link">Gérer Mes Offres</Link></li>
+                   <li><Link to="/offers/manage" className="nav-link">Gérer Offres</Link></li>
                 )}
 
-                 {/* Lien spécifique Candidat (si vous en ajoutez un, ex: Mes Candidatures) */}
-                 {/* {!isRecruiter && (
-                      <li><Link to="/applications/status" className="nav-link">Mes Candidatures</Link></li>
-                 )} */}
+                 {/* TODO: Ajouter d'autres liens pour utilisateur connecté si nécessaire (ex: Profil, Mes candidatures) */}
+                 {/* <li><Link to="/profile" className="nav-link">Profil</Link></li> */}
 
-                <li>
-                  <span style={{ marginRight: '1rem', color: 'var(--gray-color)' }}>
+                {/* Section utilisateur connecté */}
+                <li style={{ display: 'flex', alignItems: 'center' }}> {/* Conteneur pour aligner texte et bouton */}
+                  <span style={{ marginRight: '1rem', color: '#6c757d' /* var(--gray-color) */ }}>
+                     {/* Afficher Prénom ou Email */}
                      {currentUser.firstName || currentUser.email}
                   </span>
                   <button className="nav-button" onClick={handleLogout}>
@@ -58,9 +66,15 @@ const isRecruiter = currentUser?.roles?.some(role => role === 'ROLE_RH' || role 
         </div>
       </nav>
 
+      {/* Conteneur principal où le contenu des routes sera affiché */}
       <main className="container">
-        <Outlet />
+        <Outlet /> {/* Affiche le composant correspondant à la route enfant active */}
       </main>
+
+      {/* Optionnel: Footer */}
+      {/* <footer style={{ textAlign: 'center', padding: '1rem', marginTop: 'auto', background: 'rgba(0,0,0,0.1)'}}>
+           <p>&copy; {new Date().getFullYear()} SmartHire. Tous droits réservés.</p>
+         </footer> */}
     </div>
   );
 };
