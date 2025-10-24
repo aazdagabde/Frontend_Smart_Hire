@@ -1,11 +1,25 @@
 // src/services/OfferService.js
-import AuthService from './AuthService'; // Pour utiliser authHeader
+import AuthService from './AuthService';
 
-const API_URL = "http://localhost:8080/api/offers"; // URL de base (sans / final)
+// Determine the API URL based on the environment
+const isProduction = process.env.NODE_ENV === 'production';
+const API_BASE_URL = isProduction
+  ? "https://backend-smart-hire.onrender.com" // Your Render backend URL
+  : "http://localhost:8080";                  // Your local backend URL
+
+const OFFERS_API_URL = `${API_BASE_URL}/api/offers`; // Define the base URL for offers
+
+console.log(`OfferService API URL set to: ${OFFERS_API_URL}`); // For debugging
 
 // Fonction générique pour gérer les réponses fetch (style AuthService)
 const handleApiResponse = async (response) => {
     // Essayer de parser le JSON dans tous les cas pour obtenir les messages d'erreur
+    // Gérer le cas No Content (204) pour DELETE avant de parser en JSON
+    if (response.status === 204) {
+        // Simuler une réponse succès pour DELETE car il n'y a pas de body
+        return { success: true, message: "Suppression réussie (pas de contenu)" };
+    }
+
     const apiResponse = await response.json();
 
     if (response.ok && apiResponse.success) {
@@ -19,31 +33,32 @@ const handleApiResponse = async (response) => {
 };
 
 // Récupérer toutes les offres PUBLIÉES - Public
-const getAllOffers = async (/* searchTerm = '' */) => { // Search non implémenté au backend encore
-    // const query = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ''; // Pour plus tard
-    const response = await fetch(API_URL /* + query */); // Pas besoin de header Auth ici
-    return handleApiResponse(response); // Attend { success: true, data: [...] }
+const getAllOffers = async (/* searchTerm = '' */) => {
+    // Use OFFERS_API_URL
+    const response = await fetch(OFFERS_API_URL /* + query */);
+    return handleApiResponse(response);
 };
 
 // Récupérer une offre par ID (doit être PUBLISHED) - Public
 const getOfferById = async (id) => {
-    const response = await fetch(`${API_URL}/${id}`); // Pas besoin de header Auth ici
-    return handleApiResponse(response); // Attend { success: true, data: {...} }
+    // Use OFFERS_API_URL
+    const response = await fetch(`${OFFERS_API_URL}/${id}`);
+    return handleApiResponse(response);
 };
 
 // Récupérer les offres créées par le RH connecté - Protégé
 const getMyOffers = async () => {
-    // !! IMPORTANT !!: Ceci nécessite un endpoint backend /api/offers/my
-    const response = await fetch(`${API_URL}/my`, { // <-- Notez le /my
-        headers: AuthService.authHeader() // Ajoute le token JWT
+    // Use OFFERS_API_URL
+    const response = await fetch(`${OFFERS_API_URL}/my`, {
+        headers: AuthService.authHeader()
     });
-    return handleApiResponse(response); // Attend { success: true, data: [...] }
+    return handleApiResponse(response);
 };
 
 // Créer une nouvelle offre - Protégé
 const createOffer = async (offerData) => {
-    // offerData doit correspondre à JobOfferRequest DTO (title, description, etc.)
-    const response = await fetch(API_URL, {
+    // Use OFFERS_API_URL
+    const response = await fetch(OFFERS_API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -51,12 +66,13 @@ const createOffer = async (offerData) => {
         },
         body: JSON.stringify(offerData),
     });
-    return handleApiResponse(response); // Attend { success: true, data: {...}, message: "..." }
+    return handleApiResponse(response);
 };
 
 // Mettre à jour une offre - Protégé
 const updateOffer = async (id, offerData) => {
-    const response = await fetch(`${API_URL}/${id}`, {
+    // Use OFFERS_API_URL
+    const response = await fetch(`${OFFERS_API_URL}/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -64,29 +80,25 @@ const updateOffer = async (id, offerData) => {
         },
         body: JSON.stringify(offerData),
     });
-    return handleApiResponse(response); // Attend { success: true, data: {...}, message: "..." }
+    return handleApiResponse(response);
 };
 
 // Supprimer une offre - Protégé
 const deleteOffer = async (id) => {
-    const response = await fetch(`${API_URL}/${id}`, {
+    // Use OFFERS_API_URL
+    const response = await fetch(`${OFFERS_API_URL}/${id}`, {
         method: "DELETE",
         headers: AuthService.authHeader()
     });
-    // Pour DELETE, le backend renvoie juste un message succès, pas de 'data'
-     const apiResponse = await response.json();
-     if (response.ok && apiResponse.success) {
-         return apiResponse; // Retourne { success: true, message: "..." }
-     } else {
-         throw new Error(apiResponse.message || `Erreur ${response.status}: ${response.statusText}`);
-     }
+    // handleApiResponse gère le cas 204 No Content
+    return handleApiResponse(response);
 };
 
 
 const OfferService = {
   getAllOffers,
   getOfferById,
-  getMyOffers, // Requires backend implementation
+  getMyOffers,
   createOffer,
   updateOffer,
   deleteOffer
