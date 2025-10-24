@@ -28,7 +28,7 @@ function RegisterPage() {
     setMessage('');
     setIsSuccess(false);
 
-    // Validations (inchangées)
+    // --- Validations (inchangées) ---
     if (formData.password !== formData.confirmPassword) {
       setMessage('Les mots de passe ne correspondent pas.');
       return;
@@ -37,31 +37,37 @@ function RegisterPage() {
         setMessage('Le mot de passe doit contenir au moins 6 caractères.');
         return;
     }
+    // --- Fin Validations ---
 
     setLoading(true);
 
     try {
-      // AuthService.register renvoie maintenant le message de succès s'il réussit
-      // ou lance une erreur avec le message d'erreur du backend
-      const successMessage = await AuthService.register(
+      // 1. Appeler AuthService.register
+      const apiResponse = await AuthService.register(
         formData.firstName,
         formData.lastName,
         formData.email,
         formData.password
       );
 
-      // Si nous arrivons ici, c'est un succès
-      setIsSuccess(true);
-      setMessage(successMessage || 'Inscription réussie ! Redirection...');
+      // 2. --- CORRECTION ICI ---
+      // Mettre à jour l'état 'message' avec la PROPRIÉTÉ .message (string)
+      setMessage(apiResponse.message || "Inscription réussie !");
+      setIsSuccess(true); // Indiquer que c'est un succès
       
+      // Vider le formulaire
+      setFormData({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '' });
+
+      // Redirection après succès
       setTimeout(() => {
         navigate('/login');
       }, 2500);
 
-    } catch (error) {
-      // L'erreur contient maintenant le message du backend (ex: "Email déjà utilisé!")
-      setIsSuccess(false);
-      setMessage(error.message || "Une erreur s'est produite lors de l'inscription.");
+    } catch (err) {
+      // 3. --- CORRECTION ICI ---
+      // En cas d'erreur, mettre à jour l'état 'message' avec la PROPRIÉTÉ .message de l'erreur
+      setMessage(err.message || "Une erreur est survenue.");
+      setIsSuccess(false); // Indiquer que c'est une erreur
     } finally {
       setLoading(false);
     }
