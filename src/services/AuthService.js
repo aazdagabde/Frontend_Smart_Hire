@@ -1,4 +1,5 @@
 // src/services/AuthService.js
+import { jwtDecode } from 'jwt-decode'; // <-- IMPORTER
 
 // URL de base de votre API d'authentification backend
 const API_URL = "http://localhost:8080/api/auth/";
@@ -83,13 +84,31 @@ const logout = () => {
 const getCurrentUser = () => {
    try {
       const userStr = localStorage.getItem("user");
-      if (userStr) {
-        // Renvoie l'objet { jwt, id, email, ... }
-        return JSON.parse(userStr);
+      if (!userStr) return null; // Pas de user
+
+      const user = JSON.parse(userStr); // { jwt, id, ... }
+
+      // --- DÉBUT DE L'AMÉLIORATION ---
+      // 1. Décoder le token pour lire sa date d'expiration (exp)
+      const decodedToken = jwtDecode(user.jwt);
+
+      // 2. Obtenir l'heure actuelle en secondes (comme le champ 'exp')
+      const currentTime = Date.now() / 1000;
+
+      // 3. Comparer
+      if (decodedToken.exp < currentTime) {
+          // Le token est expiré
+          console.warn("Token JWT expiré, déconnexion automatique.");
+          logout(); // Nettoyer le localStorage
+          return null; // Pas d'utilisateur valide
       }
+      // --- FIN DE L'AMÉLIORATION ---
+      
+      return user; // Le token est toujours valide
   } catch (e) {
-      console.error("Erreur lecture utilisateur depuis localStorage:", e);
-      logout();
+      // Gère les erreurs de JSON.parse ou de jwtDecode (token invalide)
+      console.error("Erreur lecture/décodage utilisateur depuis localStorage:", e);
+      logout(); // Nettoyer si les données sont corrompues
   }
   return null;
 };

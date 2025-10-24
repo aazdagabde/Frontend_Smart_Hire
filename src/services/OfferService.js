@@ -1,97 +1,92 @@
 // src/services/OfferService.js
 import AuthService from './AuthService'; // Pour utiliser authHeader
 
-const API_URL = "http://localhost:8080/api/offers/"; // URL de base pour les offres
+const API_URL = "http://localhost:8080/api/offers"; // URL de base (sans / final)
 
-// Fonction générique pour gérer les réponses fetch
-const handleResponse = async (response) => {
-    if (response.ok) {
-        // Gérer le cas No Content (204) pour DELETE
-        if (response.status === 204) {
-            return null; // Ou true si vous préférez
-        }
-        // Essayer de parser en JSON, sinon retourner le texte brut
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-             return response.json();
-        } else {
-             return response.text();
-        }
+// Fonction générique pour gérer les réponses fetch (style AuthService)
+const handleApiResponse = async (response) => {
+    // Essayer de parser le JSON dans tous les cas pour obtenir les messages d'erreur
+    const apiResponse = await response.json();
+
+    if (response.ok && apiResponse.success) {
+        // Retourne la partie 'data' de la réponse en cas de succès
+        return apiResponse; // Retourne l'objet complet { success, data, message, status }
+                            // Le composant appelant utilisera apiResponse.data
     } else {
-        // Essayer de lire le message d'erreur
-        let errorMsg = `Erreur ${response.status}: ${response.statusText}`;
-        try {
-            const errorData = await response.text();
-            if(errorData) errorMsg = errorData;
-        } catch(e) { /* Ignorer */ }
-        throw new Error(errorMsg);
+        // Lance une erreur avec le message fourni par le backend
+        throw new Error(apiResponse.message || `Erreur ${response.status}: ${response.statusText}`);
     }
 };
 
-// Récupérer toutes les offres (ou rechercher) - Public
-const getAllOffers = async (searchTerm = '') => {
-    const query = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : '';
-    const response = await fetch(API_URL + query);
-    return handleResponse(response);
+// Récupérer toutes les offres PUBLIÉES - Public
+const getAllOffers = async (/* searchTerm = '' */) => { // Search non implémenté au backend encore
+    // const query = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ''; // Pour plus tard
+    const response = await fetch(API_URL /* + query */); // Pas besoin de header Auth ici
+    return handleApiResponse(response); // Attend { success: true, data: [...] }
 };
 
-// Récupérer une offre par ID - Public
+// Récupérer une offre par ID (doit être PUBLISHED) - Public
 const getOfferById = async (id) => {
-    const response = await fetch(API_URL + id);
-    return handleResponse(response);
+    const response = await fetch(`${API_URL}/${id}`); // Pas besoin de header Auth ici
+    return handleApiResponse(response); // Attend { success: true, data: {...} }
 };
 
 // Récupérer les offres créées par le RH connecté - Protégé
 const getMyOffers = async () => {
-    const response = await fetch(API_URL + "my", {
+    // !! IMPORTANT !!: Ceci nécessite un endpoint backend /api/offers/my
+    const response = await fetch(`${API_URL}/my`, { // <-- Notez le /my
         headers: AuthService.authHeader() // Ajoute le token JWT
     });
-    return handleResponse(response);
+    return handleApiResponse(response); // Attend { success: true, data: [...] }
 };
 
 // Créer une nouvelle offre - Protégé
 const createOffer = async (offerData) => {
-    // offerData doit correspondre à OfferRequest DTO (title, description, etc.)
+    // offerData doit correspondre à JobOfferRequest DTO (title, description, etc.)
     const response = await fetch(API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            ...AuthService.authHeader() // Ajoute le token JWT
+            ...AuthService.authHeader()
         },
         body: JSON.stringify(offerData),
     });
-    return handleResponse(response);
+    return handleApiResponse(response); // Attend { success: true, data: {...}, message: "..." }
 };
 
 // Mettre à jour une offre - Protégé
 const updateOffer = async (id, offerData) => {
-    // offerData doit correspondre à OfferRequest DTO
-    const response = await fetch(API_URL + id, {
+    const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
-            ...AuthService.authHeader() // Ajoute le token JWT
+            ...AuthService.authHeader()
         },
         body: JSON.stringify(offerData),
     });
-    return handleResponse(response);
+    return handleApiResponse(response); // Attend { success: true, data: {...}, message: "..." }
 };
 
 // Supprimer une offre - Protégé
 const deleteOffer = async (id) => {
-    const response = await fetch(API_URL + id, {
+    const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
-        headers: AuthService.authHeader() // Ajoute le token JWT
+        headers: AuthService.authHeader()
     });
-    // handleResponse gère le cas 204 No Content
-    return handleResponse(response);
+    // Pour DELETE, le backend renvoie juste un message succès, pas de 'data'
+     const apiResponse = await response.json();
+     if (response.ok && apiResponse.success) {
+         return apiResponse; // Retourne { success: true, message: "..." }
+     } else {
+         throw new Error(apiResponse.message || `Erreur ${response.status}: ${response.statusText}`);
+     }
 };
 
 
 const OfferService = {
   getAllOffers,
   getOfferById,
-  getMyOffers,
+  getMyOffers, // Requires backend implementation
   createOffer,
   updateOffer,
   deleteOffer
