@@ -13,18 +13,30 @@ function OfferManagePage() {
     fetchMyOffers();
   }, []);
 
-  const fetchMyOffers = async () => {
+const fetchMyOffers = async () => {
     setLoading(true);
     setError('');
     try {
-      const data = await OfferService.getMyOffers();
-      setMyOffers(data || []);
+      // OfferService.getMyOffers() returns the full { success, data, message } object
+      const apiResponse = await OfferService.getMyOffers();
+
+      // Explicitly check if apiResponse.data is an array before setting state
+      if (apiResponse && apiResponse.data && Array.isArray(apiResponse.data)) {
+        setMyOffers(apiResponse.data);
+      } else {
+        // If data is not an array, set to empty array and log a warning
+        console.warn("Received non-array data for myOffers:", apiResponse.data);
+        setMyOffers([]);
+        // Optionally set an error message for the user
+        // setError('Données reçues dans un format inattendu.');
+      }
+
     } catch (err) {
       setError(err.message || 'Erreur lors du chargement de vos offres.');
        if (err.message.includes('401') || err.message.includes('403')) {
            setError("Vous n'êtes pas autorisé à voir cette page ou votre session a expiré.");
        }
-      setMyOffers([]);
+      setMyOffers([]); // Ensure it's an empty array on error
     } finally {
       setLoading(false);
     }

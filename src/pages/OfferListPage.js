@@ -15,15 +15,29 @@ function OfferListPage() {
     fetchOffers();
   }, []); // Charger au montage initial
 
-  const fetchOffers = async (term = '') => {
+const fetchOffers = async (/* term = '' */) => { // Search term not used yet
     setLoading(true);
     setError('');
     try {
-      const data = await OfferService.getAllOffers(term);
-      setOffers(data || []); // Assurer que c'est un tableau même si data est null/undefined
+      // OfferService.getAllOffers() returns the full { success, data, message } object
+      const apiResponse = await OfferService.getAllOffers(/* term */);
+
+      // --- MODIFICATION HERE ---
+      // Check if the data property exists and is an array
+      if (apiResponse && apiResponse.data && Array.isArray(apiResponse.data)) {
+        setOffers(apiResponse.data); // Use the data property
+      } else {
+        // Handle unexpected response format
+        console.warn("Received non-array data for offers:", apiResponse.data);
+        setOffers([]); // Default to empty array
+        // Optionally set an error for the user
+        // setError('Données reçues dans un format inattendu.');
+      }
+      // --- END MODIFICATION ---
+
     } catch (err) {
       setError(err.message || 'Erreur lors du chargement des offres.');
-      setOffers([]); // Vider les offres en cas d'erreur
+      setOffers([]); // Ensure it's an empty array on error
     } finally {
       setLoading(false);
     }

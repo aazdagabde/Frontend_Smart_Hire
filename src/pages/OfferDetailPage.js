@@ -17,10 +17,25 @@ function OfferDetailPage() {
       setLoading(true);
       setError('');
       try {
-        const data = await OfferService.getOfferById(id);
-        setOffer(data);
+        // OfferService.getOfferById returns the full { success, data, message } object
+        const apiResponse = await OfferService.getOfferById(id);
+
+        // --- MODIFICATION HERE ---
+        // Check if apiResponse.data exists before setting the offer state
+        if (apiResponse && apiResponse.data) {
+          setOffer(apiResponse.data); // Set the offer state with the data property
+        } else {
+          // Handle case where data is missing in the response
+          console.warn("Offer data not found in API response:", apiResponse);
+          setOffer(null); // Set offer to null
+          setError("Détails de l'offre non trouvés dans la réponse.");
+        }
+        // --- END MODIFICATION ---
+
       } catch (err) {
         setError(err.message || "Erreur lors du chargement de l'offre.");
+        // Make sure offer state is null on error
+        setOffer(null);
         if (err.message.includes('404') || err.message.toLowerCase().includes('not found')) {
             setError("Offre non trouvée.");
         }
@@ -38,18 +53,22 @@ function OfferDetailPage() {
       navigate(`/apply/${id}`); // Créez cette route/page dans le Sprint 2
   };
 
-
+  // Add a check at the beginning of the return statement just in case
   if (loading) return <div style={{ textAlign: 'center' }}><span className="loading"></span> Chargement de l'offre...</div>;
   if (error) return <div className="message message-error">{error}</div>;
-  if (!offer) return <div className="message message-error">Offre non trouvée.</div>;
+  // Explicitly check if offer is null AFTER loading and error checks
+  if (!offer) return <div className="message message-error">Offre non trouvée ou erreur de chargement.</div>;
 
+  // Now you can safely access offer.title, offer.description etc. below
   const isCandidate = currentUser?.roles?.includes('ROLE_CANDIDAT');
 
   return (
     <div className="form-card" style={{ maxWidth: '800px', margin: 'auto' }}>
       <h2 className="form-title" style={{ marginBottom: '1rem' }}>{offer.title}</h2>
+      {/* Ensure creatorName exists, otherwise fallback */}
       <p style={{ color: 'var(--gray-color)', textAlign: 'center', marginBottom: '1rem' }}>
-        Publié par {offer.creatorName || 'Inconnu'} le {new Date(offer.createdAt).toLocaleDateString()}
+         Publié par {offer.createdByFullName || 'Inconnu'} {/* Use createdByFullName based on JobOfferResponse */}
+         {offer.createdAt && ` le ${new Date(offer.createdAt).toLocaleDateString()}`}
       </p>
 
       <div style={{ marginBottom: '1.5rem' }}>
@@ -59,29 +78,26 @@ function OfferDetailPage() {
 
       <div style={{ marginBottom: '1.5rem' }}>
         <strong>Description :</strong>
-        <p style={{ whiteSpace: 'pre-wrap' }}>{offer.description}</p> {/* pre-wrap pour conserver les retours à la ligne */}
+        {/* Check if description exists before rendering */}
+        <p style={{ whiteSpace: 'pre-wrap' }}>{offer.description || 'Pas de description.'}</p>
       </div>
 
-      {offer.requiredSkills && (
-        <div style={{ marginBottom: '1.5rem' }}>
-          <strong>Compétences requises :</strong>
-          <p>{offer.requiredSkills}</p>
-        </div>
-      )}
+      {/* Remove offer.requiredSkills as it's not in the DTO */}
+      {/* {offer.requiredSkills && ( ... )} */}
 
-       {/* Bouton Postuler - Visible seulement pour les candidats connectés */}
-       {currentUser && isCandidate && (
+      {/* Bouton Postuler - Visible seulement pour les candidats connectés */}
+      {currentUser && isCandidate && (
           <button onClick={handleApplyClick} className="btn btn-primary" style={{ marginTop: '1rem' }}>
               Postuler à cette offre
           </button>
        )}
-        {/* Message si pas candidat ou pas connecté */}
+       {/* Message si pas candidat ou pas connecté */}
        {!currentUser && (
            <p style={{marginTop: '1rem', textAlign: 'center'}}>
                <Link to="/login" style={{ color: 'var(--primary-color)' }}>Connectez-vous</Link> ou <Link to="/register" style={{ color: 'var(--primary-color)' }}>inscrivez-vous</Link> pour postuler.
             </p>
        )}
-        {currentUser && !isCandidate && (
+       {currentUser && !isCandidate && (
             <p style={{marginTop: '1rem', textAlign: 'center', color: 'var(--gray-color)'}}>
                 (Seuls les candidats peuvent postuler)
             </p>
