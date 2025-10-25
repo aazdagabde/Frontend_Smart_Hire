@@ -20,49 +20,60 @@ const handleApiResponse = async (response) => {
         return { success: true, message: "Suppression réussie (pas de contenu)" };
     }
 
-    const apiResponse = await response.json();
+    // Tenter de parser la réponse en JSON
+    let apiResponse;
+    try {
+        apiResponse = await response.json();
+    } catch (e) {
+        // Si le parsing échoue (ex: réponse non JSON inattendue)
+        throw new Error(`Erreur ${response.status}: Réponse inattendue du serveur (${response.statusText})`);
+    }
+
 
     if (response.ok && apiResponse.success) {
         // Retourne la partie 'data' de la réponse en cas de succès
         return apiResponse; // Retourne l'objet complet { success, data, message, status }
                             // Le composant appelant utilisera apiResponse.data
     } else {
-        // Lance une erreur avec le message fourni par le backend
+        // Lance une erreur avec le message fourni par le backend ou un message par défaut
         throw new Error(apiResponse.message || `Erreur ${response.status}: ${response.statusText}`);
     }
 };
 
 // Récupérer toutes les offres PUBLIÉES - Public
-const getAllOffers = async (/* searchTerm = '' */) => {
-    // Use OFFERS_API_URL
-    const response = await fetch(OFFERS_API_URL /* + query */);
+// Modifier pour accepter searchTerm
+const getAllOffers = async (searchTerm = '') => {
+    let query = '';
+    // Vérifier si searchTerm n'est pas null, undefined et n'est pas une chaîne vide après trim
+    if (searchTerm && searchTerm.trim() !== '') {
+        // Ajouter le paramètre 'searchTerm' à l'URL si fourni
+        query = `?searchTerm=${encodeURIComponent(searchTerm.trim())}`;
+    }
+    const response = await fetch(`${OFFERS_API_URL}${query}`); // Ajouter la query string si elle existe
     return handleApiResponse(response);
 };
 
 // Récupérer une offre par ID (doit être PUBLISHED) - Public
 const getOfferById = async (id) => {
-    // Use OFFERS_API_URL
     const response = await fetch(`${OFFERS_API_URL}/${id}`);
     return handleApiResponse(response);
 };
 
 // Récupérer les offres créées par le RH connecté - Protégé
 const getMyOffers = async () => {
-    // Use OFFERS_API_URL
     const response = await fetch(`${OFFERS_API_URL}/my`, {
-        headers: AuthService.authHeader()
+        headers: AuthService.authHeader() // Utilise le token JWT
     });
     return handleApiResponse(response);
 };
 
 // Créer une nouvelle offre - Protégé
 const createOffer = async (offerData) => {
-    // Use OFFERS_API_URL
     const response = await fetch(OFFERS_API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            ...AuthService.authHeader()
+            ...AuthService.authHeader() // Ajoute le header d'autorisation
         },
         body: JSON.stringify(offerData),
     });
@@ -71,12 +82,11 @@ const createOffer = async (offerData) => {
 
 // Mettre à jour une offre - Protégé
 const updateOffer = async (id, offerData) => {
-    // Use OFFERS_API_URL
     const response = await fetch(`${OFFERS_API_URL}/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
-            ...AuthService.authHeader()
+            ...AuthService.authHeader() // Ajoute le header d'autorisation
         },
         body: JSON.stringify(offerData),
     });
@@ -85,12 +95,11 @@ const updateOffer = async (id, offerData) => {
 
 // Supprimer une offre - Protégé
 const deleteOffer = async (id) => {
-    // Use OFFERS_API_URL
     const response = await fetch(`${OFFERS_API_URL}/${id}`, {
         method: "DELETE",
-        headers: AuthService.authHeader()
+        headers: AuthService.authHeader() // Ajoute le header d'autorisation
     });
-    // handleApiResponse gère le cas 204 No Content
+     // handleApiResponse gère le cas 204 No Content aussi
     return handleApiResponse(response);
 };
 
