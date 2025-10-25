@@ -73,7 +73,6 @@ const handleFileResponse = async (response, defaultFilename = 'cv.pdf') => {
     }
 };
 
-
 const applyToOffer = async (offerId, formData) => {
     const response = await fetch(`${APPLICATIONS_API_URL}/apply/${offerId}`, {
         method: "POST",
@@ -92,7 +91,7 @@ const getMyApplications = async () => {
     return handleApiResponse(response);
 };
 
-// (ÉTAPE 3) Récupérer les candidatures pour une offre (RH)
+// Récupérer les candidatures pour une offre (RH)
 const getApplicationsForOffer = async (offerId) => {
      const response = await fetch(`${APPLICATIONS_API_URL}/offer/${offerId}`, {
         headers: AuthService.authHeader() // Token RH nécessaire
@@ -100,7 +99,7 @@ const getApplicationsForOffer = async (offerId) => {
     return handleApiResponse(response);
 };
 
-// (ÉTAPE 3) Télécharger un CV (RH ou Candidat)
+// Télécharger un CV (RH ou Candidat)
 const downloadCv = async (applicationId) => {
     const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/cv`, {
         headers: AuthService.authHeader() // Token nécessaire
@@ -109,12 +108,36 @@ const downloadCv = async (applicationId) => {
     return handleFileResponse(response);
 };
 
+// <<< NOUVELLE FONCTION : Mettre à jour le CV >>>
+const updateCv = async (applicationId, formData) => {
+    // Note : formData doit contenir une clé 'cv' avec le fichier
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/cv`, {
+        method: "PUT", // Ou POST si c'est ce que vous avez mis dans le backend
+        headers: {
+            ...AuthService.authHeader() // Token nécessaire
+            // PAS de 'Content-Type': 'multipart/form-data', le navigateur le met automatiquement avec FormData
+        },
+        body: formData,
+    });
+    return handleApiResponse(response); // Gère la réponse JSON standard
+};
+// <<< FIN NOUVELLE FONCTION >>>
+
+
+const getApplicationCustomData = async (applicationId) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/custom-data`, {
+        headers: AuthService.authHeader()
+    });
+    return handleApiResponse(response); // 'data' sera la liste des réponses {id, label, value}
+};
 
 const ApplicationService = {
   applyToOffer,
   getMyApplications,
-  getApplicationsForOffer, // Maintenant implémentée
-  downloadCv               // Maintenant implémentée
+  getApplicationsForOffer,
+  downloadCv,
+  updateCv, // <<< EXPORTER LA NOUVELLE FONCTION
+  getApplicationCustomData
 };
 
 export default ApplicationService;

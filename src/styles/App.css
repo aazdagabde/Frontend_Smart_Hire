@@ -1,4 +1,6 @@
-/* Variables CSS - Palette Bleu Marine & Bleu Électrique */
+/* src/styles/App.css */
+
+/* Variables CSS - Palette Bleu Marine & Bleu Électrique (Légers ajustements) */
 :root {
   /* Palette Principale */
   --navy-blue: #0a192f;      /* Bleu marine très foncé */
@@ -6,41 +8,51 @@
   --electric-blue: #00d4ff;  /* Bleu électrique vif */
   --bright-blue: #64ffda;    /* Bleu électrique cyan */
   --light-navy: #233554;     /* Bleu marine moyen */
-  
-  /* Neutres Sophistiqués */
-  --slate: #8892b0;          /* Gris bleuté pour texte secondaire */
-  --light-slate: #a8b2d1;    /* Gris bleuté clair */
-  --lightest-slate: #ccd6f6; /* Gris bleuté très clair */
-  --white: #e6f1ff;          /* Blanc bleuté */
-  
+
+  /* Neutres Sophistiqués - Ajustement pour plus de contraste */
+  --slate: #a8b2d1;          /* ANCIEN: #8892b0 - Plus clair pour contraste */
+  --light-slate: #ccd6f6;    /* ANCIEN: #a8b2d1 - Plus clair */
+  --lightest-slate: #e6f1ff; /* ANCIEN: #ccd6f6 - Presque blanc */
+  --white: #ffffff;          /* Vrai blanc */
+
   /* Accents */
-  --success: #00d4ff;        /* Bleu électrique pour succès */
+  --success: #64ffda;        /* Utiliser le cyan pour succès */
   --danger: #ff6b6b;         /* Rouge corail pour erreurs */
   --warning: #ffd166;        /* Jaune ambre pour avertissements */
-  
+
   /* Styles Évolués */
-  --border-radius: 12px;
-  --border-radius-lg: 20px;
-  --box-shadow: 0 10px 30px -10px rgba(2, 12, 27, 0.7);
-  --box-shadow-lg: 0 20px 50px -20px rgba(2, 12, 27, 0.9);
+  --border-radius: 8px;       /* Rayon de bordure standard */
+  --border-radius-lg: 16px;   /* Rayon de bordure large */
+  --box-shadow: 0 4px 10px rgba(2, 12, 27, 0.4); /* Ombre douce */
+  --box-shadow-lg: 0 10px 30px -10px rgba(2, 12, 27, 0.7); /* Ombre large */
   --transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
-  --gradient: linear-gradient(135deg, #0a192f 0%, #112240 50%, #233554 100%);
-  --electric-gradient: linear-gradient(135deg, #00d4ff 0%, #64ffda 100%);
+  --gradient: linear-gradient(135deg, var(--navy-blue) 0%, var(--dark-navy) 100%); /* Dégradé de fond simplifié */
+  --electric-gradient: linear-gradient(135deg, var(--electric-blue) 0%, var(--bright-blue) 100%); /* Dégradé accent */
+
+  --font-sans: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Police principale */
+  --font-mono: 'Fira Code', 'Courier New', monospace; /* Police pour code */
 }
 
+/* Reset global et styles de base */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth; /* Défilement fluide */
+}
+
 body {
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-sans);
   background: var(--gradient);
   min-height: 100vh;
   color: var(--lightest-slate);
   line-height: 1.6;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .App {
@@ -49,20 +61,20 @@ body {
   flex-direction: column;
 }
 
-/* Navigation Évoluée */
+/* --- Barre de Navigation --- */
 .navbar {
-  background: rgba(10, 25, 47, 0.95);
-  backdrop-filter: blur(20px);
-  padding: 1.5rem 2rem;
+  background: rgba(10, 25, 47, 0.85); /* Fond semi-transparent */
+  backdrop-filter: blur(10px); /* Effet de flou */
+  padding: 1rem 2rem;
   box-shadow: var(--box-shadow);
-  position: sticky;
+  position: sticky; /* Reste en haut au défilement */
   top: 0;
   z-index: 1000;
   border-bottom: 1px solid rgba(100, 255, 218, 0.1);
 }
 
 .nav-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -70,7 +82,7 @@ body {
 }
 
 .nav-logo {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--bright-blue);
   text-decoration: none;
@@ -80,325 +92,378 @@ body {
   background-clip: text;
 }
 
-.nav-menu {
+.nav-menu { /* Menu pour desktop */
   display: flex;
   list-style: none;
-  gap: 2.5rem;
+  gap: 1.5rem;
   align-items: center;
+}
+
+.nav-menu-mobile { /* Menu pour mobile (masqué par défaut) */
+  display: none;
+  position: absolute;
+  top: 100%; /* Juste en dessous de la navbar */
+  left: 0;
+  right: 0;
+  background: var(--dark-navy);
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+  box-shadow: var(--box-shadow);
+  z-index: 999;
+}
+
+.nav-menu-mobile.active { /* Classe pour afficher le menu mobile */
+  display: flex;
 }
 
 .nav-link {
   text-decoration: none;
   color: var(--light-slate);
   font-weight: 500;
-  padding: 0.75rem 1.25rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--border-radius);
   transition: var(--transition);
   position: relative;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
+  font-size: 0.9rem;
 }
 
 .nav-link:hover {
   color: var(--bright-blue);
-  transform: translateY(-2px);
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: var(--electric-gradient);
-  transition: var(--transition);
-  transform: translateX(-50%);
-}
-
-.nav-link:hover::after {
-  width: 80%;
+  /* background: rgba(100, 255, 218, 0.1); /* Optionnel: léger fond au survol */
 }
 
 .nav-button {
   background: var(--electric-gradient);
   color: var(--navy-blue);
   border: none;
-  padding: 0.75rem 2rem;
+  padding: 0.6rem 1.5rem;
   border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: 600;
   transition: var(--transition);
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+  font-size: 0.9rem;
+  box-shadow: 0 4px 10px rgba(100, 255, 218, 0.2);
+  text-decoration: none; /* Assure que les Link stylés comme boutons n'ont pas de soulignement */
+  display: inline-block; /* Pour les Link */
+  text-align: center; /* Pour les Link */
 }
 
-.nav-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(100, 255, 218, 0.5);
+.nav-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(100, 255, 218, 0.4);
 }
 
-/* Container Principal Élargi */
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-  flex: 1;
+/* --- Bouton Burger (pour mobile) --- */
+.nav-burger {
+  display: none; /* Masqué par défaut */
+  cursor: pointer;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  z-index: 1001; /* Au-dessus du menu */
+}
+
+.nav-burger div { /* Les 3 lignes du burger */
+  width: 25px;
+  height: 3px;
+  background-color: var(--lightest-slate);
+  margin: 5px 0;
+  transition: var(--transition);
+  border-radius: 2px;
+}
+
+/* Animation du burger en croix (quand classe 'toggle' est ajoutée) */
+.nav-burger.toggle .line1 {
+  transform: rotate(-45deg) translate(-5px, 6px);
+}
+.nav-burger.toggle .line2 {
+  opacity: 0;
+}
+.nav-burger.toggle .line3 {
+  transform: rotate(45deg) translate(-5px, -6px);
+}
+
+/* Styles pour les infos utilisateur dans la navbar */
+.nav-user-info {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 1rem;
 }
 
-/* Cartes Premium */
+.nav-user-name {
+  color: var(--light-slate);
+  font-size: 0.9rem;
+  white-space: nowrap; /* Empêche le nom de passer à la ligne */
+}
+
+/* Media Query pour passer en mode mobile */
+@media (max-width: 900px) {
+  .nav-menu {
+    display: none; /* Masquer le menu desktop */
+  }
+
+  .nav-burger {
+    display: block; /* Afficher le bouton burger */
+  }
+
+  /* Styles pour les éléments dans le menu mobile */
+  .nav-menu-mobile li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-menu-mobile .nav-link,
+  .nav-menu-mobile .nav-button {
+    display: block;
+    width: 90%;
+    margin: 0.5rem auto;
+    padding: 0.8rem;
+  }
+
+  .nav-menu-mobile .nav-user-info {
+    flex-direction: column; /* Nom au-dessus du bouton */
+    width: 90%;
+    margin: 0.5rem auto;
+    gap: 0.5rem; /* Réduit l'espace */
+  }
+}
+
+/* --- Container Principal --- */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  flex: 1; /* Permet au container de prendre l'espace restant */
+  display: flex;
+  flex-direction: column; /* Assure que le contenu s'étend verticalement */
+  align-items: center; /* Centre le contenu par défaut (bon pour form-card, etc.) */
+  width: 100%; /* Prend toute la largeur disponible */
+}
+
+/* --- Cartes (Formulaires, Dashboard, etc.) --- */
 .form-card {
-  background: rgba(17, 34, 64, 0.8);
-  backdrop-filter: blur(20px);
-  padding: 3.5rem;
+  background: rgba(17, 34, 64, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 2.5rem;
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--box-shadow-lg);
-  width: 100%;
-  max-width: 550px;
-  border: 1px solid rgba(100, 255, 218, 0.1);
+  box-shadow: var(--box-shadow);
+  width: 100%; /* Prend la largeur du parent */
+  max-width: 600px; /* Limite la largeur max */
+  border: 1px solid rgba(100, 255, 218, 0.05);
   position: relative;
   overflow: hidden;
+  margin-bottom: 2rem; /* Espace en dessous des cartes */
 }
-
-.form-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--electric-gradient);
+/* Style spécifique pour les cartes pleine largeur (ex: liste d'offres RH) */
+.full-width-card {
+  max-width: none;
 }
 
 .form-title {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   background: var(--electric-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-size: 2.25rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  letter-spacing: -0.5px;
 }
 
-/* Champs de Formulaire Évolués */
+/* --- Champs de Formulaire --- */
 .form-group {
-  margin-bottom: 2rem;
-  position: relative;
+  margin-bottom: 1.5rem;
 }
 
 .form-label {
   display: block;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
   color: var(--bright-blue);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
 }
 
-.form-input {
+.form-input,
+select.form-input,
+textarea.form-input {
   width: 100%;
-  padding: 1.25rem;
-  border: 2px solid rgba(136, 146, 176, 0.2);
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--light-navy);
   border-radius: var(--border-radius);
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: var(--transition);
-  background: rgba(10, 25, 47, 0.6);
+  background: rgba(10, 25, 47, 0.5);
   color: var(--lightest-slate);
   font-family: inherit;
 }
 
 .form-input::placeholder {
   color: var(--slate);
+  opacity: 0.7;
 }
 
 .form-input:focus {
   outline: none;
   border-color: var(--bright-blue);
-  background: rgba(10, 25, 47, 0.8);
-  box-shadow: 0 0 0 4px rgba(100, 255, 218, 0.1);
-  transform: translateY(-2px);
+  background: rgba(10, 25, 47, 0.7);
+  box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.1);
 }
 
-/* Boutons Premium */
+select.form-input {
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ccd6f6%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.65em auto;
+  padding-right: 2.5rem;
+}
+
+textarea.form-input {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* --- Boutons --- */
 .btn {
-  padding: 1.25rem 2.5rem;
+  padding: 0.8rem 1.8rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
   text-decoration: none;
   display: inline-block;
   text-align: center;
-  width: 100%;
+  width: 100%; /* Prend toute la largeur par défaut */
   font-family: inherit;
   letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.btn:hover::before {
-  left: 100%;
 }
 
 .btn-primary {
   background: var(--electric-gradient);
   color: var(--navy-blue);
-  box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
+  box-shadow: 0 4px 15px rgba(100, 255, 218, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(100, 255, 218, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-/* Messages Évolués */
-.message {
-  padding: 1.25rem;
-  border-radius: var(--border-radius);
-  margin: 1.5rem 0;
-  text-align: center;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
-  border: 1px solid;
-  position: relative;
-  overflow: hidden;
-}
-
-.message::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-}
-
-.message-error {
-  background: rgba(255, 107, 107, 0.1);
-  color: var(--danger);
-  border-color: rgba(255, 107, 107, 0.3);
-}
-
-.message-error::before {
-  background: var(--danger);
-}
-
-.message-success {
-  background: rgba(0, 212, 255, 0.1);
-  color: var(--success);
-  border-color: rgba(0, 212, 255, 0.3);
-}
-
-.message-success::before {
-  background: var(--success);
-}
-
-/* Hero Section Premium */
-.hero-section {
-  text-align: center;
-  color: var(--lightest-slate);
-  padding: 4rem 2rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.hero-title {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  font-weight: 800;
-  background: var(--electric-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.1;
-  letter-spacing: -1px;
-}
-
-.hero-subtitle {
-  font-size: 1.4rem;
-  margin-bottom: 3rem;
-  color: var(--light-slate);
-  line-height: 1.6;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  margin-top: 3rem;
-  flex-wrap: wrap;
-}
-
-.hero-buttons .btn {
-  width: auto;
-  min-width: 180px;
-  padding: 1.25rem 2.5rem;
-}
-
-.hero-buttons .btn-outline {
+.btn-outline { /* Bouton secondaire */
   background: transparent;
   border: 2px solid var(--bright-blue);
   color: var(--bright-blue);
   box-shadow: none;
 }
 
-.hero-buttons .btn-outline:hover {
+.btn-outline:hover:not(:disabled) {
   background: rgba(100, 255, 218, 0.1);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
+  transform: translateY(-2px);
 }
 
-/* Dashboard Évolué */
-.dashboard-card {
-  background: rgba(17, 34, 64, 0.8);
-  backdrop-filter: blur(20px);
-  padding: 4rem;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--box-shadow-lg);
+/* Classe utilitaire pour les boutons à largeur auto */
+.btn-auto {
+  width: auto;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* --- Messages (Erreur, Succès, Info) --- */
+.message {
+  padding: 1rem 1.25rem;
+  border-radius: var(--border-radius);
+  margin: 1.5rem 0;
+  text-align: center;
+  font-weight: 500;
+  backdrop-filter: blur(5px);
+  border: 1px solid;
+  font-size: 0.9rem;
+}
+
+.message-error {
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--danger);
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.message-success {
+  background: rgba(100, 255, 218, 0.15);
+  color: var(--success);
+  border-color: rgba(100, 255, 218, 0.4);
+}
+
+.message-info {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--electric-blue);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* --- Hero Section (Page d'accueil) --- */
+.hero-section {
   text-align: center;
   color: var(--lightest-slate);
-  border: 1px solid rgba(100, 255, 218, 0.1);
-  position: relative;
-  overflow: hidden;
+  padding: 3rem 1rem;
+  max-width: 800px;
+  margin: auto; /* Centre la section */
 }
 
-.dashboard-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
+.hero-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
   background: var(--electric-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: var(--light-slate);
+  line-height: 1.7;
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.hero-buttons .btn {
+  width: auto;
+  min-width: 160px;
+  padding: 0.8rem 2rem;
+}
+
+/* --- Dashboard --- */
+.dashboard-card {
+  background: rgba(17, 34, 64, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 3rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+  color: var(--lightest-slate);
+  border: 1px solid rgba(100, 255, 218, 0.05);
+  max-width: 800px;
+  margin: auto;
 }
 
 .dashboard-title {
@@ -407,37 +472,208 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 1.5rem;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
 }
 
-/* Styles pour les Pages d'Offres */
-.offer-list .form-card,
-.offer-detail .form-card {
-  background: rgba(17, 34, 64, 0.8);
-  border: 1px solid rgba(100, 255, 218, 0.1);
-  backdrop-filter: blur(20px);
+.dashboard-card h3 {
+  color: var(--bright-blue);
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
 }
 
-.offer-list .form-card h3,
-.offer-detail .form-card h3 {
-  background: var(--electric-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.dashboard-card p {
+  color: var(--light-slate);
+  font-size: 1rem;
+}
+
+/* --- Liste d'offres (OfferListPage) --- */
+.offer-list {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  width: 100%; /* Prend toute la largeur du container */
+}
+
+.offer-list .form-card { /* Styles pour les cartes dans la liste */
+  max-width: none; /* Annule la limite de largeur */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  padding: 1.5rem; /* Padding réduit pour les cartes */
+}
+
+.offer-list .form-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow-lg);
+}
+
+.offer-list .form-card h3 {
+  color: var(--bright-blue); /* Couleur différente pour les titres d'offres */
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem; /* Taille ajustée */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offer-list .form-card .offer-meta { /* Conteneur pour lieu/contrat */
+  color: var(--slate);
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.offer-list .form-card .offer-description {
   margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  height: 4.5em; /* Limite à ~3 lignes */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  color: var(--light-slate);
 }
 
-/* Animation de Chargement Évoluée */
+.offer-list .form-card .offer-date {
+  font-size: 0.8rem;
+  color: var(--slate);
+  margin-top: auto; /* Pousse la date en bas */
+  padding-top: 0.5rem;
+}
+
+.offer-list .form-card .btn {
+  width: 100%;
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  margin-top: 1rem;
+}
+
+/* --- Détail de l'offre (OfferDetailPage) --- */
+.offer-detail-card {
+  text-align: left;
+  max-width: 800px; /* Limite la largeur */
+}
+
+.offer-detail-card .form-title {
+  text-align: left; /* Titre à gauche */
+}
+
+.offer-detail-card .offer-publish-info {
+  color: var(--slate);
+  text-align: left; /* Info sous le titre, à gauche */
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.offer-detail-card .info-box { /* Boîte pour Lieu/Contrat */
+  background: rgba(10, 25, 47, 0.6);
+  padding: 1.25rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+.offer-detail-card .info-box p {
+  margin-bottom: 0.5rem;
+  color: var(--light-slate);
+}
+.offer-detail-card .info-box strong {
+  color: var(--lightest-slate);
+}
+
+.offer-detail-card .description-section h3 {
+  color: var(--bright-blue);
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+
+.offer-detail-card .description-section p {
+  white-space: pre-wrap; /* Conserve les sauts de ligne */
+  line-height: 1.7;
+  color: var(--light-slate);
+}
+
+.apply-section { /* Section pour postuler */
+  border-top: 1px solid rgba(100, 255, 218, 0.1);
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+}
+
+.apply-section h3 {
+  margin-bottom: 1rem;
+  color: var(--bright-blue);
+  font-size: 1.2rem;
+}
+
+/* --- Tableau Responsive (OfferApplicantsPage) --- */
+.applicants-table-container {
+  width: 100%;
+  overflow-x: auto; /* Scroll horizontal si nécessaire */
+  margin-top: 1.5rem;
+}
+
+.applicants-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* Largeur min pour éviter compression */
+}
+
+.applicants-table th,
+.applicants-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--light-navy);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.applicants-table th {
+  font-weight: 600;
+  color: var(--bright-blue);
+  background-color: rgba(17, 34, 64, 0.5); /* Fond pour en-tête */
+}
+
+.applicants-table tbody tr:hover {
+  background-color: rgba(17, 34, 64, 0.3); /* Survol ligne */
+}
+
+/* Styles pour les boutons dans le tableau */
+.applicants-table .btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  width: auto;
+  background: var(--light-slate);
+  color: var(--dark-navy);
+  margin: 0; /* Annule marge par défaut */
+}
+.applicants-table .btn:hover:not(:disabled) {
+  background: var(--bright-blue);
+  color: var(--dark-navy); /* Assure la lisibilité */
+}
+.applicants-table .btn .loading {
+  width: 12px;
+  height: 12px;
+  margin-right: 0.3rem;
+  border-top-color: var(--dark-navy);
+  vertical-align: middle;
+}
+
+
+/* --- Animation de Chargement --- */
 .loading {
   display: inline-block;
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(100, 255, 218, 0.3);
+  width: 1em; /* Taille relative à la police */
+  height: 1em;
+  border: 2px solid rgba(100, 255, 218, 0.3);
   border-radius: 50%;
   border-top-color: var(--bright-blue);
-  animation: spin 1s ease-in-out infinite;
-  margin-right: 0.75rem;
+  animation: spin 0.8s ease-in-out infinite;
+  margin-right: 0.5rem;
+  vertical-align: middle;
 }
 
 @keyframes spin {
@@ -446,83 +682,9 @@ body {
   }
 }
 
-/* Effets de Brillance Globaux */
-.glow-effect {
-  position: relative;
-}
-
-.glow-effect::after {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: var(--electric-gradient);
-  border-radius: inherit;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.glow-effect:hover::after {
-  opacity: 0.3;
-}
-
-/* Responsive Design Évolué */
-@media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .nav-menu {
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .form-card {
-    padding: 2.5rem 2rem;
-    margin: 1rem;
-  }
-
-  .hero-title {
-    font-size: 2.75rem;
-  }
-
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .container {
-    padding: 2rem 1rem;
-  }
-
-  .hero-buttons .btn {
-    width: 100%;
-    max-width: 300px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 2.25rem;
-  }
-  
-  .form-card {
-    padding: 2rem 1.5rem;
-  }
-  
-  .navbar {
-    padding: 1rem;
-  }
-}
-
-/* Scrollbar Personnalisée */
+/* --- Scrollbar Personnalisée --- */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -530,10 +692,227 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--electric-gradient);
-  border-radius: 4px;
+  background: var(--light-navy); /* Couleur plus discrète */
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bright-blue);
+  background: var(--slate);
+}
+
+
+/* --- Styles Responsifs Généraux --- */
+@media (max-width: 768px) {
+  /* Réduire padding et marges */
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+  .container {
+    padding: 1.5rem 1rem;
+  }
+  .form-card, .dashboard-card, .offer-detail-card {
+    padding: 2rem 1.5rem;
+    margin-left: 0.5rem; /* Réduire marge latérale */
+    margin-right: 0.5rem;
+  }
+
+  /* Ajuster tailles de police */
+  .form-title {
+    font-size: 1.6rem;
+  }
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  .btn {
+    padding: 0.9rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  .form-input, select.form-input, textarea.form-input {
+      font-size: 0.9rem;
+      padding: 0.8rem 1rem;
+  }
+
+  /* Ajustements spécifiques */
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-buttons .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  /* --- Tableau en mode cartes sur mobile --- */
+  .applicants-table thead {
+    display: none; /* Masquer l'en-tête */
+  }
+
+  .applicants-table,
+  .applicants-table tbody,
+  .applicants-table tr,
+  .applicants-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .applicants-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--light-navy);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    background: rgba(17, 34, 64, 0.5);
+  }
+
+  .applicants-table td {
+    border: none;
+    padding: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    font-size: 0.85rem; /* Taille de police réduite pour mobile */
+  }
+
+  .applicants-table td::before { /* Afficher les labels */
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--bright-blue);
+    margin-right: 1rem;
+    text-align: left;
+    flex-basis: 40%; /* Espace pour le label */
+    font-size: 0.8rem; /* Taille du label */
+  }
+
+  .applicants-table td:last-child {
+    padding-bottom: 0;
+  }
+
+  .applicants-table .btn {
+    font-size: 0.75rem; /* Taille bouton réduite */
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+/* Ajustements pour très petits écrans */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  .form-card {
+    padding: 1.5rem 1rem;
+  }
+  .navbar {
+    padding: 0.8rem 1rem;
+  }
+  .form-title {
+    font-size: 1.4rem;
+  }
+  .btn {
+    padding: 0.8rem 1.2rem;
+  }
+}
+
+/* Footer (pas besoin de le mettre dans @media, déjà simple) */
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: auto; /* Pousse le footer en bas */
+  background: rgba(10, 25, 47, 0.8);
+  border-top: 1px solid rgba(100, 255, 218, 0.1);
+  color: var(--slate);
+  font-size: 0.85rem;
+}
+
+
+
+
+
+.my-applications-page .form-title {
+  margin-bottom: 2rem; /* Espace sous le titre */
+}
+
+.applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Espace entre les cartes */
+}
+
+.application-card {
+  padding: 1.5rem; /* Padding intérieur de la carte */
+  /* La classe form-card gère déjà le fond, bordure, etc. */
+}
+
+.application-card-content {
+  display: flex;
+  flex-wrap: wrap; /* Permet le passage à la ligne sur mobile */
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem; /* Espace entre les colonnes */
+}
+
+.application-col {
+  /* Style de base pour les colonnes */
+}
+
+.offer-col {
+  flex: 3; /* Prend plus de place */
+  min-width: 200px; /* Largeur minimale avant de passer à la ligne */
+}
+
+.date-col {
+  flex: 2;
+  min-width: 150px;
+  text-align: center; /* Centrer la date */
+  color: var(--slate);
+  font-size: 0.9rem;
+}
+
+.status-col {
+  flex: 1;
+  min-width: 100px;
+  text-align: right; /* Aligner le statut à droite */
+}
+
+.application-offer-title {
+  margin-bottom: 0.25rem;
+  font-size: 1.1rem; /* Taille ajustée */
+  font-weight: 600;
+}
+
+.application-offer-title a {
+  color: var(--bright-blue); /* Utiliser couleur accent */
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.application-offer-title a:hover {
+  text-decoration: underline;
+  color: var(--electric-blue);
+}
+
+.application-cv-info {
+  color: var(--slate);
+  font-size: 0.85rem;
+}
+
+/* Ajustements pour mobile */
+@media (max-width: 600px) {
+  .application-card-content {
+    flex-direction: column; /* Empiler les éléments */
+    align-items: flex-start; /* Aligner à gauche */
+    gap: 0.8rem; /* Réduire l'espace */
+  }
+
+  .date-col,
+  .status-col {
+    text-align: left; /* Aligner tout à gauche sur mobile */
+    width: 100%; /* Prend toute la largeur */
+  }
+
+  .status-col span {
+    display: inline-block; /* Assure que le padding s'applique bien */
+  }
 }
