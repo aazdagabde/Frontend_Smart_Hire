@@ -16,7 +16,7 @@ const formatDate = (isoString) => {
 };
 
 function OfferDetailPage() {
-  const { offerId } = useParams();
+  const { id } = useParams();
   const { currentUser } = useAuth(); // <<< AJOUTER : Pour vérifier le rôle
   
   // État de l'offre (inchangé)
@@ -42,7 +42,7 @@ function OfferDetailPage() {
       setError('');
       try {
         // 1. Récupérer l'offre
-        const offerResponse = await OfferService.getOfferById(offerId);
+        const offerResponse = await OfferService.getOfferById(id);
         if (offerResponse.success && offerResponse.data) {
           setOffer(offerResponse.data);
         } else {
@@ -50,7 +50,7 @@ function OfferDetailPage() {
         }
         
         // 2. <<< NOUVEAU : Récupérer les champs personnalisés >>>
-        const fieldsResponse = await OfferService.getCustomFields(offerId);
+        const fieldsResponse = await OfferService.getCustomFields(id);
         if (fieldsResponse.success && Array.isArray(fieldsResponse.data)) {
             setCustomFields(fieldsResponse.data);
             // Initialiser l'état des réponses
@@ -77,7 +77,7 @@ function OfferDetailPage() {
     };
 
     fetchOfferAndFields();
-  }, [offerId]);
+  }, [id]);
 
   // --- <<< NOUVELLES FONCTIONS : Gestion du formulaire >>> ---
 
@@ -235,7 +235,7 @@ function OfferDetailPage() {
 
     // 3. Appel API
     try {
-        const response = await ApplicationService.applyToOffer(offerId, formData);
+        const response = await ApplicationService.applyToOffer(id, formData);
         if (response.success) {
             setApplySuccess(true);
             setApplyError('');
@@ -290,7 +290,7 @@ function OfferDetailPage() {
           {/* Non connecté */}
           {!currentUser && (
             <div className="message message-info">
-              Vous devez être <Link to={`/login?redirect=/offers/${offerId}`}>connecté</Link> en tant que candidat pour postuler.
+              Vous devez être <Link to={`/login?redirect=/offers/${id}`}>connecté</Link> en tant que candidat pour postuler.
             </div>
           )}
 

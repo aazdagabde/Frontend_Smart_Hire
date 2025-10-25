@@ -22,7 +22,7 @@ function OfferListPage() {
     setError('');
     try {
       // Passer le terme au service
-      const apiResponse = await OfferService.getAllOffers(term);
+      const apiResponse = await OfferService.getAllPublicOffers(term);
       // Vérifie si la réponse et les données existent et si data est un tableau
       if (apiResponse && apiResponse.data && Array.isArray(apiResponse.data)) {
         setOffers(apiResponse.data);
