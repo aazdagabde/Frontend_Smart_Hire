@@ -1,70 +1,85 @@
 // src/App.js
 import React from 'react';
+// Correction : Suppression de 'BrowserRouter as Router' de l'import
 import { Routes, Route, Link } from 'react-router-dom';
-import './styles/App.css';
+// AuthProvider est déjà dans index.js
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicOnlyRoute from './components/PublicOnlyRoute';
 
 // Pages
+import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import OfferListPage from './pages/OfferListPage';
 import OfferDetailPage from './pages/OfferDetailPage';
 import OfferManagePage from './pages/OfferManagePage';
 import OfferCreateEditPage from './pages/OfferCreateEditPage';
+import MyApplicationsPage from './pages/MyApplicationsPage'; // Page ajoutée à l'étape 2
+import OfferApplicantsPage from './pages/OfferApplicantsPage'; // Page ajoutée à l'étape 3
 
-// Composants structurels
-import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
+// Styles
+import './styles/App.css'; // Peut être enlevé si déjà dans index.js ou layout.js
 
-// (Garder vos composants UnauthorizedPage et NotFoundPage tels quels)
+// Composants UnauthorizedPage et NotFoundPage (inchangés)
 const UnauthorizedPage = () => (
-    <div className="form-card" style={{ textAlign: 'center' }}>
-        <h2 className='form-title' style={{ color: 'var(--danger-color)'}}>Accès Interdit</h2>
+    <div className="form-card" style={{ textAlign: 'center', maxWidth: '500px', margin: 'auto' }}>
+        <h2 className='form-title' style={{ color: 'var(--danger)', marginBottom: '1rem' }}>Accès Interdit</h2>
         <p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
         <Link to="/" className="btn btn-primary" style={{ marginTop: '1.5rem', width: 'auto' }}>Retour à l'accueil</Link>
     </div>
 );
 
 const NotFoundPage = () => (
-     <div className="form-card" style={{ textAlign: 'center' }}>
+     <div className="form-card" style={{ textAlign: 'center', maxWidth: '500px', margin: 'auto' }}>
         <h2 className='form-title'>404 - Page Non Trouvée</h2>
         <p>Désolé, la page que vous cherchez n'existe pas.</p>
         <Link to="/" className="btn btn-primary" style={{ marginTop: '1.5rem', width: 'auto' }}>Retour à l'accueil</Link>
     </div>
 );
 
+
 function App() {
-  const RECRUITER_ROLE = 'ROLE_RH'; // Define role constant for clarity
+  // Définir les rôles ici pour clarté
+  const RECRUITER_ROLE = 'ROLE_RH';
+  const CANDIDATE_ROLE = 'ROLE_CANDIDAT';
 
   return (
+    // Correction : Suppression du <Router> redondant qui enveloppait <Routes>
     <Routes>
       <Route path="/" element={<Layout />}>
-
         {/* --- Routes Publiques --- */}
         <Route index element={<HomePage />} />
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="unauthorized" element={<UnauthorizedPage />} />
         <Route path="offers" element={<OfferListPage />} />
         <Route path="offers/:id" element={<OfferDetailPage />} />
+        <Route path="unauthorized" element={<UnauthorizedPage />} />
 
-        {/* --- Routes Protégées (Connexion requise) --- */}
-        {/* Wrapper général pour toute route nécessitant une connexion */}
+        {/* --- Routes Publiques Seulement (pour utilisateurs non connectés) --- */}
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
+        </Route>
+
+        {/* --- Routes Protégées (Connexion requise pour tous les rôles) --- */}
         <Route element={<ProtectedRoute />}>
           <Route path="dashboard" element={<DashboardPage />} />
           {/* Ajoutez d'autres routes générales protégées ici (ex: profil) */}
-          {/* <Route path="profile" element={<ProfilePage />} /> */}
         </Route>
 
         {/* --- Routes Protégées (Rôle RH requis) --- */}
-        {/* Wrapper spécifique pour les routes nécessitant ROLE_RH */}
+        {/* Utilise 'requiredRole' pour spécifier le rôle */}
         <Route element={<ProtectedRoute requiredRole={RECRUITER_ROLE} />}>
           <Route path="offers/manage" element={<OfferManagePage />} />
           <Route path="offers/create" element={<OfferCreateEditPage />} />
           <Route path="offers/edit/:id" element={<OfferCreateEditPage />} />
-          {/* Ajoutez d'autres routes RH ici (ex: voir candidats) */}
-           {/* <Route path="offers/:id/applications" element={<OfferApplicationsPage />} /> */}
+          {/* Route pour voir les candidats d'une offre (Étape 3) */}
+          <Route path="offers/:offerId/applicants" element={<OfferApplicantsPage />} />
+        </Route>
+
+        {/* --- Routes Protégées (Rôle CANDIDAT requis) --- */}
+        <Route element={<ProtectedRoute requiredRole={CANDIDATE_ROLE} />}>
+          <Route path="my-applications" element={<MyApplicationsPage />} />
         </Route>
 
         {/* --- Route 404 --- */}
@@ -72,6 +87,7 @@ function App() {
 
       </Route>
     </Routes>
+    // Correction : Fin de la suppression du <Router> redondant
   );
 }
 

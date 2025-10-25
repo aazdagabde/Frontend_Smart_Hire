@@ -15,6 +15,9 @@ const Layout = () => {
 
   // Détermine si l'utilisateur a un rôle RH/Admin (simplifié)
   const isRecruiter = currentUser?.roles?.some(role => role === 'ROLE_RH' || role === 'ROLE_ADMIN');
+  // AJOUT: Détermine si l'utilisateur est un candidat
+  const isCandidate = currentUser?.roles?.includes('ROLE_CANDIDAT');
+
 
   return (
     <div className="App">
@@ -47,12 +50,14 @@ const Layout = () => {
                    <li><Link to="/offers/manage" className="nav-link">Gérer Offres</Link></li>
                 )}
 
-                 {/* TODO: Ajouter d'autres liens pour utilisateur connecté si nécessaire (ex: Profil, Mes candidatures) */}
-                 {/* <li><Link to="/profile" className="nav-link">Profil</Link></li> */}
+                 {/* AJOUT: Lien pour Mes Candidatures si Candidat */}
+                 {isCandidate && (
+                   <li><Link to="/my-applications" className="nav-link">Mes Candidatures</Link></li>
+                 )}
 
                 {/* Section utilisateur connecté */}
                 <li style={{ display: 'flex', alignItems: 'center' }}> {/* Conteneur pour aligner texte et bouton */}
-                  <span style={{ marginRight: '1rem', color: '#6c757d' /* var(--gray-color) */ }}>
+                  <span style={{ marginRight: '1rem', color: 'var(--light-slate)' /* var(--gray-color) remplacé */ }}>
                      {/* Afficher Prénom ou Email */}
                      {currentUser.firstName || currentUser.email}
                   </span>
@@ -71,10 +76,10 @@ const Layout = () => {
         <Outlet /> {/* Affiche le composant correspondant à la route enfant active */}
       </main>
 
-      {/* Optionnel: Footer */}
-      {/* <footer style={{ textAlign: 'center', padding: '1rem', marginTop: 'auto', background: 'rgba(0,0,0,0.1)'}}>
+      {/* Optionnel: Footer - Décommenté et style ajusté */}
+       <footer style={{ textAlign: 'center', padding: '1.5rem', marginTop: 'auto', background: 'rgba(10, 25, 47, 0.8)', borderTop: '1px solid rgba(100, 255, 218, 0.1)', color: 'var(--slate)'}}>
            <p>&copy; {new Date().getFullYear()} SmartHire. Tous droits réservés.</p>
-         </footer> */}
+         </footer>
     </div>
   );
 };
