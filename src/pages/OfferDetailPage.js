@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import OfferService from '../services/OfferService';
-import ApplicationService from '../services/ApplicationService'; // <<< AJOUTER
-import { useAuth } from '../contexts/AuthContext'; // <<< AJOUTER
+import ApplicationService from '../services/ApplicationService';
+import { useAuth } from '../contexts/AuthContext';
 
-// Helper pour formater la date (inchangé)
+// formatDate (inchangé)
 const formatDate = (isoString) => {
   if (!isoString) return 'N/A';
   return new Date(isoString).toLocaleDateString('fr-FR', {
@@ -17,28 +17,25 @@ const formatDate = (isoString) => {
 
 function OfferDetailPage() {
   const { id } = useParams();
-  const { currentUser } = useAuth(); // <<< AJOUTER : Pour vérifier le rôle
-  
-  // État de l'offre (inchangé)
-  const [offer, setOffer] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { currentUser } = useAuth();
 
-  // --- <<< NOUVEL ÉTAT : Pour le formulaire de candidature >>> ---
+  // États (inchangés)
+  const [offer, setOffer] = useState(null);
+  const [loading, setLoading] = useState(true); // Chargement principal (offre)
+  const [error, setError] = useState('');
   const [cvFile, setCvFile] = useState(null);
-  const [customFields, setCustomFields] = useState([]); // Champs du formulaire
-  const [customData, setCustomData] = useState({}); // Réponses { fieldId: value }
-  const [fieldsLoading, setFieldsLoading] = useState(true);
+  const [customFields, setCustomFields] = useState([]);
+  const [customData, setCustomData] = useState({});
+  const [fieldsLoading, setFieldsLoading] = useState(true); // Chargement séparé pour les champs
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyError, setApplyError] = useState('');
   const [applySuccess, setApplySuccess] = useState(false);
-  // --- <<< FIN NOUVEL ÉTAT >>> ---
 
-
+  // --- MODIFICATION useEffect ---
   useEffect(() => {
     const fetchOfferAndFields = async () => {
       setLoading(true);
-      setFieldsLoading(true);
+      setFieldsLoading(true); // Active les deux chargements
       setError('');
       try {
         // 1. Récupérer l'offre
@@ -47,41 +44,53 @@ function OfferDetailPage() {
           setOffer(offerResponse.data);
         } else {
           setError(offerResponse.message || "Offre non trouvée.");
+          setFieldsLoading(false); // Arrêter chargement champs si offre non trouvée
+          setLoading(false);
+          return;
         }
-        
-        // 2. <<< NOUVEAU : Récupérer les champs personnalisés >>>
-        const fieldsResponse = await OfferService.getCustomFields(id);
-        if (fieldsResponse.success && Array.isArray(fieldsResponse.data)) {
-            setCustomFields(fieldsResponse.data);
-            // Initialiser l'état des réponses
-            const initialData = {};
-            fieldsResponse.data.forEach(field => {
-                if (field.fieldType === 'CHECKBOX') {
-                    initialData[field.id] = []; // Utiliser un tableau pour les checkbox
-                } else {
-                    initialData[field.id] = ''; // String vide pour les autres
-                }
-            });
-            setCustomData(initialData);
+
+        // 2. Récupérer les champs personnalisés (avec son propre try/catch)
+        try {
+            const fieldsResponse = await OfferService.getCustomFields(id);
+            console.log("Response getCustomFields (Candidate):", fieldsResponse); // <<< Log pour déboguer
+            if (fieldsResponse.success && Array.isArray(fieldsResponse.data)) {
+                setCustomFields(fieldsResponse.data);
+                const initialData = {};
+                fieldsResponse.data.forEach(field => {
+                    if (field && field.id) {
+                        initialData[field.id] = field.fieldType === 'CHECKBOX' ? [] : '';
+                    }
+                });
+                setCustomData(initialData);
+            } else {
+                 setCustomFields([]); // Assurer tableau vide
+            }
+        } catch (fieldsErr) {
+            console.warn("Could not load custom fields for candidate:", fieldsErr); // Avertissement
+             setCustomFields([]); // Assurer tableau vide
         }
-        // (Pas d'erreur si les champs ne chargent pas, c'est peut-être normal)
-        // --- <<< FIN NOUVEAU >>> ---
 
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching offer details:", err);
         setError(err.message || 'Une erreur est survenue.');
       } finally {
-        setLoading(false);
-        setFieldsLoading(false); // <<< NOUVEAU
+        setLoading(false); // Arrêter chargement principal
+        setFieldsLoading(false); // Arrêter chargement champs
       }
     };
 
-    fetchOfferAndFields();
+    if (id) {
+      fetchOfferAndFields();
+    } else {
+      setError("ID de l'offre manquant dans l'URL.");
+      setLoading(false);
+      setFieldsLoading(false);
+    }
   }, [id]);
+  // --- FIN MODIFICATION useEffect ---
 
-  // --- <<< NOUVELLES FONCTIONS : Gestion du formulaire >>> ---
 
-  // Gère le changement du fichier CV
+  // --- Fonctions formulaire ---
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setApplyError(''); // Réinitialiser l'erreur
@@ -98,7 +107,6 @@ function OfferDetailPage() {
     }
   };
 
-  // Gère la saisie dans les champs personnalisés
   const handleCustomDataChange = (fieldId, fieldType, value) => {
     setCustomData(prevData => {
         if (fieldType === 'CHECKBOX') {
@@ -118,7 +126,6 @@ function OfferDetailPage() {
     });
   };
 
-  // Fonction pour afficher un champ de formulaire
   const renderFormField = (field) => {
     const commonProps = {
         id: `field-${field.id}`,
@@ -189,7 +196,6 @@ function OfferDetailPage() {
     }
   };
 
-  // Soumission de la candidature
   const handleApply = async (e) => {
     e.preventDefault();
     setApplyError('');
@@ -249,113 +255,116 @@ function OfferDetailPage() {
         setApplyLoading(false);
     }
   };
-  // --- <<< FIN NOUVELLES FONCTIONS >>> ---
 
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}><span className="loading"></span></div>;
-  }
-  if (error) {
-    return <div className="message message-error">{error}</div>;
-  }
-  if (!offer) {
-    return <div className="message message-info">Offre non trouvée.</div>;
-  }
-
-  // Rendu de la page
+  // --- Rendu JSX ---
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div className="form-card" style={{ background: 'transparent', border: 'none', padding: '0' }}>
-        
-        {/* En-tête de l'offre */}
-        <p style={{ color: 'var(--slate)', fontSize: '0.9rem' }}>Posté le {formatDate(offer.createdAt)}</p>
-        <h1 className="form-title" style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--lightest-slate)', textAlign: 'left' }}>{offer.title}</h1>
-        <div style={{ display: 'flex', gap: '1rem', color: 'var(--primary-color)', fontWeight: '500', marginBottom: '1.5rem' }}>
-          <span>{offer.location}</span>
-          <span>&bull;</span>
-          <span>{offer.contractType}</span>
-        </div>
+      {/* Chargement principal */}
+      {loading && <div style={{ textAlign: 'center', padding: '2rem' }}><span className="loading"></span></div>}
+      {/* Erreur principale */}
+      {error && !loading && <div className="message message-error">{error}</div>}
 
-        {/* Description de l'offre */}
-        <div className="job-description" style={{ color: 'var(--slate)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
-          {offer.description}
-        </div>
+      {/* Affichage si offre chargée */}
+      {!loading && !error && offer && (
+        <div className="form-card" style={{ background: 'transparent', border: 'none', padding: '0' }}>
+          {/* Détails de l'offre */}
+          <p style={{ color: 'var(--slate)', fontSize: '0.9rem' }}>Posté le {formatDate(offer.createdAt)}</p>
+          <h1 className="form-title" style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--lightest-slate)', textAlign: 'left' }}>{offer.title}</h1>
+          <div style={{ display: 'flex', gap: '1rem', color: 'var(--primary-color)', fontWeight: '500', marginBottom: '1.5rem' }}>
+            <span>{offer.location}</span>
+            <span>&bull;</span>
+            <span>{offer.contractType}</span>
+          </div>
 
-        <hr style={{ border: 'none', borderTop: '1px solid var(--lightest-navy)', margin: '2.5rem 0' }} />
+          {/* Description de l'offre */}
+          <div className="job-description" style={{ color: 'var(--slate)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+            {offer.description}
+          </div>
 
-        {/* --- <<< NOUVELLE SECTION POSTULER (REMPLACE L'ANCIENNE) >>> --- */}
-        <div>
-          <h2 className="form-title" style={{ textAlign: 'left', fontSize: '1.5rem', color: 'var(--primary-color)' }}>Postuler à cette offre</h2>
+          <hr style={{ border: 'none', borderTop: '1px solid var(--lightest-navy)', margin: '2.5rem 0' }} />
 
-          {/* Non connecté */}
-          {!currentUser && (
-            <div className="message message-info">
-              Vous devez être <Link to={`/login?redirect=/offers/${id}`}>connecté</Link> en tant que candidat pour postuler.
-            </div>
-          )}
+          {/* Section Postuler */}
+          <div>
+            <h2 className="form-title" style={{ textAlign: 'left', fontSize: '1.5rem', color: 'var(--primary-color)' }}>Postuler à cette offre</h2>
 
-          {/* Connecté en RH */}
-          {currentUser && currentUser.roles.includes('ROLE_RH') && (
-            <div className="message message-info">
-              Vous êtes connecté en tant que Recruteur. Seuls les candidats peuvent postuler.
-            </div>
-          )}
-
-          {/* Connecté en Candidat */}
-          {currentUser && currentUser.roles.includes('ROLE_CANDIDAT') && (
-            <>
-              {applySuccess ? (
-                <div className="message message-success">
-                  <h4>Candidature envoyée !</h4>
-                  <p>Votre candidature pour "{offer.title}" a été envoyée avec succès. Vous pouvez suivre son statut dans la section <Link to="/my-applications">Mes Candidatures</Link>.</p>
+            {/* Conditions currentUser */}
+            {!currentUser ? (
+                 <div className="message message-info">
+                   Vous devez être <Link to={`/login?redirect=/offers/${id}`}>connecté</Link> en tant que candidat pour postuler.
+                 </div>
+            ) : Array.isArray(currentUser.roles) && currentUser.roles.includes('ROLE_RH') ? (
+                <div className="message message-info">
+                  Vous êtes connecté en tant que Recruteur. Seuls les candidats peuvent postuler.
                 </div>
-              ) : (
-                <form onSubmit={handleApply} className="form-card" style={{ background: 'var(--navy-blue)', padding: '1.5rem 2rem' }}>
-                  
-                  {/* Champ CV */}
-                  <div className="form-group">
-                    <label htmlFor="cvFile" className="form-label">Votre CV (PDF, 5MB max) <span style={{ color: 'var(--danger-color)' }}>*</span></label>
-                    <input
-                      type="file"
-                      id="cvFile"
-                      accept="application/pdf"
-                      onChange={handleFileChange}
-                      required
-                      className="form-input"
-                    />
+            ) : Array.isArray(currentUser.roles) && currentUser.roles.includes('ROLE_CANDIDAT') ? (
+              <>
+                {applySuccess ? (
+                  <div className="message message-success">
+                    <h4>Candidature envoyée !</h4>
+                    <p>Votre candidature pour "{offer.title}" a été envoyée avec succès. Vous pouvez suivre son statut dans la section <Link to="/my-applications">Mes Candidatures</Link>.</p>
                   </div>
-
-                  {/* Champs personnalisés */}
-                  {fieldsLoading && <div><span className="loading"></span> Chargement des champs...</div>}
-                  
-                  {!fieldsLoading && customFields.length > 0 && customFields.map(field => (
-                    <div key={field.id} className="form-group">
-                      <label htmlFor={`field-${field.id}`} className="form-label">
-                        {field.label}
-                        {field.isRequired && <span style={{ color: 'var(--danger-color)' }}> *</span>}
-                      </label>
-                      {renderFormField(field)}
+                ) : (
+                  <form onSubmit={handleApply} className="form-card" style={{ background: 'var(--navy-blue)', padding: '1.5rem 2rem' }}>
+                    
+                    {/* Champ CV */}
+                    <div className="form-group">
+                      <label htmlFor="cvFile" className="form-label">Votre CV (PDF, 5MB max) <span style={{ color: 'var(--danger-color)' }}>*</span></label>
+                      <input
+                        type="file"
+                        id="cvFile"
+                        accept="application/pdf"
+                        onChange={handleFileChange}
+                        required
+                        className="form-input"
+                      />
                     </div>
-                  ))}
 
-                  {/* Message d'erreur */}
-                  {applyError && <div className="message message-error">{applyError}</div>}
+                    {/* MODIFICATION : Affichage champs personnalisés */}
+                    {/* Indicateur de chargement spécifique aux champs */}
+                    {fieldsLoading && <div><span className="loading"></span> Chargement des questions...</div>}
 
-                  {/* Bouton Soumettre */}
-                  <button type="submit" className="btn btn-primary" disabled={applyLoading} style={{ width: 'auto', marginTop: '1rem' }}>
-                    {applyLoading && <span className="loading"></span>}
-                    {applyLoading ? 'Envoi...' : 'Envoyer ma candidature'}
-                  </button>
+                    {/* Afficher les champs si chargement terminé ET si customFields est un tableau */}
+                    {!fieldsLoading && Array.isArray(customFields) && customFields.length > 0 && (
+                        <div style={{marginTop: '1rem', borderTop: '1px solid var(--lightest-navy)', paddingTop: '1rem'}}>
+                            <h4 style={{marginTop: 0, color:'var(--lightest-slate)'}}>Informations supplémentaires</h4>
+                            {customFields.map(field => (
+                                field && field.id ? ( // Vérification ajoutée
+                                    <div key={field.id} className="form-group">
+                                    <label htmlFor={`field-${field.id}`} className="form-label">
+                                        {field.label}
+                                        {field.isRequired && <span style={{ color: 'var(--danger-color)' }}> *</span>}
+                                    </label>
+                                    {renderFormField(field)}
+                                    </div>
+                                ) : null
+                            ))}
+                        </div>
+                    )}
+                    {/* Message si aucun champ après chargement */}
+                    {!fieldsLoading && (!Array.isArray(customFields) || customFields.length === 0) && (
+                         <p style={{color: 'var(--slate)', fontSize: '0.9rem', marginBottom: '1rem'}}>Aucune information supplémentaire requise.</p>
+                    )}
+                    {/* FIN MODIFICATION */}
 
-                </form>
-              )}
-            </>
-          )}
+                    {applyError && <div className="message message-error">{applyError}</div>}
 
+                    <button type="submit" className="btn btn-primary" disabled={applyLoading} style={{ width: 'auto', marginTop: '1rem' }}>
+                      {applyLoading && <span className="loading"></span>}
+                      {applyLoading ? 'Envoi...' : 'Envoyer ma candidature'}
+                    </button>
+                  </form>
+                )}
+              </>
+            ) : (
+                 <div className="message message-warning">
+                   Rôle utilisateur inconnu. Impossible de déterminer si vous pouvez postuler.
+                 </div>
+            )}
+          </div>
         </div>
-        {/* --- <<< FIN NOUVELLE SECTION POSTULER >>> --- */}
-
-      </div>
+      )}
+      {/* Fallback offre non trouvée */}
+      {!loading && !error && !offer && <div className="message message-info">Offre non trouvée.</div>}
     </div>
   );
 }

@@ -1,9 +1,9 @@
 // src/pages/OfferCreateEditPage.js
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom'; // Ajout de Link
 import OfferService from '../services/OfferService';
 
-// <<< NOUVEAU : Icône de suppression (SVG simple) >>>
+// Icône de suppression
 const TrashIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer', color: 'var(--danger-color)' }}>
         <polyline points="3 6 5 6 21 6"></polyline>
@@ -14,356 +14,291 @@ const TrashIcon = () => (
 );
 
 function OfferCreateEditPage() {
-  const { offerId } = useParams(); // Récupère l'ID de l'URL
+  // Gardons 'id' comme dans ton code fonctionnel, car useParams le retourne ainsi pour cette route
+  const { id } = useParams();
   const navigate = useNavigate();
-  const isEditMode = Boolean(offerId);
+  const isEditMode = Boolean(id); // Renommé pour clarté
 
-  // --- État pour le formulaire principal de l'offre ---
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    location: '',
-    contractType: 'CDI',
-    status: 'DRAFT',
+  // --- État formulaire principal (comme ton ancien code) ---
+  const [offerData, setOfferData] = useState({
+    title: '', description: '', location: '', contractType: 'CDI', status: 'DRAFT',
   });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [loading, setLoading] = useState(isEditMode); // Chargement principal
+  const [error, setError] = useState(''); // Erreur principale
+  const [pageTitle, setPageTitle] = useState(isEditMode ? 'Modifier l\'offre' : 'Créer une nouvelle offre');
 
-  // --- <<< NOUVEAU : État pour les champs personnalisés >>> ---
+  // --- NOUVEL ÉTAT : Champs personnalisés ---
   const [customFields, setCustomFields] = useState([]);
-  const [fieldsLoading, setFieldsLoading] = useState(false);
-  const [fieldsError, setFieldsError] = useState('');
-  const [fieldAddingLoading, setFieldAddingLoading] = useState(false);
-  
-  // État pour le formulaire d'ajout de *nouveau* champ
+  const [fieldsLoading, setFieldsLoading] = useState(isEditMode); // Charger si en édition
+  const [fieldsError, setFieldsError] = useState(''); // Erreur spécifique aux champs
+  const [fieldActionLoading, setFieldActionLoading] = useState(false); // Pour ajout/suppression
   const [newField, setNewField] = useState({
-      label: '',
-      fieldType: 'TEXT', // Valeur par défaut
-      options: '',
-      isRequired: false
+      label: '', fieldType: 'TEXT', options: '', isRequired: false
   });
-  // --- <<< FIN NOUVEL ÉTAT >>> ---
+  const [fieldActionMessage, setFieldActionMessage] = useState(''); // Message succès ajout/suppression
 
-
-  // --- Chargement de l'offre (si mode édition) ---
+  // --- Chargement de l'offre (basé sur ton code fonctionnel) ---
   useEffect(() => {
-    if (isEditMode) {
-      setLoading(true); // Active le chargement principal
-      OfferService.getOfferById(offerId)
-        .then(response => {
+    const initialOfferState = { title: '', description: '', location: '', contractType: 'CDI', status: 'DRAFT' };
+
+    if (isEditMode && id) {
+      setPageTitle('Modifier l\'offre');
+      setLoading(true);
+      OfferService.getOfferById(id) // Utilise l'ID de useParams
+        .then(response => { // Utilise la structure {success, data, message}
           if (response.success && response.data) {
-            setFormData(response.data); // Pré-remplit le formulaire
+            const fetchedData = response.data;
+            setOfferData({ // S'assurer que les valeurs ne sont pas null/undefined
+              title: fetchedData.title || '',
+              description: fetchedData.description || '',
+              location: fetchedData.location || '',
+              contractType: fetchedData.contractType || 'CDI',
+              status: fetchedData.status || 'DRAFT'
+            });
           } else {
-            setMessage(response.message || "Offre non trouvée.");
+             setError(`Impossible de charger l'offre: ${response.message || 'Données non trouvées'}`);
+             setOfferData(initialOfferState); // Reset si erreur
           }
         })
         .catch(err => {
-          console.error(err);
-          setMessage(err.message || "Erreur lors du chargement de l'offre.");
+            console.error("Erreur chargement offre:", err);
+            setError(`Impossible de charger l'offre: ${err.message || err}`);
+            setOfferData(initialOfferState); // Reset si erreur
         })
-        .finally(() => {
-          setLoading(false); // Désactive le chargement principal
-        });
-
-      // <<< NOUVEAU : Chargement des champs personnalisés (uniquement en mode édition) >>>
-      setFieldsLoading(true);
-      setFieldsError('');
-      OfferService.getCustomFields(offerId)
-        .then(response => {
-            if (response.success && Array.isArray(response.data)) {
-                setCustomFields(response.data);
-            } else {
-                setFieldsError(response.message || "Erreur chargement des champs.");
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            setFieldsError(err.message || "Erreur chargement des champs.");
-        })
-        .finally(() => {
-            setFieldsLoading(false);
-        });
-      // --- <<< FIN NOUVEAU USEEFFECT >>> ---
+        .finally(() => setLoading(false));
+    } else {
+      setOfferData(initialOfferState);
+      setPageTitle('Créer une nouvelle offre');
+      setLoading(false); // Pas de chargement en création
     }
-  }, [offerId, isEditMode]);
+  }, [id, isEditMode]); // Dépendances correctes
 
-  // --- Gestionnaires pour le formulaire principal (inchangés) ---
+  // --- NOUVEAU : Chargement des champs personnalisés (séparé) ---
+  useEffect(() => {
+    const fetchCustomFields = async () => {
+        setFieldsLoading(true); setFieldsError('');
+        console.log(`Fetching custom fields for offer id: ${id}`); // Log ID
+        try {
+            const response = await OfferService.getCustomFields(id); // Utilise l'ID de useParams
+            console.log("Response getCustomFields (HR):", response); // Log réponse
+            if (response.success && Array.isArray(response.data)) {
+                const sanitized = response.data.map(f => ({...f, options: (f && typeof f.options === 'string') ? f.options : null }));
+                setCustomFields(sanitized);
+            } else { setCustomFields([]); } // Si succès mais data invalide, tableau vide
+        } catch (err) {
+            console.error("Erreur chargement champs:", err);
+            setCustomFields([]); // Tableau vide en cas d'erreur
+            // Afficher l'erreur seulement si ce n'est pas juste "non trouvé"
+            if (!err.message || !err.message.toLowerCase().includes('not found')) {
+              setFieldsError(err.message || "Erreur chargement des champs.");
+            }
+        } finally { setFieldsLoading(false); }
+    };
+
+    if (isEditMode && id) { fetchCustomFields(); }
+    else { setFieldsLoading(false); setCustomFields([]); } // Pas de chargement en création
+
+  }, [id, isEditMode]); // Dépendances correctes
+
+  // --- Gestionnaires ---
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
+    setOfferData({ ...offerData, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    setIsSuccess(false);
+    setError(''); setLoading(true); // Loading principal
+    const payload = { ...offerData };
 
     try {
-      const apiCall = isEditMode
-        ? OfferService.updateOffer(offerId, formData)
-        : OfferService.createOffer(formData);
-      
-      const apiResponse = await apiCall;
+      let response;
+      if (isEditMode) { response = await OfferService.updateOffer(id, payload); } // Utilise ID
+      else { response = await OfferService.createOffer(payload); }
 
-      setMessage(apiResponse.message || (isEditMode ? "Offre mise à jour !" : "Offre créée !"));
-      setIsSuccess(true);
-
-      if (!isEditMode) {
-        // Si c'est une création, rediriger vers la page de gestion après succès
-        setTimeout(() => {
-          navigate('/offers/manage');
-        }, 1500);
-      }
+      if (response.success) {
+           const nextUrl = !isEditMode && response.data?.id ? `/offers/edit/${response.data.id}` : '/offers/manage';
+           // Utiliser setError pour afficher le message de succès avant navigation
+           setError(isEditMode ? 'Offre mise à jour avec succès !' : 'Offre créée ! Redirection...');
+           setTimeout(() => navigate(nextUrl), 1500);
+      } else { setError(response.message || `Erreur lors de la ${isEditMode ? 'mise à jour' : 'création'}`); }
     } catch (err) {
-      console.error(err);
-      setMessage(err.message || "Une erreur est survenue.");
-      setIsSuccess(false);
-    } finally {
-      setLoading(false);
-    }
+       console.error("Erreur submit offre:", err);
+       setError(`Erreur: ${err.message || 'Erreur inconnue'}`);
+    } finally { setLoading(false); }
   };
 
-
-  // --- <<< NOUVEAU : Gestionnaires pour les champs personnalisés >>> ---
-
-  // Gère la saisie dans le formulaire d'ajout de champ
+  // --- NOUVEAU : Gestionnaires champs personnalisés ---
   const handleNewFieldChange = (e) => {
-    const { id, value, type, checked } = e.target;
-    setNewField(prev => ({
-        ...prev,
-        [id]: type === 'checkbox' ? checked : value
-    }));
+    const { id: fieldId, value, type, checked } = e.target; // Renommer id en fieldId pour éviter confusion
+    setNewField(prev => ({ ...prev, [fieldId]: type === 'checkbox' ? checked : value }));
   };
 
-  // Soumission du formulaire d'ajout de champ
   const handleAddField = async (e) => {
     e.preventDefault();
-    if (!newField.label || !newField.fieldType) {
-        setFieldsError("Le libellé et le type sont obligatoires.");
-        return;
-    }
-    // Validation pour radio/checkbox
-    if (['RADIO', 'CHECKBOX'].includes(newField.fieldType) && !newField.options) {
-        setFieldsError("Les options (séparées par ';') sont obligatoires pour ce type de champ.");
-        return;
-    }
-
-    setFieldAddingLoading(true);
-    setFieldsError('');
+    if (!newField.label || !newField.fieldType) { setFieldsError("Libellé et type requis."); return; }
+    if (['RADIO', 'CHECKBOX'].includes(newField.fieldType) && (!newField.options || newField.options.trim() === '')) {
+        setFieldsError("Options requises pour ce type."); return; }
+    setFieldActionLoading(true); setFieldsError(''); setFieldActionMessage('');
 
     try {
-        const fieldData = {
-            ...newField,
-            // Assurer que les options sont null si non applicables
-            options: ['RADIO', 'CHECKBOX'].includes(newField.fieldType) ? newField.options : null
-        };
-
-        const response = await OfferService.createCustomField(offerId, fieldData);
-
+        const fieldData = { ...newField, options: ['RADIO', 'CHECKBOX'].includes(newField.fieldType) ? newField.options : null };
+        const response = await OfferService.createCustomField(id, fieldData); // Utilise ID
         if (response.success && response.data) {
-            // Ajouter le nouveau champ à la liste locale
             setCustomFields(prev => [...prev, response.data]);
-            // Réinitialiser le formulaire d'ajout
             setNewField({ label: '', fieldType: 'TEXT', options: '', isRequired: false });
-        } else {
-            setFieldsError(response.message || "Erreur lors de l'ajout.");
-        }
+            setFieldActionMessage('Champ ajouté !');
+            setTimeout(() => setFieldActionMessage(''), 2000);
+        } else { setFieldsError(response.message || "Erreur ajout."); }
     } catch (err) {
-        console.error(err);
-        setFieldsError(err.message || "Erreur lors de l'ajout du champ.");
-    } finally {
-        setFieldAddingLoading(false);
-    }
+        console.error("Erreur ajout champ:", err); setFieldsError(err.message || "Erreur ajout.");
+    } finally { setFieldActionLoading(false); }
   };
 
-  // Suppression d'un champ
-  const handleDeleteField = async (fieldId) => {
-    // Demande de confirmation
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce champ ? Les réponses associées seront perdues.")) {
-        return;
-    }
-
-    setFieldsError(''); // Réinitialise l'erreur
-
+  const handleDeleteField = async (fieldIdToDelete) => {
+    if (!window.confirm("Supprimer ce champ ?")) return;
+    setFieldsError(''); setFieldActionMessage(''); setFieldActionLoading(true);
     try {
-        const response = await OfferService.deleteCustomField(offerId, fieldId);
+        const response = await OfferService.deleteCustomField(id, fieldIdToDelete); // Utilise ID
         if (response.success) {
-            // Mettre à jour l'état en filtrant le champ supprimé
-            setCustomFields(prev => prev.filter(field => field.id !== fieldId));
-        } else {
-             setFieldsError(response.message || "Erreur lors de la suppression.");
-        }
+            setCustomFields(prev => prev.filter(field => field.id !== fieldIdToDelete));
+            setFieldActionMessage('Champ supprimé !');
+            setTimeout(() => setFieldActionMessage(''), 2000);
+        } else { setFieldsError(response.message || "Erreur suppression."); }
     } catch (err) {
-        console.error(err);
-        setFieldsError(err.message || "Erreur lors de la suppression du champ.");
-    }
+        console.error("Erreur suppression champ:", err); setFieldsError(err.message || "Erreur suppression.");
+    } finally { setFieldActionLoading(false); }
   };
-  // --- <<< FIN NOUVEAUX GESTIONNAIRES >>> ---
 
+  // --- Rendu JSX ---
+  // Affiche chargement principal si offre charge en mode édition
+  if (loading && isEditMode) return <div style={{padding:'2rem', textAlign:'center'}}><span className="loading"></span> Chargement...</div>;
 
   return (
     <div className="form-card" style={{ maxWidth: '800px' }}>
-      <h2 className="form-title">{isEditMode ? "Modifier l'offre" : "Créer une offre"}</h2>
+      <h2 className="form-title">{pageTitle}</h2>
       <Link to="/offers/manage" style={{ display: 'inline-block', marginBottom: '1rem', color: 'var(--primary-color)' }}>
-        &larr; Retour à la gestion
+        &larr; Retour
       </Link>
 
-      {/* --- Formulaire Principal (Offre) --- */}
+      {/* Formulaire Principal (Offre) */}
       <form onSubmit={handleSubmit}>
-        
-        {/* Titre */}
+        {/* Champs Title, Description, Location, Contract Type, Status (comme ton ancien code) */}
         <div className="form-group">
-          <label htmlFor="title" className="form-label">Titre de l'offre</label>
-          <input type="text" id="title" className="form-input" value={formData.title} onChange={handleChange} placeholder="Ex: Développeur Full-Stack" required />
+          <label htmlFor="title" className="form-label">Titre</label>
+          <input type="text" id="title" className="form-input" value={offerData.title} onChange={handleChange} required minLength="5" />
         </div>
-
-        {/* Description */}
         <div className="form-group">
           <label htmlFor="description" className="form-label">Description</label>
-          <textarea id="description" className="form-input" value={formData.description} onChange={handleChange} rows="8" placeholder="Détail des missions, profil recherché..." required minLength="20"></textarea>
+          <textarea id="description" className="form-input" value={offerData.description} onChange={handleChange} rows="8" required minLength="20"></textarea>
         </div>
-        
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-            {/* Localisation */}
-            <div className="form-group">
-              <label htmlFor="location" className="form-label">Localisation</label>
-              <input type="text" id="location" className="form-input" value={formData.location} onChange={handleChange} placeholder="Ex: Casablanca" required />
-            </div>
-
-            {/* Type de contrat */}
-            <div className="form-group">
-              <label htmlFor="contractType" className="form-label">Type de contrat</label>
-              <select id="contractType" className="form-input" value={formData.contractType} onChange={handleChange}>
-                <option value="CDI">CDI</option>
-                <option value="CDD">CDD</option>
-                <option value="STAGE">STAGE</option>
-                <option value="ALTERNANCE">ALTERNANCE</option>
-                <option value="FREELANCE">FREELANCE</option>
-              </select>
-            </div>
-
-            {/* Statut (Brouillon/Publiée) */}
-            <div className="form-group">
-              <label htmlFor="status" className="form-label">Statut</label>
-              <select id="status" className="form-input" value={formData.status} onChange={handleChange}>
-                <option value="DRAFT">Brouillon (Non visible)</option>
-                <option value="PUBLISHED">Publiée (Visible)</option>
-                <option value="ARCHIVED">Archivée (Non visible)</option>
-              </select>
-            </div>
-        </div>
-
-        {message && (
-          <div className={`message ${isSuccess ? 'message-success' : 'message-error'}`} style={{ marginTop: '1rem' }}>
-            {message}
+          <div className="form-group">
+            <label htmlFor="location" className="form-label">Lieu</label>
+            <input type="text" id="location" className="form-input" value={offerData.location} onChange={handleChange} required />
           </div>
-        )}
-
-        <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: '1rem', width: 'auto' }}>
-          {loading && <span className="loading"></span>}
-          {isEditMode ? (loading ? 'Mise à jour...' : 'Mettre à jour') : (loading ? 'Création...' : 'Créer l\'offre')}
-        </button>
+          <div className="form-group">
+            <label htmlFor="contractType" className="form-label">Contrat</label>
+            <select id="contractType" className="form-input" value={offerData.contractType} onChange={handleChange}>
+              <option value="CDI">CDI</option> <option value="CDD">CDD</option> <option value="STAGE">STAGE</option>
+              <option value="ALTERNANCE">ALTERNANCE</option> <option value="FREELANCE">FREELANCE</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="status" className="form-label">Statut</label>
+            <select id="status" className="form-input" value={offerData.status} onChange={handleChange}>
+              <option value="DRAFT">Brouillon</option> <option value="PUBLISHED">Publiée</option> <option value="ARCHIVED">Archivée</option>
+            </select>
+          </div>
+        </div>
+        {/* Afficher l'erreur principale OU le message de succès temporaire */}
+        {error && <div className={`message ${error.includes('succès') || error.includes('créée') || error.includes('jour') ? 'message-success' : 'message-error'}`} style={{ marginTop: '1rem' }}>{error}</div>}
+        {/* Boutons */}
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+           <button type="button" className="btn" onClick={() => navigate('/offers/manage')} style={{ background: 'var(--slate)', color: 'white', width: 'auto' }}>Annuler</button>
+           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: 'auto', flexGrow: 1 }}>
+               {loading && <span className="loading"></span>}
+               {isEditMode ? 'Mettre à jour' : 'Créer l\'offre'}
+           </button>
+       </div>
       </form>
-      {/* --- Fin Formulaire Principal --- */}
 
-
-      {/* --- <<< NOUVEAU : Section Champs Personnalisés (Mode Édition seulement) >>> --- */}
+      {/* --- Section Champs Personnalisés (Affichée seulement en mode édition) --- */}
       {isEditMode && (
         <fieldset style={{ border: '1px solid var(--lightest-navy)', borderRadius: 'var(--border-radius)', padding: '1.5rem', marginTop: '2.5rem' }}>
-          <legend style={{ color: 'var(--primary-color)', padding: '0 0.5rem' }}>Champs de candidature personnalisés</legend>
-          
-          <p style={{ color: 'var(--slate)', fontSize: '0.9rem', marginTop: '-0.5rem', marginBottom: '1.5rem' }}>
-            Ajoutez des questions spécifiques (lettre de motivation, portfolio, etc.) que le candidat devra remplir.
-          </p>
+          <legend style={{ color: 'var(--primary-color)', padding: '0 0.5rem' }}>Champs personnalisés</legend>
 
-          {/* Liste des champs existants */}
-          {fieldsLoading && <div><span className="loading"></span> Chargement des champs...</div>}
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
-            {customFields.length > 0 ? (
-              customFields.map(field => (
-                <div key={field.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(100, 255, 218, 0.05)', padding: '0.75rem 1rem', borderRadius: 'var(--border-radius)' }}>
-                  <div>
-                    <span style={{ color: 'var(--lightest-slate)', fontWeight: '500' }}>{field.label}</span>
-                    <span style={{ color: 'var(--slate)', fontSize: '0.8rem', marginLeft: '0.5rem' }}>({field.fieldType}{field.isRequired ? ', Requis' : ''})</span>
-                  </div>
-                  <button onClick={() => handleDeleteField(field.id)} title="Supprimer ce champ" style={{ background: 'none', border: 'none' }}>
-                    <TrashIcon />
-                  </button>
-                </div>
-              ))
-            ) : (
-              !fieldsLoading && <p style={{ color: 'var(--slate)', fontSize: '0.9rem' }}>Aucun champ personnalisé pour cette offre.</p>
-            )}
-          </div>
+          {fieldsLoading && <div style={{ textAlign:'center', padding:'1rem' }}><span className="loading"></span> Chargement...</div>}
+          {fieldsError && <div className="message message-error">{fieldsError}</div>}
+          {fieldActionMessage && <div className="message message-success">{fieldActionMessage}</div>}
 
-          {/* Formulaire d'ajout d'un nouveau champ */}
-          <form onSubmit={handleAddField} style={{ background: 'var(--navy-blue)', padding: '1rem', borderRadius: 'var(--border-radius)' }}>
-             <h4 style={{ color: 'var(--lightest-slate)', marginTop: '0', marginBottom: '1rem' }}>Ajouter un nouveau champ</h4>
-             <div className="form-group">
-                <label htmlFor="label" className="form-label" style={{fontSize: '0.8rem'}}>Libellé (Question)</label>
-                <input
-                    type="text"
-                    id="label"
-                    className="form-input"
-                    value={newField.label}
-                    onChange={handleNewFieldChange}
-                    placeholder="Ex: Lien vers votre portfolio"
-                />
-             </div>
-             
-             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
-                    <label htmlFor="fieldType" className="form-label" style={{fontSize: '0.8rem'}}>Type de champ</label>
-                    <select id="fieldType" className="form-input" value={newField.fieldType} onChange={handleNewFieldChange}>
-                        <option value="TEXT">Texte (court)</option>
-                        <option value="TEXTAREA">Texte (long / Motivation)</option>
-                        <option value="RADIO">Choix unique (Radio)</option>
-                        <option value="CHECKBOX">Choix multiples (Checkbox)</option>
-                    </select>
-                </div>
-                
-                <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '0.5rem' }}>
-                    <input
-                        type="checkbox"
-                        id="isRequired"
-                        checked={newField.isRequired}
-                        onChange={handleNewFieldChange}
-                        style={{ width: 'auto', marginRight: '0.5rem' }}
-                    />
-                    <label htmlFor="isRequired" className="form-label" style={{ marginBottom: 0 }}>Requis ?</label>
-                </div>
-             </div>
+          {/* Afficher Liste + Formulaire seulement si chargement terminé */}
+          {!fieldsLoading && (
+            <>
+              {/* Liste */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
+                {Array.isArray(customFields) && customFields.length > 0 ? (
+                  customFields.map(field => (
+                    field?.id ? ( // Utilise optional chaining ?. pour plus de sécurité
+                        <div key={field.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(100, 255, 218, 0.05)', padding: '0.75rem 1rem', borderRadius: 'var(--border-radius)' }}>
+                          <div>
+                            <span>{field.label}</span> <span style={{ color: 'var(--slate)', fontSize: '0.8rem' }}>({field.fieldType}{field.isRequired ? ', Requis' : ''})</span>
+                          </div>
+                          <button onClick={() => handleDeleteField(field.id)} title="Supprimer" disabled={fieldActionLoading} style={{ background: 'none', border: 'none' }}>
+                            <TrashIcon />
+                          </button>
+                        </div>
+                    ) : null
+                  ))
+                ) : (
+                   !fieldsError && <p style={{ color: 'var(--slate)', fontSize: '0.9rem' }}>Aucun champ personnalisé.</p>
+                )}
+              </div>
 
-            {/* Champ 'Options' (conditionnel) */}
-            {['RADIO', 'CHECKBOX'].includes(newField.fieldType) && (
+              {/* Formulaire ajout */}
+              <form onSubmit={handleAddField} style={{ background: 'var(--navy-blue)', padding: '1rem', borderRadius: 'var(--border-radius)' }}>
+                 <h4 style={{ color: 'var(--lightest-slate)', marginTop: '0', marginBottom: '1rem' }}>Ajouter un champ</h4>
+                 {/* Libellé */}
                  <div className="form-group">
-                    <label htmlFor="options" className="form-label" style={{fontSize: '0.8rem'}}>Options (séparées par un point-virgule ";")</label>
-                    <input
-                        type="text"
-                        id="options"
-                        className="form-input"
-                        value={newField.options}
-                        onChange={handleNewFieldChange}
-                        placeholder="Ex: Oui;Non;Peut-être"
-                    />
-                </div>
-            )}
-            
-            {fieldsError && <div className="message message-error">{fieldsError}</div>}
-
-            <button type="submit" className="btn" disabled={fieldAddingLoading} style={{ width: 'auto', background: 'var(--light-slate)', color: 'var(--navy-blue)', fontSize: '0.9rem' }}>
-                {fieldAddingLoading && <span className="loading"></span>}
-                Ajouter ce champ
-            </button>
-          </form>
-
+                    <label htmlFor="label" className="form-label" style={{fontSize: '0.8rem'}}>Libellé</label>
+                    {/* Utilise 'label' pour l'id, correspond à l'état newField */}
+                    <input type="text" id="label" className="form-input" value={newField.label} onChange={handleNewFieldChange} required/>
+                 </div>
+                 {/* Type et Requis */}
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems:'flex-end' }}>
+                    <div className="form-group" style={{marginBottom:0}}>
+                        <label htmlFor="fieldType" className="form-label" style={{fontSize: '0.8rem'}}>Type</label>
+                        {/* Utilise 'fieldType' pour l'id */}
+                        <select id="fieldType" className="form-input" value={newField.fieldType} onChange={handleNewFieldChange}>
+                            <option value="TEXT">Texte (court)</option> <option value="TEXTAREA">Texte (long)</option>
+                            <option value="RADIO">Choix unique</option> <option value="CHECKBOX">Choix multiples</option>
+                        </select>
+                    </div>
+                    <div className="form-group" style={{ display: 'flex', alignItems: 'center', paddingBottom: '0.75rem' }}>
+                         {/* Utilise 'isRequired' pour l'id */}
+                        <input type="checkbox" id="isRequired" checked={newField.isRequired} onChange={handleNewFieldChange} style={{ width: 'auto', marginRight: '0.5rem' }}/>
+                        <label htmlFor="isRequired" className="form-label" style={{ marginBottom: 0 }}>Requis?</label>
+                    </div>
+                 </div>
+                 {/* Options (conditionnel) */}
+                 {['RADIO', 'CHECKBOX'].includes(newField.fieldType) && (
+                     <div className="form-group">
+                        <label htmlFor="options" className="form-label" style={{fontSize: '0.8rem'}}>Options (séparées par ";")</label>
+                         {/* Utilise 'options' pour l'id */}
+                        <input type="text" id="options" className="form-input" value={newField.options} onChange={handleNewFieldChange} required/>
+                    </div>
+                 )}
+                 {/* Afficher erreur spécifique aux champs ici si elle existe */}
+                 {fieldsError && <div className="message message-error" style={{marginTop:'-0.5rem', marginBottom:'1rem'}}>{fieldsError}</div>}
+                 {/* Bouton Ajouter */}
+                 <button type="submit" className="btn" disabled={fieldActionLoading} style={{ width: 'auto', background: 'var(--light-slate)', color: 'var(--navy-blue)', fontSize: '0.9rem', marginTop:'1rem' }}>
+                    {fieldActionLoading && <span className="loading"></span>}
+                    {fieldActionLoading ? 'Ajout...' : 'Ajouter ce champ'}
+                 </button>
+              </form>
+            </>
+          )}
         </fieldset>
       )}
-      {/* --- <<< FIN NOUVELLE SECTION >>> --- */}
-
     </div>
   );
 }
