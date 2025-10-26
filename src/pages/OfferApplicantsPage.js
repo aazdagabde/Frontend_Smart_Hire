@@ -46,7 +46,7 @@ function OfferApplicantsPage() {
   const [selectedApplicantData, setSelectedApplicantData] = useState([]);
   const [selectedApplicantName, setSelectedApplicantName] = useState('');
   const [dataLoadingId, setDataLoadingId] = useState(null);
-  const [dataError, setDataError] = useState('');
+  const [, setDataError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
