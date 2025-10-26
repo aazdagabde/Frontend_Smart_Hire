@@ -9,11 +9,12 @@ function RegisterPage() {
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    phoneNumber: '' // <<< NOUVEAU CHAMP
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false); // Pour colorer le message
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -42,32 +43,28 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      // 1. Appeler AuthService.register
+      // <<< MODIFICATION ICI : Passer phoneNumber à AuthService.register >>>
       const apiResponse = await AuthService.register(
         formData.firstName,
         formData.lastName,
         formData.email,
-        formData.password
+        formData.password,
+        formData.phoneNumber // <<< NOUVEAU PARAMÈTRE
       );
 
-      // 2. --- CORRECTION ICI ---
-      // Mettre à jour l'état 'message' avec la PROPRIÉTÉ .message (string)
       setMessage(apiResponse.message || "Inscription réussie !");
-      setIsSuccess(true); // Indiquer que c'est un succès
-      
-      // Vider le formulaire
-      setFormData({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '' });
+      setIsSuccess(true);
 
-      // Redirection après succès
+      // <<< MODIFICATION ICI : Vider aussi phoneNumber >>>
+      setFormData({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '', phoneNumber: '' });
+
       setTimeout(() => {
         navigate('/login');
       }, 2500);
 
     } catch (err) {
-      // 3. --- CORRECTION ICI ---
-      // En cas d'erreur, mettre à jour l'état 'message' avec la PROPRIÉTÉ .message de l'erreur
       setMessage(err.message || "Une erreur est survenue.");
-      setIsSuccess(false); // Indiquer que c'est une erreur
+      setIsSuccess(false);
     } finally {
       setLoading(false);
     }
@@ -93,6 +90,22 @@ function RegisterPage() {
           <label htmlFor="email" className="form-label">Email</label>
           <input type="email" id="email" className="form-input" value={formData.email} onChange={handleChange} placeholder="Entrez votre email" required autoComplete="email"/>
         </div>
+
+        {/* <<< NOUVEAU BLOC : Numéro de téléphone >>> */}
+        <div className="form-group">
+          <label htmlFor="phoneNumber" className="form-label">Numéro de téléphone (Optionnel)</label>
+          <input
+            type="tel" // Utiliser type="tel" pour une meilleure sémantique/UX mobile
+            id="phoneNumber"
+            className="form-input"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            placeholder="Ex: 0612345678"
+            autoComplete="tel" // Aide le navigateur à pré-remplir
+          />
+        </div>
+        {/* <<< FIN DU NOUVEAU BLOC >>> */}
+
         {/* Mot de passe */}
         <div className="form-group">
           <label htmlFor="password" className="form-label">Mot de passe</label>
@@ -104,21 +117,18 @@ function RegisterPage() {
           <input type="password" id="confirmPassword" className="form-input" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirmez votre mot de passe" required minLength="6" autoComplete="new-password"/>
         </div>
 
-         {/* Affichage des messages (utilise isSuccess pour la couleur) */}
         {message && (
             <div className={`message ${isSuccess ? 'message-success' : 'message-error'}`}>
             {message}
             </div>
         )}
 
-        {/* Bouton de soumission */}
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading && <span className="loading" style={{ marginRight: '0.5rem' }}></span>}
           {loading ? 'Inscription...' : "S'inscrire"}
         </button>
       </form>
 
-      {/* Lien vers la page de connexion */}
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <p>Déjà un compte ? <Link to="/login" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>Se connecter</Link></p>
       </div>

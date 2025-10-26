@@ -1,35 +1,32 @@
 // src/services/AuthService.js
-import { jwtDecode } from 'jwt-decode'; // <-- IMPORTER
+import { jwtDecode } from 'jwt-decode';
 
-// Determine the API URL based on the environment
 const isProduction = process.env.NODE_ENV === 'production';
 const API_BASE_URL = isProduction
-  ? "https://backend-smart-hire.onrender.com" // Your Render backend URL
-  : "http://localhost:8080";                  // Your local backend URL
+  ? "https://backend-smart-hire.onrender.com"
+  : "http://localhost:8080";
+const AUTH_API_URL = `${API_BASE_URL}/api/auth/`;
 
-const AUTH_API_URL = `${API_BASE_URL}/api/auth/`; // Append the auth path
-
-console.log(`AuthService API URL set to: ${AUTH_API_URL}`); // For debugging
+console.log(`AuthService API URL set to: ${AUTH_API_URL}`);
 
 /**
  * Enregistre un nouvel utilisateur.
  * @returns {Promise<object>} L'objet de réponse complet du backend ({success, message, status}).
  * @throws {Error} Lance une erreur si l'inscription échoue.
  */
-const register = async (firstName, lastName, email, password) => {
-  // Use AUTH_API_URL instead of the old hardcoded string
+const register = async (firstName, lastName, email, password, phoneNumber) => {
   const response = await fetch(AUTH_API_URL + "register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ firstName, lastName, email, password }),
+    body: JSON.stringify({ firstName, lastName, email, password, phoneNumber }),
   });
 
   const apiResponse = await response.json();
 
   if (response.ok && apiResponse.success) {
-    return apiResponse; // Return the full response object on success
+    return apiResponse;
   } else {
     throw new Error(apiResponse.message || "Erreur lors de l'inscription.");
   }
@@ -41,7 +38,6 @@ const register = async (firstName, lastName, email, password) => {
  * @throws {Error} Lance une erreur si la connexion échoue.
  */
 const login = async (email, password) => {
-  // Use AUTH_API_URL instead of the old hardcoded string
   const response = await fetch(AUTH_API_URL + "login", {
     method: "POST",
     headers: {
@@ -79,27 +75,19 @@ const getCurrentUser = () => {
 
       const user = JSON.parse(userStr); // { jwt, id, ... }
 
-      // --- DÉBUT DE L'AMÉLIORATION ---
-      // 1. Décoder le token pour lire sa date d'expiration (exp)
       const decodedToken = jwtDecode(user.jwt);
-
-      // 2. Obtenir l'heure actuelle en secondes (comme le champ 'exp')
       const currentTime = Date.now() / 1000;
 
-      // 3. Comparer
       if (decodedToken.exp < currentTime) {
-          // Le token est expiré
           console.warn("Token JWT expiré, déconnexion automatique.");
-          logout(); // Nettoyer le localStorage
-          return null; // Pas d'utilisateur valide
+          logout();
+          return null;
       }
-      // --- FIN DE L'AMÉLIORATION ---
-      
-      return user; // Le token est toujours valide
+
+      return user;
   } catch (e) {
-      // Gère les erreurs de JSON.parse ou de jwtDecode (token invalide)
       console.error("Erreur lecture/décodage utilisateur depuis localStorage:", e);
-      logout(); // Nettoyer si les données sont corrompues
+      logout();
   }
   return null;
 };

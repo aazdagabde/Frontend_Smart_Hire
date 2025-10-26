@@ -1,152 +1,570 @@
 // src/pages/OfferCreateEditPage.js
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import OfferService from '../services/OfferService';
 
+// Icônes SVG
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+    <line x1="10" y1="11" x2="10" y2="17"></line>
+    <line x1="14" y1="11" x2="14" y2="17"></line>
+  </svg>
+);
+
+const PlusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+);
+
+const SettingsIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+);
+
 function OfferCreateEditPage() {
-  const [offerData, setOfferData] = useState({
-    title: '',
-    description: '',
-    location: '',
-    contractType: 'CDI', // Default value
-    status: 'DRAFT',   // Add status, default to DRAFT
-    // requiredSkills: '' // Remove requiredSkills
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [pageTitle, setPageTitle] = useState('Créer une nouvelle offre');
   const { id } = useParams();
   const navigate = useNavigate();
-  const isEditing = Boolean(id);
+  const isEditMode = Boolean(id);
+
+  const [offerData, setOfferData] = useState({ 
+    title: '', 
+    description: '', 
+    location: '', 
+    contractType: 'CDI', 
+    status: 'DRAFT' 
+  });
+  const [loading, setLoading] = useState(isEditMode);
+  const [error, setError] = useState('');
+  const [customFields, setCustomFields] = useState([]);
+  const [fieldsLoading, setFieldsLoading] = useState(isEditMode);
+  const [fieldsError, setFieldsError] = useState('');
+  const [fieldActionLoading, setFieldActionLoading] = useState(false);
+  const [newField, setNewField] = useState({ 
+    label: '', 
+    fieldType: 'TEXT', 
+    options: '', 
+    isRequired: false 
+  });
+  const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
 
   useEffect(() => {
-    const initialOfferState = {
-        title: '', description: '', location: '', contractType: 'CDI', status: 'DRAFT'
+    const initialOfferState = { 
+      title: '', 
+      description: '', 
+      location: '', 
+      contractType: 'CDI', 
+      status: 'DRAFT' 
     };
-
-    if (isEditing) {
-      setPageTitle('Modifier l\'offre');
+    
+    if (isEditMode && id) {
       setLoading(true);
-      OfferService.getOfferById(id)
-        .then(data => {
-          // Make sure to use the correct data structure from the service
-          const fetchedData = data.data; // Assuming data is wrapped
-          setOfferData({
-            title: fetchedData.title || '',
-            description: fetchedData.description || '',
-            location: fetchedData.location || '',
-            contractType: fetchedData.contractType || 'CDI', // Keep default if missing
-            status: fetchedData.status || 'DRAFT' // Add status, keep default if missing
-          });
+      setError('');
+      OfferService.getOfferDetailsForEdit(id)
+        .then(response => {
+          if (response.success && response.data) {
+            const d = response.data;
+            setOfferData({ 
+              title: d.title || '', 
+              description: d.description || '', 
+              location: d.location || '', 
+              contractType: d.contractType || 'CDI', 
+              status: d.status || 'DRAFT' 
+            });
+          } else {
+            setError(`Erreur chargement offre: ${response.message || 'Non trouvée/Accès refusé'}`);
+            setOfferData(initialOfferState);
+          }
         })
-        .catch(err => setError(`Impossible de charger l'offre: ${err.message || err}`))
+        .catch(err => {
+          console.error("Erreur getOfferDetailsForEdit:", err);
+          setError(`Erreur chargement offre: ${err.message || err}`);
+          setOfferData(initialOfferState);
+        })
         .finally(() => setLoading(false));
     } else {
-        setOfferData(initialOfferState); // Reset form for creation
-        setPageTitle('Créer une nouvelle offre');
+      setOfferData(initialOfferState);
+      setLoading(false);
     }
-  }, [id, isEditing]);
+  }, [id, isEditMode]);
+
+  useEffect(() => {
+    const fetchCustomFields = async () => {
+      setFieldsLoading(true);
+      setFieldsError('');
+      try {
+        const response = await OfferService.getCustomFields(id);
+        if (response.success && Array.isArray(response.data)) {
+          const sanitized = response.data.map(f => ({
+            ...f, 
+            options: (f && typeof f.options === 'string') ? f.options : null 
+          }));
+          setCustomFields(sanitized);
+        } else {
+          setCustomFields([]);
+          if (!response.success && response.message) setFieldsError(response.message);
+        }
+      } catch (err) {
+        console.error("Erreur chargement champs:", err);
+        setCustomFields([]);
+        if (!err.message || !err.message.toLowerCase().includes('not found')) {
+          setFieldsError(err.message || "Erreur chargement champs.");
+        }
+      } finally {
+        setFieldsLoading(false);
+      }
+    };
+    
+    if (isEditMode && id) {
+      fetchCustomFields();
+    } else {
+      setFieldsLoading(false);
+      setCustomFields([]);
+    }
+  }, [id, isEditMode]);
 
   const handleChange = (e) => {
-    setOfferData({
-      ...offerData,
-      [e.target.id]: e.target.value
-    });
+    setOfferData({ ...offerData, [e.target.id]: e.target.value });
+  };
+
+  const showActionMessage = (text, type = 'success') => {
+    setActionMessage({ text, type });
+    if (type === 'success') {
+      if (text.includes('offre')) setError('');
+      if (text.includes('Champ')) setFieldsError('');
+    }
+    setTimeout(() => setActionMessage({ text: '', type: '' }), 3000);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setActionMessage({ text: '', type: '' });
     setLoading(true);
-
-    // Prepare data matching backend DTO (contractType and status are already strings)
-    const payload = {
-      title: offerData.title,
-      description: offerData.description,
-      location: offerData.location,
-      contractType: offerData.contractType,
-      status: offerData.status,
-    };
+    const payload = { ...offerData };
 
     try {
-      if (isEditing) {
-        await OfferService.updateOffer(id, payload);
+      let response;
+      if (isEditMode) {
+        response = await OfferService.updateOffer(id, payload);
       } else {
-        await OfferService.createOffer(payload);
+        response = await OfferService.createOffer(payload);
       }
-      navigate('/offers/manage');
+
+      if (response.success) {
+        let nextUrl = '/offers/manage';
+        if (!isEditMode && response.data && response.data.id) {
+          nextUrl = `/offers/edit/${response.data.id}`;
+        }
+
+        const successMsg = isEditMode ? 'Offre mise à jour !' : 'Offre créée !';
+        showActionMessage(successMsg, 'success');
+        setTimeout(() => navigate(nextUrl), 1500);
+      } else {
+        setError(response.message || `Erreur lors de la ${isEditMode ? 'mise à jour' : 'création'}`);
+      }
     } catch (err) {
-       // Assuming the service throws an error with a message property
-       setError(`Erreur lors de la ${isEditing ? 'mise à jour' : 'création'}: ${err.message || 'Erreur inconnue'}`);
+      console.error("Erreur submit offre:", err);
+      setError(`Erreur: ${err.message || 'Inconnue'}`);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading && isEditing) return <div>Chargement de l'offre...</div>;
+  const handleNewFieldChange = (e) => {
+    const { id: fieldId, value, type, checked } = e.target;
+    setNewField(prev => ({ 
+      ...prev, 
+      [fieldId]: type === 'checkbox' ? checked : value 
+    }));
+  };
+
+  const handleAddField = async (e) => {
+    e.preventDefault();
+    if (!newField.label || !newField.fieldType) {
+      showActionMessage("Libellé et type requis.", 'error');
+      return;
+    }
+    
+    if (['RADIO', 'CHECKBOX'].includes(newField.fieldType) && (!newField.options || newField.options.trim() === '')) {
+      showActionMessage("Options requises pour ce type.", 'error');
+      return;
+    }
+
+    setFieldActionLoading(true);
+    setFieldsError('');
+    setActionMessage({ text: '', type: '' });
+    
+    try {
+      const fieldData = { 
+        ...newField, 
+        options: ['RADIO', 'CHECKBOX'].includes(newField.fieldType) ? newField.options : null 
+      };
+      const response = await OfferService.createCustomField(id, fieldData);
+      
+      if (response.success && response.data) {
+        setCustomFields(prev => [...prev, response.data]);
+        setNewField({ label: '', fieldType: 'TEXT', options: '', isRequired: false });
+        showActionMessage('Champ ajouté !', 'success');
+      } else {
+        setFieldsError(response.message || "Erreur ajout.");
+        showActionMessage(response.message || "Erreur ajout.", 'error');
+      }
+    } catch (err) {
+      console.error("Erreur ajout champ:", err);
+      setFieldsError(err.message || "Erreur ajout.");
+      showActionMessage(err.message || "Erreur ajout.", 'error');
+    } finally {
+      setFieldActionLoading(false);
+    }
+  };
+
+  const handleDeleteField = async (fieldIdToDelete) => {
+    if (!window.confirm("Supprimer ce champ ?")) return;
+    setFieldsError('');
+    setActionMessage({ text: '', type: '' });
+    setFieldActionLoading(true);
+    
+    try {
+      const response = await OfferService.deleteCustomField(id, fieldIdToDelete);
+      if (response.success || response.status === 204) {
+        setCustomFields(prev => prev.filter(field => field.id !== fieldIdToDelete));
+        showActionMessage('Champ supprimé !', 'success');
+      } else {
+        setFieldsError(response.message || "Erreur suppression.");
+        showActionMessage(response.message || "Erreur suppression.", 'error');
+      }
+    } catch (err) {
+      console.error("Erreur suppression champ:", err);
+      setFieldsError(err.message || "Erreur suppression.");
+      showActionMessage(err.message || "Erreur suppression.", 'error');
+    } finally {
+      setFieldActionLoading(false);
+    }
+  };
+
+  if (loading && isEditMode) {
+    return (
+      <div className="loading-state">
+        <div className="spinner"></div>
+        <p>Chargement de l'offre...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="form-card" style={{ maxWidth: '700px' }}>
-      <h2 className="form-title">{pageTitle}</h2>
-
-      <form onSubmit={handleSubmit}>
-        {/* Title */}
-        <div className="form-group">
-          <label htmlFor="title" className="form-label">Titre de l'offre</label>
-          <input type="text" id="title" className="form-input" value={offerData.title} onChange={handleChange} required minLength="5" />
+    <div className="page-container">
+      <div className="page-header">
+        <div className="page-header-content">
+          <div>
+            <h1 className="page-title">
+              {isEditMode ? 'Modifier l\'offre' : 'Créer une offre'}
+            </h1>
+            <p className="page-subtitle">
+              {isEditMode ? 'Modifiez les détails de votre offre' : 'Remplissez les détails de votre nouvelle offre'}
+            </p>
+          </div>
+          <Link to="/offers/manage" className="btn btn-outline">
+            ← Retour aux offres
+          </Link>
         </div>
+      </div>
 
-        {/* Description */}
-        <div className="form-group">
-          <label htmlFor="description" className="form-label">Description</label>
-          <textarea id="description" className="form-input" value={offerData.description} onChange={handleChange} rows="6" required minLength="20"></textarea>
+      <div className="form-layout">
+        <div className="form-main">
+          <div className="form-card">
+            {actionMessage.text && (
+              <div className={`alert alert-${actionMessage.type === 'success' ? 'success' : 'error'}`}>
+                <div className="alert-content">
+                  {actionMessage.text}
+                </div>
+              </div>
+            )}
+            
+            {error && !actionMessage.text && (
+              <div className="alert alert-error">
+                <div className="alert-content">
+                  {error}
+                </div>
+              </div>
+            )}
+
+            {(!loading || !isEditMode) && (
+              <form onSubmit={handleSubmit} className="offer-form">
+                <div className="form-section">
+                  <h3 className="form-section-title">Informations principales</h3>
+                  
+                  <div className="form-group">
+                    <label htmlFor="title" className="form-label">
+                      Titre de l'offre <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="title"
+                      className="form-input"
+                      value={offerData.title}
+                      onChange={handleChange}
+                      required
+                      minLength="5"
+                      placeholder="Ex: Développeur Full Stack React/Node.js"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="description" className="form-label">
+                      Description <span className="required">*</span>
+                    </label>
+                    <textarea
+                      id="description"
+                      className="form-input"
+                      value={offerData.description}
+                      onChange={handleChange}
+                      rows="8"
+                      required
+                      minLength="20"
+                      placeholder="Décrivez en détail le poste, les missions, les compétences requises..."
+                    ></textarea>
+                  </div>
+
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label htmlFor="location" className="form-label">
+                        Lieu <span className="required">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="location"
+                        className="form-input"
+                        value={offerData.location}
+                        onChange={handleChange}
+                        required
+                        placeholder="Ex: Paris, Toulouse, Télétravail..."
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="contractType" className="form-label">
+                        Type de contrat
+                      </label>
+                      <select
+                        id="contractType"
+                        className="form-input"
+                        value={offerData.contractType}
+                        onChange={handleChange}
+                      >
+                        <option value="CDI">CDI</option>
+                        <option value="CDD">CDD</option>
+                        <option value="STAGE">Stage</option>
+                        <option value="ALTERNANCE">Alternance</option>
+                        <option value="FREELANCE">Freelance</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="status" className="form-label">
+                        Statut
+                      </label>
+                      <select
+                        id="status"
+                        className="form-input"
+                        value={offerData.status}
+                        onChange={handleChange}
+                      >
+                        <option value="DRAFT">Brouillon</option>
+                        <option value="PUBLISHED">Publiée</option>
+                        <option value="ARCHIVED">Archivée</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => navigate('/offers/manage')}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <div className="spinner-small"></div>
+                        {isEditMode ? 'Mise à jour...' : 'Création...'}
+                      </>
+                    ) : (
+                      isEditMode ? 'Mettre à jour' : 'Créer l\'offre'
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+
+          {isEditMode && (
+            <div className="form-card">
+              <div className="form-section-header">
+                <SettingsIcon />
+                <h3 className="form-section-title">Champs personnalisés</h3>
+              </div>
+              
+              <p className="form-section-description">
+                Ajoutez des questions spécifiques pour les candidats
+              </p>
+
+              {fieldsLoading && (
+                <div className="loading-state">
+                  <div className="spinner"></div>
+                  <p>Chargement des champs...</p>
+                </div>
+              )}
+
+              {fieldsError && !actionMessage.text && (
+                <div className="alert alert-error">
+                  <div className="alert-content">
+                    {fieldsError}
+                  </div>
+                </div>
+              )}
+
+              {!fieldsLoading && (
+                <>
+                  {Array.isArray(customFields) && customFields.length > 0 ? (
+                    <div className="custom-fields-list">
+                      <h4>Champs existants</h4>
+                      {customFields.map(field => (
+                        field?.id && (
+                          <div key={field.id} className="custom-field-item">
+                            <div className="field-info">
+                              <span className="field-label">{field.label}</span>
+                              <span className="field-type">
+                                {field.fieldType}
+                                {field.isRequired && <span className="field-required"> • Requis</span>}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteField(field.id)}
+                              className="btn btn-danger btn-sm"
+                              disabled={fieldActionLoading}
+                              title="Supprimer"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  ) : (
+                    !fieldsError && (
+                      <div className="empty-state empty-state-small">
+                        <p>Aucun champ personnalisé</p>
+                      </div>
+                    )
+                  )}
+
+                  <div className="add-field-section">
+                    <h4>Ajouter un champ</h4>
+                    <form onSubmit={handleAddField} className="add-field-form">
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label htmlFor="label" className="form-label">
+                            Libellé <span className="required">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="label"
+                            className="form-input"
+                            value={newField.label}
+                            onChange={handleNewFieldChange}
+                            required
+                            placeholder="Ex: Disponibilité, Salaire attendu..."
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="fieldType" className="form-label">
+                            Type <span className="required">*</span>
+                          </label>
+                          <select
+                            id="fieldType"
+                            className="form-input"
+                            value={newField.fieldType}
+                            onChange={handleNewFieldChange}
+                          >
+                            <option value="TEXT">Texte court</option>
+                            <option value="TEXTAREA">Texte long</option>
+                            <option value="RADIO">Choix unique</option>
+                            <option value="CHECKBOX">Choix multiples</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {['RADIO', 'CHECKBOX'].includes(newField.fieldType) && (
+                        <div className="form-group">
+                          <label htmlFor="options" className="form-label">
+                            Options <span className="required">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="options"
+                            className="form-input"
+                            value={newField.options}
+                            onChange={handleNewFieldChange}
+                            required
+                            placeholder="Séparées par des points-virgules (;)"
+                          />
+                          <div className="form-hint">
+                            Ex: Option 1;Option 2;Option 3
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="form-group-inline">
+                        <input
+                          type="checkbox"
+                          id="isRequired"
+                          checked={newField.isRequired}
+                          onChange={handleNewFieldChange}
+                          className="checkbox"
+                        />
+                        <label htmlFor="isRequired" className="form-label">
+                          Champ obligatoire
+                        </label>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="btn btn-outline"
+                        disabled={fieldActionLoading}
+                      >
+                        {fieldActionLoading ? (
+                          <>
+                            <div className="spinner-small"></div>
+                            Ajout...
+                          </>
+                        ) : (
+                          <>
+                            <PlusIcon />
+                            Ajouter le champ
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Location */}
-        <div className="form-group">
-          <label htmlFor="location" className="form-label">Lieu</label>
-          <input type="text" id="location" className="form-input" value={offerData.location} onChange={handleChange} required />
-        </div>
-
-        {/* Contract Type */}
-        <div className="form-group">
-          <label htmlFor="contractType" className="form-label">Type de contrat</label>
-          <select id="contractType" className="form-input" value={offerData.contractType} onChange={handleChange} required>
-            {/* Options correspondent aux valeurs backend Enum */}
-            <option value="CDI">CDI</option>
-            <option value="CDD">CDD</option>
-            <option value="STAGE">Stage</option>
-            <option value="ALTERNANCE">Alternance</option>
-            <option value="FREELANCE">Freelance</option>
-          </select>
-        </div>
-
-        {/* Status (NEW FIELD) */}
-        <div className="form-group">
-            <label htmlFor="status" className="form-label">Statut de l'offre</label>
-            <select id="status" className="form-input" value={offerData.status} onChange={handleChange} required>
-                <option value="DRAFT">Brouillon (Draft)</option>
-                <option value="PUBLISHED">Publiée (Published)</option>
-                <option value="ARCHIVED">Archivée (Archived)</option> {/* Optional, if you need it */}
-            </select>
-        </div>
-
-        {/* Removed requiredSkills */}
-        {/* <div className="form-group"> ... </div> */}
-
-        {error && <div className="message message-error">{error}</div>}
-
-        {/* Buttons */}
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-           <button type="button" className="btn" onClick={() => navigate('/offers/manage')} style={{ background: 'var(--gray-color)', color: 'white', width: 'auto' }}>
-             Annuler
-           </button>
-           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: 'auto', flexGrow: 1 }}>
-             {loading && <span className="loading"></span>}
-             {isEditing ? 'Mettre à jour' : 'Créer l\'offre'}
-           </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }
