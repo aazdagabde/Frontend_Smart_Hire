@@ -1,24 +1,28 @@
 // src/index.js
 import React from 'react';
+// Correct import from 'react-dom/client'
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
-import './styles/index.css'; // Chemin CSS mis à jour
+import { BrowserRouter } from 'react-router-dom';
+import './styles/index.css';
+import './styles/App.css'; // Main styles with theme variables
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { AuthProvider } from './contexts/AuthContext'; // Chemin Contexte mis à jour
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// Use createRoot instead of create_client
+const root = ReactDOM.createRoot(document.getElementById('root')); // <<< CORRECTED HERE
+
 root.render(
   <React.StrictMode>
-    {/* BrowserRouter doit englober AuthProvider et App pour que les hooks de navigation fonctionnent partout */}
     <BrowserRouter>
-      {/* AuthProvider rend le contexte d'authentification disponible à toute l'application */}
-      <AuthProvider>
-        <App /> {/* Le composant principal de l'application */}
-      </AuthProvider>
+      <ThemeProvider> {/* ThemeProvider wraps AuthProvider and App */}
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
 
-// Fonction pour mesurer les performances (optionnel)
 reportWebVitals();

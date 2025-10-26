@@ -3,22 +3,36 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ApplicationService from '../services/ApplicationService';
 import OfferService from '../services/OfferService';
-import CustomDataModal from '../components/CustomDataModal'; // <<< AJOUTER
+import CustomDataModal from '../components/CustomDataModal';
 
-// Icône Copier (inchangée)
+// Icônes SVG
 const CopyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '5px', cursor: 'pointer' }}>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
   </svg>
 );
-// <<< NOUVEAU : Icône pour les réponses >>>
-const MessageIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-    </svg>
+
+const DownloadIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="7 10 12 15 17 10"></polyline>
+    <line x1="12" y1="15" x2="12" y2="3"></line>
+  </svg>
 );
 
+const MessageIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
+);
+
+const UserIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+  </svg>
+);
 
 function OfferApplicantsPage() {
   const { offerId } = useParams();
@@ -28,15 +42,11 @@ function OfferApplicantsPage() {
   const [error, setError] = useState('');
   const [downloadingCvId, setDownloadingCvId] = useState(null);
   const [copySuccessId, setCopySuccessId] = useState(null);
-
-  // --- <<< NOUVEL ÉTAT : Pour le modal des réponses >>> ---
   const [isDataModalOpen, setIsDataModalOpen] = useState(false);
   const [selectedApplicantData, setSelectedApplicantData] = useState([]);
   const [selectedApplicantName, setSelectedApplicantName] = useState('');
-  const [dataLoadingId, setDataLoadingId] = useState(null); // Pour le spinner du bouton
+  const [dataLoadingId, setDataLoadingId] = useState(null);
   const [dataError, setDataError] = useState('');
-  // --- <<< FIN NOUVEL ÉTAT >>> ---
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,11 +71,11 @@ function OfferApplicantsPage() {
       } catch (err) {
         console.error(err);
         if (err.message.includes('403') || err.message.includes('autorisé')) {
-             setError("Vous n'avez pas l'autorisation de voir les candidats pour cette offre.");
+          setError("Vous n'avez pas l'autorisation de voir les candidats pour cette offre.");
         } else if (err.message.includes('404') || err.message.toLowerCase().includes('not found')) {
-            setError("L'offre ou les candidatures n'ont pas été trouvées.");
+          setError("L'offre ou les candidatures n'ont pas été trouvées.");
         } else {
-            setError(err.message || 'Une erreur est survenue.');
+          setError(err.message || 'Une erreur est survenue.');
         }
         setApplicants([]);
       } finally {
@@ -75,183 +85,256 @@ function OfferApplicantsPage() {
     fetchData();
   }, [offerId]);
 
-  // handleDownloadCv (inchangé)
   const handleDownloadCv = async (applicationId, filename) => {
     setDownloadingCvId(applicationId);
     setError('');
     try {
-        await ApplicationService.downloadCv(applicationId);
+      await ApplicationService.downloadCv(applicationId);
     } catch (err) {
-        console.error("Erreur téléchargement CV:", err);
-        setError(`Erreur lors du téléchargement du CV ${filename}: ${err.message}`);
+      console.error("Erreur téléchargement CV:", err);
+      setError(`Erreur lors du téléchargement du CV ${filename}: ${err.message}`);
     } finally {
-        setDownloadingCvId(null);
+      setDownloadingCvId(null);
     }
   };
 
-  // handleCopyToClipboard (inchangé)
   const handleCopyToClipboard = (textToCopy, id) => {
     navigator.clipboard.writeText(textToCopy).then(() => {
-        setCopySuccessId(id);
-        setTimeout(() => setCopySuccessId(null), 1500);
+      setCopySuccessId(id);
+      setTimeout(() => setCopySuccessId(null), 1500);
     }).catch(err => {
-        console.error('Erreur de copie:', err);
+      console.error('Erreur de copie:', err);
     });
   };
 
-  // --- <<< NOUVELLE FONCTION : Gérer l'ouverture du modal >>> ---
   const handleViewCustomData = async (applicationId, applicantName) => {
     setDataLoadingId(applicationId);
     setDataError('');
     try {
-        const response = await ApplicationService.getApplicationCustomData(applicationId);
-        if (response.success && Array.isArray(response.data)) {
-            setSelectedApplicantData(response.data);
-            setSelectedApplicantName(applicantName);
-            setIsDataModalOpen(true);
-        } else {
-            setDataError(response.message || "Erreur lors de la récupération des réponses.");
-        }
+      const response = await ApplicationService.getApplicationCustomData(applicationId);
+      if (response.success && Array.isArray(response.data)) {
+        setSelectedApplicantData(response.data);
+        setSelectedApplicantName(applicantName);
+        setIsDataModalOpen(true);
+      } else {
+        setDataError(response.message || "Erreur lors de la récupération des réponses.");
+      }
     } catch (err) {
-        console.error(err);
-        setDataError(err.message || "Erreur lors de la récupération des réponses.");
+      console.error(err);
+      setDataError(err.message || "Erreur lors de la récupération des réponses.");
     } finally {
-        setDataLoadingId(null);
+      setDataLoadingId(null);
     }
   };
-  // --- <<< FIN NOUVELLE FONCTION >>> ---
 
-  // Helpers getStatusStyle et translateStatus (inchangés)
   const getStatusStyle = (status) => {
-    const baseStyle = { padding: '3px 10px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: '500', textTransform: 'capitalize', display: 'inline-block' };
+    const baseStyle = { 
+      padding: '6px 12px', 
+      borderRadius: '20px', 
+      fontSize: '0.8rem', 
+      fontWeight: '600', 
+      textTransform: 'capitalize',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px'
+    };
+    
     switch (status) {
-      case 'PENDING': return { ...baseStyle, backgroundColor: '#f0f0f0', color: '#555' };
-      case 'REVIEWED': return { ...baseStyle, backgroundColor: '#e0f7fa', color: '#007bff' };
-      case 'ACCEPTED': return { ...baseStyle, backgroundColor: '#e8f5e9', color: '#28a745' };
-      case 'REJECTED': return { ...baseStyle, backgroundColor: '#ffebee', color: '#dc3545' };
+      case 'PENDING': 
+        return { ...baseStyle, backgroundColor: 'var(--warning-color)', color: 'var(--text-primary)', opacity: '0.9' };
+      case 'REVIEWED': 
+        return { ...baseStyle, backgroundColor: 'var(--primary-color)', color: 'white' };
+      case 'ACCEPTED': 
+        return { ...baseStyle, backgroundColor: 'var(--success-color)', color: 'white' };
+      case 'REJECTED': 
+        return { ...baseStyle, backgroundColor: 'var(--danger-color)', color: 'white' };
       default: return baseStyle;
     }
   };
+
   const translateStatus = (status) => {
-     switch (status) {
-      case 'PENDING': return 'En attente'; case 'REVIEWED': return 'Examinée';
-      case 'ACCEPTED': return 'Acceptée'; case 'REJECTED': return 'Rejetée';
+    switch (status) {
+      case 'PENDING': return 'En attente';
+      case 'REVIEWED': return 'Examinée';
+      case 'ACCEPTED': return 'Acceptée';
+      case 'REJECTED': return 'Rejetée';
       default: return status;
     }
-  }
-
+  };
 
   return (
-    <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto' }}>
-      <h2 className="form-title">Candidats pour "{offerTitle || `Offre #${offerId}`}"</h2>
-      <Link to="/offers/manage" style={{ display: 'inline-block', marginBottom: '1.5rem', color: 'var(--primary-color)' }}>
-        &larr; Retour à la gestion des offres
-      </Link>
+    <div className="page-container">
+      <div className="page-header">
+        <div className="page-header-content">
+          <div>
+            <h1 className="page-title">Candidats</h1>
+            <p className="page-subtitle">
+              Pour l'offre : <strong>"{offerTitle || `Offre #${offerId}`}"</strong>
+            </p>
+          </div>
+          <Link to="/offers/manage" className="btn btn-outline">
+            ← Retour aux offres
+          </Link>
+        </div>
+      </div>
 
-      {loading && ( /* ... (inchangé) */
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <span className="loading"></span> Chargement des candidats...
+      {loading && (
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Chargement des candidats...</p>
         </div>
       )}
-      {error && <div className="message message-error">{error}</div>}
-      {dataError && <div className="message message-error" style={{marginTop: '0.5rem'}}>{dataError}</div>} {/* <<< AJOUT : Erreur chargement réponses */}
-
+      
+      {error && (
+        <div className="alert alert-error">
+          <div className="alert-content">
+            <strong>Erreur :</strong> {error}
+          </div>
+        </div>
+      )}
 
       {!loading && !error && (
         <>
           {applicants.length === 0 ? (
-            <div className="message message-info" style={{ textAlign: 'center' }}>
-              Aucun candidat n'a postulé à cette offre pour le moment.
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <UserIcon />
+              </div>
+              <h3>Aucun candidat</h3>
+              <p>Aucun candidat n'a postulé à cette offre pour le moment.</p>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid var(--primary-color)', textAlign: 'left', background: 'rgba(10, 25, 47, 0.6)' }}>
-                    <th style={{ padding: '0.75rem 1rem' }}>Nom</th>
-                    <th style={{ padding: '0.75rem 1rem' }}>Contact</th>
-                    <th style={{ padding: '0.75rem 1rem' }}>Date Candidature</th>
-                    <th style={{ padding: '0.75rem 1rem' }}>Statut</th>
-                    <th style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>Actions</th> {/* <<< MODIF : Colonne Actions */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {applicants.map(app => (
-                    <tr key={app.id} style={{ borderBottom: '1px solid rgba(136, 146, 176, 0.2)' }}>
-                      <td style={{ padding: '0.75rem 1rem', fontWeight: '500' }}>{app.applicantName}</td>
+            <div className="table-container">
+              <div className="applicants-stats">
+                <div className="stat-card">
+                  <div className="stat-number">{applicants.length}</div>
+                  <div className="stat-label">Candidats total</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">
+                    {applicants.filter(app => app.status === 'PENDING').length}
+                  </div>
+                  <div className="stat-label">En attente</div>
+                </div>
+              </div>
 
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {app.applicantEmail}
-                            <span onClick={() => handleCopyToClipboard(app.applicantEmail, `email-${app.id}`)} title="Copier l'email">
-                                <CopyIcon />
-                            </span>
-                            {copySuccessId === `email-${app.id}` && <span style={{fontSize: '0.7rem', color: 'var(--success)', marginLeft: '5px'}}>Copié!</span>}
-                         </div>
-                         {app.applicantPhoneNumber && (
-                           <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', color: 'var(--slate)' }}>
-                              {app.applicantPhoneNumber}
-                              <span onClick={() => handleCopyToClipboard(app.applicantPhoneNumber, `phone-${app.id}`)} title="Copier le téléphone">
-                                  <CopyIcon />
-                              </span>
-                              {copySuccessId === `phone-${app.id}` && <span style={{fontSize: '0.7rem', color: 'var(--success)', marginLeft: '5px'}}>Copié!</span>}
-                           </div>
-                         )}
-                      </td>
-
-                      <td style={{ padding: '0.75rem 1rem', color: 'var(--slate)' }}>
-                        {new Date(app.appliedAt).toLocaleDateString('fr-FR')}
-                      </td>
-                       <td style={{ padding: '0.75rem 1rem' }}>
-                         <span style={getStatusStyle(app.status)}>
-                            {translateStatus(app.status)}
-                         </span>
-                      </td>
-                      
-                      {/* <<< MODIF : Colonne Actions avec 2 boutons >>> */}
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', display: 'flex', gap: '0.5rem', justifyContent: 'center', alignItems: 'center' }}>
-                        <button
-                          className="btn"
-                          onClick={() => handleDownloadCv(app.id, app.cvFileName)}
-                          disabled={downloadingCvId === app.id}
-                          style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', width: 'auto', background: 'var(--light-slate)', color: 'var(--navy-blue)' }}
-                          title={`Télécharger ${app.cvFileName}`}
-                        >
-                          {downloadingCvId === app.id ? <span className="loading" style={{width: '12px', height: '12px'}}></span> : 'CV'}
-                        </button>
-                        
-                        {/* <<< NOUVEAU BOUTON : Voir Réponses >>> */}
-                        <button
-                          className="btn"
-                          onClick={() => handleViewCustomData(app.id, app.applicantName)}
-                          disabled={dataLoadingId === app.id}
-                          style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', width: 'auto', background: 'var(--light-slate)', color: 'var(--navy-blue)', display: 'flex', alignItems: 'center', gap: '4px' }}
-                          title="Voir les réponses personnalisées"
-                        >
-                          {dataLoadingId === app.id ? <span className="loading" style={{width: '12px', height: '12px'}}></span> : <MessageIcon />}
-                        </button>
-                      </td>
-                      {/* <<< FIN MODIF >>> */}
-
+              <div className="table-responsive">
+                <table className="applicants-table">
+                  <thead>
+                    <tr>
+                      <th>Candidat</th>
+                      <th>Contact</th>
+                      <th>Date</th>
+                      <th>Statut</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {applicants.map(app => (
+                      <tr key={app.id} className="applicant-row">
+                        <td>
+                          <div className="applicant-info">
+                            <div className="applicant-avatar">
+                              <UserIcon />
+                            </div>
+                            <div className="applicant-details">
+                              <div className="applicant-name">{app.applicantName}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="contact-info">
+                            <div className="contact-item">
+                              <span className="contact-value">{app.applicantEmail}</span>
+                              <button
+                                onClick={() => handleCopyToClipboard(app.applicantEmail, `email-${app.id}`)}
+                                className="btn-icon"
+                                title="Copier l'email"
+                              >
+                                <CopyIcon />
+                              </button>
+                              {copySuccessId === `email-${app.id}` && (
+                                <span className="copy-success">Copié!</span>
+                              )}
+                            </div>
+                            {app.applicantPhoneNumber && (
+                              <div className="contact-item">
+                                <span className="contact-value">{app.applicantPhoneNumber}</span>
+                                <button
+                                  onClick={() => handleCopyToClipboard(app.applicantPhoneNumber, `phone-${app.id}`)}
+                                  className="btn-icon"
+                                  title="Copier le téléphone"
+                                >
+                                  <CopyIcon />
+                                </button>
+                                {copySuccessId === `phone-${app.id}` && (
+                                  <span className="copy-success">Copié!</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="application-date">
+                            {new Date(app.appliedAt).toLocaleDateString('fr-FR', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </div>
+                        </td>
+                        <td>
+                          <span style={getStatusStyle(app.status)}>
+                            {translateStatus(app.status)}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              className="btn btn-outline btn-sm"
+                              onClick={() => handleDownloadCv(app.id, app.cvFileName)}
+                              disabled={downloadingCvId === app.id}
+                              title={`Télécharger ${app.cvFileName}`}
+                            >
+                              {downloadingCvId === app.id ? (
+                                <div className="spinner-small"></div>
+                              ) : (
+                                <DownloadIcon />
+                              )}
+                              CV
+                            </button>
+                            <button
+                              className="btn btn-outline btn-sm"
+                              onClick={() => handleViewCustomData(app.id, app.applicantName)}
+                              disabled={dataLoadingId === app.id}
+                              title="Voir les réponses personnalisées"
+                            >
+                              {dataLoadingId === app.id ? (
+                                <div className="spinner-small"></div>
+                              ) : (
+                                <MessageIcon />
+                              )}
+                              Réponses
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>
       )}
 
-      {/* --- <<< AJOUT DU MODAL (conditionnellement rendu) >>> --- */}
       {isDataModalOpen && (
         <CustomDataModal
-            applicantName={selectedApplicantName}
-            data={selectedApplicantData}
-            onClose={() => setIsDataModalOpen(false)}
+          applicantName={selectedApplicantName}
+          data={selectedApplicantData}
+          onClose={() => setIsDataModalOpen(false)}
         />
       )}
-      {/* --- <<< FIN AJOUT MODAL >>> --- */}
-
     </div>
   );
 }
