@@ -27,6 +27,17 @@ const SettingsIcon = () => (
   </svg>
 );
 
+// Copié depuis OfferDetailPage.js pour cohérence
+const DocumentIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+);
+
 function OfferCreateEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -276,7 +287,8 @@ function OfferCreateEditPage() {
 
       <div className="form-layout">
         <div className="form-main">
-          <div className="form-card">
+          {/* Carte principale modifiée pour être full-width et avoir un header */}
+          <div className="form-card full-width"> 
             {actionMessage.text && (
               <div className={`alert alert-${actionMessage.type === 'success' ? 'success' : 'error'}`}>
                 <div className="alert-content">
@@ -293,94 +305,101 @@ function OfferCreateEditPage() {
               </div>
             )}
 
+            {/* En-tête de section ajouté pour la cohérence */}
+            <div className="form-section-header">
+              <DocumentIcon />
+              <h3 className="form-section-title">Informations principales</h3>
+            </div>
+            <p className="form-section-description">
+              Définissez les informations de base de votre offre d'emploi.
+            </p>
+
             {(!loading || !isEditMode) && (
               <form onSubmit={handleSubmit} className="offer-form">
-                <div className="form-section">
-                  <h3 className="form-section-title">Informations principales</h3>
-                  
+                {/* La div .form-section et le h3 ont été retirés d'ici pour être mis en en-tête de carte */}
+                <div className="form-group">
+                  <label htmlFor="title" className="form-label">
+                    Titre de l'offre <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    className="form-input"
+                    value={offerData.title}
+                    onChange={handleChange}
+                    required
+                    minLength="5"
+                    placeholder="Ex: Développeur Full Stack React/Node.js"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="description" className="form-label">
+                    Description <span className="required">*</span>
+                  </label>
+                  <textarea
+                    id="description"
+                    className="form-input"
+                    value={offerData.description}
+                    onChange={handleChange}
+                    rows="8"
+                    required
+                    minLength="20"
+                    placeholder="Décrivez en détail le poste, les missions, les compétences requises..."
+                  ></textarea>
+                </div>
+
+                <div className="form-grid">
                   <div className="form-group">
-                    <label htmlFor="title" className="form-label">
-                      Titre de l'offre <span className="required">*</span>
+                    <label htmlFor="location" className="form-label">
+                      Lieu <span className="required">*</span>
                     </label>
                     <input
                       type="text"
-                      id="title"
+                      id="location"
                       className="form-input"
-                      value={offerData.title}
+                      value={offerData.location}
                       onChange={handleChange}
                       required
-                      minLength="5"
-                      placeholder="Ex: Développeur Full Stack React/Node.js"
+                      placeholder="Ex: Paris, Toulouse, Télétravail..."
                     />
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="description" className="form-label">
-                      Description <span className="required">*</span>
+                    <label htmlFor="contractType" className="form-label">
+                      Type de contrat
                     </label>
-                    <textarea
-                      id="description"
+                    <select
+                      id="contractType"
                       className="form-input"
-                      value={offerData.description}
+                      value={offerData.contractType}
                       onChange={handleChange}
-                      rows="8"
-                      required
-                      minLength="20"
-                      placeholder="Décrivez en détail le poste, les missions, les compétences requises..."
-                    ></textarea>
+                    >
+                      <option value="CDI">CDI</option>
+                      <option value="CDD">CDD</option>
+                      <option value="STAGE">Stage</option>
+                      <option value="ALTERNANCE">Alternance</option>
+                      <option value="FREELANCE">Freelance</option>
+                    </select>
                   </div>
 
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label htmlFor="location" className="form-label">
-                        Lieu <span className="required">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="location"
-                        className="form-input"
-                        value={offerData.location}
-                        onChange={handleChange}
-                        required
-                        placeholder="Ex: Paris, Toulouse, Télétravail..."
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="contractType" className="form-label">
-                        Type de contrat
-                      </label>
-                      <select
-                        id="contractType"
-                        className="form-input"
-                        value={offerData.contractType}
-                        onChange={handleChange}
-                      >
-                        <option value="CDI">CDI</option>
-                        <option value="CDD">CDD</option>
-                        <option value="STAGE">Stage</option>
-                        <option value="ALTERNANCE">Alternance</option>
-                        <option value="FREELANCE">Freelance</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="status" className="form-label">
-                        Statut
-                      </label>
-                      <select
-                        id="status"
-                        className="form-input"
-                        value={offerData.status}
-                        onChange={handleChange}
-                      >
-                        <option value="DRAFT">Brouillon</option>
-                        <option value="PUBLISHED">Publiée</option>
-                        <option value="ARCHIVED">Archivée</option>
-                      </select>
-                    </div>
+                  <div className="form-group">
+                    <label htmlFor="status" className="form-label">
+                      Statut
+                    </label>
+                    <select
+                      id="status"
+                      className="form-input"
+                      value={offerData.status}
+                      onChange={handleChange}
+                    >
+                      <option value="DRAFT">Brouillon</option>
+                      <option value="PUBLISHED">Publiée</option>
+                      <option value="ARCHIVED">Archivée</option>
+                    </select>
                   </div>
                 </div>
+                
 
                 <div className="form-actions">
                   <button
@@ -410,7 +429,8 @@ function OfferCreateEditPage() {
           </div>
 
           {isEditMode && (
-            <div className="form-card">
+            // Carte des champs personnalisés modifiée pour être full-width
+            <div className="form-card full-width">
               <div className="form-section-header">
                 <SettingsIcon />
                 <h3 className="form-section-title">Champs personnalisés</h3>

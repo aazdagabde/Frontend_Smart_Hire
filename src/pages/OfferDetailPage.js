@@ -305,17 +305,14 @@ function OfferDetailPage() {
         <div className="offer-detail-layout">
           {/* Colonne principale - Détails de l'offre */}
           <div className="offer-detail-main">
-            <div className="form-card">
+            {/* Classe 'full-width' ajoutée pour utiliser l'espace */}
+            <div className="form-card full-width">
+              {/* En-tête réorganisé pour une meilleure hiérarchie */}
               <div className="offer-header">
-                <div className="offer-meta">
-                  <span className="offer-date">
-                    <CalendarIcon />
-                    Posté le {formatDate(offer.createdAt)}
-                  </span>
-                </div>
-                
+                {/* 1. Titre */}
                 <h1 className="offer-title">{offer.title}</h1>
                 
+                {/* 2. Tags */}
                 <div className="offer-tags">
                   <span className="offer-tag">
                     <LocationIcon />
@@ -324,6 +321,14 @@ function OfferDetailPage() {
                   <span className="offer-tag">
                     <ContractIcon />
                     {offer.contractType}
+                  </span>
+                </div>
+
+                {/* 3. Méta (Date) */}
+                <div className="offer-meta">
+                  <span className="offer-date">
+                    <CalendarIcon />
+                    Posté le {formatDate(offer.createdAt)}
                   </span>
                 </div>
               </div>
@@ -342,7 +347,14 @@ function OfferDetailPage() {
           {/* Colonne latérale - Formulaire de candidature */}
           <div className="offer-detail-sidebar">
             <div className="form-card">
-              <h3 className="section-title">Postuler à cette offre</h3>
+              {/* En-tête de section ajouté pour la cohérence */}
+              <div className="form-section-header">
+                <DocumentIcon />
+                <h3 className="section-title">Postuler à cette offre</h3>
+              </div>
+              <p className="form-section-description">
+                Soumettez votre CV et répondez aux questions pour postuler.
+              </p>
 
               {!currentUser ? (
                 <div className="alert alert-info">
@@ -374,7 +386,6 @@ function OfferDetailPage() {
                     <form onSubmit={handleApply} className="application-form">
                       <div className="form-group">
                         <label htmlFor="cvFile" className="form-label">
-                          <DocumentIcon />
                           Votre CV (PDF, 5MB max) <span className="required">*</span>
                         </label>
                         <input
@@ -415,7 +426,7 @@ function OfferDetailPage() {
                       )}
 
                       {!fieldsLoading && (!Array.isArray(customFields) || customFields.length === 0) && (
-                        <div className="alert alert-info">
+                        <div className="alert alert-info" style={{ marginTop: 'var(--spacing-md)' }}>
                           <div className="alert-content">
                             Aucune information supplémentaire requise.
                           </div>
