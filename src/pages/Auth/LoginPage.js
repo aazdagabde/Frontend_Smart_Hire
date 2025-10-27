@@ -1,7 +1,7 @@
 // src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Utiliser le contexte d'authentification
+import { useAuth } from '../../contexts/AuthContext'; // Utiliser le contexte d'authentification
 
 function LoginPage() {
   const [email, setEmail] = useState('');

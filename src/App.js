@@ -9,15 +9,15 @@ import PublicOnlyRoute from './components/PublicOnlyRoute';
 
 // Pages
 import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/Auth/LoginPage';
+import RegisterPage from './pages/Auth/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import OfferListPage from './pages/OfferListPage';
-import OfferDetailPage from './pages/OfferDetailPage';
-import OfferManagePage from './pages/OfferManagePage';
-import OfferCreateEditPage from './pages/OfferCreateEditPage';
-import MyApplicationsPage from './pages/MyApplicationsPage'; // Page ajoutée à l'étape 2
-import OfferApplicantsPage from './pages/OfferApplicantsPage'; // Page ajoutée à l'étape 3
+import OfferListPage from './pages/Offer/OfferListPage';
+import OfferDetailPage from './pages/Offer/OfferDetailPage';
+import OfferManagePage from './pages/Offer/OfferManagePage';
+import OfferCreateEditPage from './pages/Offer/OfferCreateEditPage';
+import MyApplicationsPage from './pages/Application/MyApplicationsPage'; // Page ajoutée à l'étape 2
+import OfferApplicantsPage from './pages/Offer/OfferApplicantsPage'; // Page ajoutée à l'étape 3
 
 // Styles
 import './styles/App.css'; // Peut être enlevé si déjà dans index.js ou layout.js

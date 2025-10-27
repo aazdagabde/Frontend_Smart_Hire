@@ -1,9 +1,9 @@
 // src/pages/OfferApplicantsPage.js
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ApplicationService from '../services/ApplicationService';
-import OfferService from '../services/OfferService';
-import CustomDataModal from '../components/CustomDataModal';
+import ApplicationService from '../../services/ApplicationService';
+import OfferService from '../../services/OfferService';
+import CustomDataModal from '../../components/CustomDataModal';
 
 // Icônes SVG
 const CopyIcon = () => (

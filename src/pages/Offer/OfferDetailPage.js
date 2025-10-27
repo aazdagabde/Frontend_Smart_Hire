@@ -1,9 +1,9 @@
 // src/pages/OfferDetailPage.js
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import OfferService from '../services/OfferService';
-import ApplicationService from '../services/ApplicationService';
-import { useAuth } from '../contexts/AuthContext';
+import OfferService from '../../services/OfferService';
+import ApplicationService from '../../services/ApplicationService';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Icônes SVG
 const DocumentIcon = () => (
