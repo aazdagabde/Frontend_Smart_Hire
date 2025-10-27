@@ -1,9 +1,9 @@
-// Fichier : src/components/InternalNotesModal.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ApplicationService from '../services/ApplicationService';
+import '../styles/App.css'; // Import main styles
 
-// Icône X pour fermer
+// Icône X pour fermer (peut être partagée ou définie ici)
 const CloseIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -14,35 +14,55 @@ const CloseIcon = () => (
 /**
  * Modal pour éditer les notes internes d'une candidature.
  * @param {Object} props
- * @param {Object} props.application - L'objet candidature complet (contient id, internalNotes, applicantName)
+ * @param {Object} props.application - L'objet candidature complet
  * @param {Function} props.onClose - Fonction pour fermer le modal
- * @param {Function} props.onSuccess - Fonction appelée après un succès (avec l'application mise à jour)
+ * @param {Function} props.onSuccess - Fonction appelée après succès (avec l'application mise à jour)
  */
 function InternalNotesModal({ application, onClose, onSuccess }) {
-    const [notes, setNotes] = useState(application.internalNotes || '');
+    const [notes, setNotes] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState(''); // State for success message
+
+    // Initialiser les notes quand le modal s'ouvre ou l'application change
+    useEffect(() => {
+        setNotes(application?.internalNotes || '');
+        setError(''); // Reset error on open
+        setSuccessMessage(''); // Reset success message on open
+    }, [application]);
 
     const handleSave = async (e) => {
         e.preventDefault();
         setIsSaving(true);
         setError('');
+        setSuccessMessage(''); // Clear previous success message
+
         try {
+            // Assurez-vous que ApplicationService.updateInternalNotes existe !
             const response = await ApplicationService.updateInternalNotes(application.id, notes);
             if (response.success && response.data) {
-                onSuccess(response.data); // Renvoie l'application mise à jour
+                setSuccessMessage("Notes enregistrées !"); // Set success message
+                // Appeler onSuccess après un délai pour laisser le temps de voir le message
+                setTimeout(() => {
+                    onSuccess(response.data); // Renvoie l'application mise à jour
+                    // onClose(); // onSuccess devrait maintenant fermer le modal dans OfferApplicantsPage
+                }, 1000); // 1 seconde delay
             } else {
                 setError(response.message || "Erreur lors de la sauvegarde.");
             }
         } catch (err) {
+            console.error("Erreur sauvegarde notes:", err); // Log l'erreur complète
             setError(err.message || "Une erreur inconnue est survenue.");
         } finally {
-            setIsSaving(false);
+            // Ne pas remettre isSaving à false immédiatement si succès pour voir le message
+             if (!successMessage) {
+                setIsSaving(false);
+             }
         }
     };
 
     // Gérer la touche "Echap" pour fermer
-    React.useEffect(() => {
+    useEffect(() => {
         const handleEsc = (event) => {
             if (event.key === 'Escape') {
                 onClose();
@@ -55,47 +75,60 @@ function InternalNotesModal({ application, onClose, onSuccess }) {
     }, [onClose]);
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
-                <div className="modal-header">
-                    <h2 className="modal-title">Notes internes</h2>
-                    <button onClick={onClose} className="btn-icon modal-close-btn" aria-label="Fermer">
-                        <CloseIcon />
-                    </button>
-                </div>
-                
-                <p style={{ color: 'var(--text-secondary)', marginTop: '-10px', marginBottom: '15px' }}>
-                    Pour : <strong>{application.applicantName || 'Candidat inconnu'}</strong>
-                </p>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem', fontStyle: 'italic' }}>
-                    Ces notes sont privées et ne seront jamais visibles par le candidat.
-                </p>
+        // Utilisation des classes CSS globales pour l'overlay et le contenu
+        <div className="modalOverlayStyle" onClick={onClose}>
+            {/* Ajout de la classe spécifique pour potentiellement ajuster max-width via CSS */}
+            <div className="modalContentStyle internal-notes-modal-content" onClick={(e) => e.stopPropagation()} >
+                {/* Utilisation de la classe CSS globale pour le bouton fermer */}
+                <button onClick={onClose} className="closeButtonStyle" aria-label="Fermer">
+                   &times; {/* Utilisation de &times; pour un X standard */}
+                </button>
+
+                 {/* Titre utilisant form-title */}
+                 <h3 className="form-title" style={{ fontSize: '1.5rem', marginBottom: '0.5rem', textAlign: 'left' }}>
+                     Notes Internes
+                 </h3>
+
+                 {/* Nom du candidat */}
+                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                    Pour : <strong>{application?.applicantName || 'Candidat inconnu'}</strong>
+                 </p>
 
                 <form onSubmit={handleSave}>
                     <div className="form-group">
                         <label htmlFor="internalNotes" className="form-label">
                             Vos notes
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '10px', fontStyle: 'italic' }}>(privées)</span>
                         </label>
                         <textarea
                             id="internalNotes"
                             className="form-input"
-                            rows="8"
+                            rows="10" // Augmenté le nombre de lignes
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="Écrivez vos observations, impressions, ou les prochaines étapes..."
+                            disabled={isSaving}
+                            style={{ minHeight: '200px' }} // Hauteur minimale augmentée
                         />
                     </div>
 
+                    {/* Affichage des messages d'erreur ou de succès */}
                     {error && (
-                        <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
+                        <div className="message message-error">
                             {error}
                         </div>
                     )}
+                    {successMessage && (
+                        <div className="message message-success">
+                            {successMessage}
+                        </div>
+                    )}
 
-                    <div className="modal-actions" style={{ justifyContent: 'flex-end' }}>
+                    {/* Actions modales alignées à droite */}
+                    <div className="form-actions" style={{ marginTop: '1.5rem', borderTop: 'none', padding: 0 }}>
                         <button
                             type="button"
-                            className="btn btn-outline"
+                            className="btn btn-secondary btn-auto" // Utilisation de btn-secondary
                             onClick={onClose}
                             disabled={isSaving}
                         >
@@ -103,11 +136,14 @@ function InternalNotesModal({ application, onClose, onSuccess }) {
                         </button>
                         <button
                             type="submit"
-                            className="btn btn-primary"
+                            className="btn btn-primary btn-auto"
                             disabled={isSaving}
                         >
                             {isSaving ? (
-                                <div className="spinner-small-white"></div>
+                                <>
+                                    <div className="spinner-small" style={{ borderTopColor: 'var(--background-color)'}}></div> {/* Spinner adapté au fond du bouton */}
+                                    <span>Enregistrement...</span>
+                                </>
                             ) : (
                                 'Enregistrer les notes'
                             )}
