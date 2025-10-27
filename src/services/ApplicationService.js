@@ -1,4 +1,5 @@
-// src/services/ApplicationService.js
+// Fichier : src/services/ApplicationService.js
+
 import AuthService from './AuthService';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -8,9 +9,9 @@ const API_BASE_URL = isProduction
 
 const APPLICATIONS_API_URL = `${API_BASE_URL}/api/applications`;
 
-console.log(`ApplicationService API URL set to: ${APPLICATIONS_API_URL}`);
-
-// Fonction pour gérer les réponses JSON
+/**
+ * Gère la réponse JSON standard de l'API.
+ */
 const handleApiResponse = async (response) => {
     if (response.status === 204) {
         return { success: true, message: "Opération réussie (pas de contenu)" };
@@ -30,48 +31,38 @@ const handleApiResponse = async (response) => {
     }
 };
 
-// Fonction pour gérer les réponses de type fichier (Blob)
-const handleFileResponse = async (response, defaultFilename = 'cv.pdf') => {
-    if (response.ok) {
-        // Essayer d'extraire le nom de fichier de l'en-tête Content-Disposition
-        const disposition = response.headers.get('content-disposition');
-        let filename = defaultFilename;
-        if (disposition && disposition.indexOf('attachment') !== -1) {
-            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-            const matches = filenameRegex.exec(disposition);
-            if (matches != null && matches[1]) {
-              filename = matches[1].replace(/['"]/g, '');
-            }
+/**
+ * Gère une réponse de fichier (blob) de l'API.
+ */
+const handleFileResponse = async (response) => {
+    if (!response.ok) {
+        let apiResponse;
+        try {
+            apiResponse = await response.json();
+            throw new Error(apiResponse.message || `Erreur ${response.status}: ${response.statusText}`);
+        } catch (e) {
+            // Si la réponse d'erreur n'est pas JSON, lancez une erreur générique
+            throw new Error(`Erreur ${response.status}: ${response.statusText}`);
         }
-        
-        // Obtenir le blob (le fichier PDF)
-        const blob = await response.blob();
-        
-        // Créer une URL temporaire pour le blob
-        const downloadUrl = window.URL.createObjectURL(blob);
-        
-        // Créer un lien caché pour déclencher le téléchargement
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.setAttribute('download', filename); // Utiliser le nom de fichier extrait ou par défaut
-        document.body.appendChild(link);
-        link.click(); // Simuler le clic pour télécharger
-        
-        // Nettoyer
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(downloadUrl);
-        
-        return { success: true, message: "CV téléchargé avec succès." }; // Retourner un succès
-    } else {
-         // Essayer de lire une erreur JSON si le serveur en renvoie une
-         let errorMessage = `Erreur ${response.status}: ${response.statusText}`;
-         try {
-             const errorResponse = await response.json();
-             errorMessage = errorResponse.message || errorMessage;
-         } catch(e) { /* Ignorer l'erreur de parsing JSON */ }
-        throw new Error(errorMessage);
     }
+    
+    // Obtenir le nom du fichier depuis l'en-tête, s'il existe
+    const disposition = response.headers.get('content-disposition');
+    let filename = 'document.pdf'; // Nom par défaut
+    if (disposition && disposition.indexOf('filename') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+            filename = matches[1].replace(/['"]/g, '');
+        }
+    }
+
+    const blob = await response.blob();
+    return { blob, filename };
 };
+
+
+// --- Fonctions existantes ---
 
 const applyToOffer = async (offerId, formData) => {
     const response = await fetch(`${APPLICATIONS_API_URL}/apply/${offerId}`, {
@@ -99,45 +90,102 @@ const getApplicationsForOffer = async (offerId) => {
     return handleApiResponse(response);
 };
 
-// Télécharger un CV (RH ou Candidat)
-const downloadCv = async (applicationId) => {
-    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/cv`, {
-        headers: AuthService.authHeader() // Token nécessaire
-    });
-    // Utiliser le gestionnaire de réponse pour les fichiers
-    return handleFileResponse(response);
-};
-
-// <<< NOUVELLE FONCTION : Mettre à jour le CV >>>
+// Mettre à jour le CV
 const updateCv = async (applicationId, formData) => {
-    // Note : formData doit contenir une clé 'cv' avec le fichier
     const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/cv`, {
-        method: "PUT", // Ou POST si c'est ce que vous avez mis dans le backend
+        method: "PUT",
         headers: {
-            ...AuthService.authHeader() // Token nécessaire
-            // PAS de 'Content-Type': 'multipart/form-data', le navigateur le met automatiquement avec FormData
+            ...AuthService.authHeader()
         },
         body: formData,
     });
-    return handleApiResponse(response); // Gère la réponse JSON standard
+    return handleApiResponse(response);
 };
-// <<< FIN NOUVELLE FONCTION >>>
-
 
 const getApplicationCustomData = async (applicationId) => {
     const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/custom-data`, {
         headers: AuthService.authHeader()
     });
-    return handleApiResponse(response); // 'data' sera la liste des réponses {id, label, value}
+    return handleApiResponse(response);
 };
+
+const updateApplicationStatus = async (applicationId, status, message = null) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/status`, {
+        method: "PUT",
+        headers: {
+            'Content-Type': 'application/json',
+            ...AuthService.authHeader()
+        },
+        body: JSON.stringify({ status, message }),
+    });
+    return handleApiResponse(response);
+};
+
+const updateCvScore = async (applicationId, score) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/score`, {
+        method: "PUT",
+        headers: {
+            'Content-Type': 'application/json',
+            ...AuthService.authHeader()
+        },
+        body: JSON.stringify({ score }),
+    });
+    return handleApiResponse(response);
+};
+
+
+// --- FONCTIONS MODIFIÉES / NOUVELLES ---
+
+/**
+ * MODIFIÉ (Amélioration 2) : Récupère le CV et l'ouvre dans un nouvel onglet.
+ */
+const downloadCv = async (applicationId) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/cv`, {
+        headers: AuthService.authHeader()
+    });
+
+    // Utiliser handleFileResponse pour gérer les erreurs et le blob
+    const { blob } = await handleFileResponse(response);
+    
+    // Créer une URL objet pour ce Blob (qui est de type application/pdf)
+    const fileURL = URL.createObjectURL(blob);
+    
+    // Ouvrir cette URL dans un nouvel onglet
+    window.open(fileURL, '_blank');
+    
+    // Le navigateur gérera la révocation de l'URL objet lorsque l'onglet sera fermé.
+    return { success: true };
+};
+
+
+/**
+ * NOUVEAU (Amélioration 3) : Mettre à jour les notes internes du RH.
+ */
+const updateInternalNotes = async (applicationId, notes) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/notes`, {
+        method: "PUT",
+        headers: {
+            'Content-Type': 'application/json',
+            ...AuthService.authHeader()
+        },
+        body: JSON.stringify({ notes }), // Envoyer les notes
+    });
+    return handleApiResponse(response); // Renvoie { success, data, message }
+};
+
+
+// --- Exports ---
 
 const ApplicationService = {
   applyToOffer,
   getMyApplications,
   getApplicationsForOffer,
-  downloadCv,
-  updateCv, // <<< EXPORTER LA NOUVELLE FONCTION
-  getApplicationCustomData
+  downloadCv, // Modifié
+  updateCv,
+  getApplicationCustomData,
+  updateApplicationStatus,
+  updateCvScore,
+  updateInternalNotes // Nouveau
 };
 
 export default ApplicationService;
