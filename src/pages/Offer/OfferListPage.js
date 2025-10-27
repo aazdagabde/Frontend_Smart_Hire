@@ -1,6 +1,6 @@
 // src/pages/OfferListPage.js
 import React, { useState, useEffect } from 'react';
-import OfferService from '../services/OfferService';
+import OfferService from '../../services/OfferService';
 import { Link } from 'react-router-dom';
 
 function OfferListPage() {

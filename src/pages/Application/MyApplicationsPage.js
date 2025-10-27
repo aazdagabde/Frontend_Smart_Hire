@@ -1,8 +1,8 @@
 // src/pages/MyApplicationsPage.js
 import React, { useState, useEffect } from 'react';
-import ApplicationService from '../services/ApplicationService';
+import ApplicationService from '../../services/ApplicationService';
 import { Link } from 'react-router-dom';
-import UpdateCvModal from '../components/UpdateCvModal';
+import UpdateCvModal from '../../components/UpdateCvModal';
 
 // Icônes SVG
 const DocumentIcon = () => (

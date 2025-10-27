@@ -1,7 +1,7 @@
 // src/pages/RegisterPage.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import AuthService from '../services/AuthService'; // Importer le service mis à jour
+import AuthService from '../../services/AuthService'; // Importer le service mis à jour
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
