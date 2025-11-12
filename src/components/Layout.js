@@ -1,8 +1,12 @@
 // src/components/Layout.js
 import React, { useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+// CORRECTION : Importer les hooks au lieu des contextes
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+
+// Importer le composant d'image de profil
+import ProfilePicture from './ProfilePicture';
 
 // Icons améliorés
 const SunIcon = () => (
@@ -26,7 +30,8 @@ const MoonIcon = () => (
 );
 
 const Layout = () => {
-  const { currentUser, logout } = useAuth();
+  // CORRECTION : Utiliser les hooks
+  const { auth, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,132 +50,84 @@ const Layout = () => {
     setIsMobileMenuOpen(false);
   }
 
-  const isRecruiter = currentUser?.roles?.some(role => role === 'ROLE_RH' || role === 'ROLE_ADMIN');
-  const isCandidate = currentUser?.roles?.includes('ROLE_CANDIDAT');
+  const isRecruiter = auth?.user?.roles?.some(role => role === 'ROLE_RH' || role === 'ROLE_ADMIN');
+  const isCandidate = auth?.user?.roles?.includes('ROLE_CANDIDAT');
 
   return (
-    <div className="App">
-      <nav className="navbar">
-        <div className="nav-container">
-          <Link to="/" className="nav-logo" onClick={closeMobileMenu}>
-            SmartHire
-          </Link>
-
-          {/* Menu Desktop */}
-          <ul className="nav-menu">
-            <li><Link to="/" className="nav-link">Accueil</Link></li>
-            <li><Link to="/offers" className="nav-link">Offres</Link></li>
-            
-            {!currentUser ? (
-              <>
-                <li><Link to="/login" className="nav-link">Connexion</Link></li>
-                <li><Link to="/register" className="nav-button">Inscription</Link></li>
-              </>
-            ) : (
-              <>
-                <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
-                {isRecruiter && (
-                  <li><Link to="/offers/manage" className="nav-link">Gérer Offres</Link></li>
-                )}
-                {isCandidate && (
-                  <li><Link to="/my-applications" className="nav-link">Mes Candidatures</Link></li>
-                )}
-                <li className="nav-user-info" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span className="nav-user-name" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                    {currentUser.firstName || currentUser.email}
-                  </span>
-                  <button className="nav-button" onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>
-                    Déconnexion
-                  </button>
-                </li>
-              </>
-            )}
-            
-            {/* Theme Toggle Button */}
-            <li>
-              <button 
-                onClick={toggleTheme} 
-                className="theme-toggle-button" 
-                aria-label={`Passer en mode ${theme === 'dark' ? 'clair' : 'sombre'}`}
-                title={`Mode ${theme === 'dark' ? 'clair' : 'sombre'}`}
-              >
-                {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-              </button>
-            </li>
-          </ul>
-
-          {/* Burger Button */}
+    <div className={`layout ${theme}`}>
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div className="container-fluid">
+          <Link className="navbar-brand" to="/">SmartHire</Link>
           <button 
-            className={`nav-burger ${isMobileMenuOpen ? 'toggle' : ''}`} 
+            className="navbar-toggler" 
+            type="button" 
             onClick={toggleMobileMenu}
-            aria-label="Menu"
-            aria-expanded={isMobileMenuOpen}
+            aria-controls="navbarNav" 
+            aria-expanded={isMobileMenuOpen} 
+            aria-label="Toggle navigation"
           >
-            <div className="line1"></div>
-            <div className="line2"></div>
-            <div className="line3"></div>
+            <span className="navbar-toggler-icon"></span>
           </button>
-        </div>
-
-        {/* Mobile Menu */}
-        <ul className={`nav-menu-mobile ${isMobileMenuOpen ? 'active' : ''}`}>
-          <li><Link to="/" className="nav-link" onClick={closeMobileMenu}>Accueil</Link></li>
-          <li><Link to="/offers" className="nav-link" onClick={closeMobileMenu}>Offres</Link></li>
-          
-          {!currentUser ? (
-            <>
-              <li><Link to="/login" className="nav-link" onClick={closeMobileMenu}>Connexion</Link></li>
-              <li><Link to="/register" className="nav-button" onClick={closeMobileMenu}>Inscription</Link></li>
-            </>
-          ) : (
-            <>
-              <li><Link to="/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link></li>
-              {isRecruiter && (
-                <li><Link to="/offers/manage" className="nav-link" onClick={closeMobileMenu}>Gérer Offres</Link></li>
+          <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="navbarNav">
+            <ul className="navbar-nav me-auto">
+              <li className="nav-item">
+                <Link className="nav-link" to="/" onClick={closeMobileMenu}>Accueil</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/offers" onClick={closeMobileMenu}>Offres</Link>
+              </li>
+              {auth.isAuthenticated && (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/dashboard" onClick={closeMobileMenu}>Dashboard</Link>
+                  </li>
+                  {isCandidate && (
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/my-applications" onClick={closeMobileMenu}>Mes Candidatures</Link>
+                    </li>
+                  )}
+                  {isRecruiter && (
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/offers/manage" onClick={closeMobileMenu}>Gérer mes offres</Link>
+                    </li>
+                  )}
+                </>
               )}
-              {isCandidate && (
-                <li><Link to="/my-applications" className="nav-link" onClick={closeMobileMenu}>Mes Candidatures</Link></li>
-              )}
-              <li className="nav-user-info" style={{ padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <span className="nav-user-name" style={{ color: 'var(--text-secondary)' }}>
-                    {currentUser.firstName || currentUser.email}
+            </ul>
+            <div className="d-flex align-items-center">
+              {auth.isAuthenticated ? (
+                <>
+                  <span className="navbar-text me-3 d-none d-lg-inline">
+                    Rôle: {auth.user.roles.join(', ')}
                   </span>
-                  <button 
-                    className="nav-button" 
-                    onClick={handleLogout}
-                    style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                  >
+                  
+                  {/* Ajout du composant (inchangé) */}
+                  <ProfilePicture />
+
+                  <button onClick={handleLogout} className="btn btn-outline-light ms-3">
                     Déconnexion
                   </button>
-                </div>
-              </li>
-            </>
-          )}
-          
-          {/* Theme Toggle Button Mobile */}
-          <li>
-            <button 
-              onClick={() => { 
-                toggleTheme(); 
-                closeMobileMenu(); 
-              }} 
-              className="theme-toggle-button-mobile" 
-              aria-label={`Passer en mode ${theme === 'dark' ? 'clair' : 'sombre'}`}
-            >
-              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-              <span>Mode {theme === 'dark' ? 'clair' : 'sombre'}</span>
-            </button>
-          </li>
-        </ul>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="btn btn-outline-light me-2" onClick={closeMobileMenu}>Connexion</Link>
+                  <Link to="/register" className="btn btn-primary" onClick={closeMobileMenu}>S'inscrire</Link>
+                </>
+              )}
+              <button onClick={toggleTheme} className="btn btn-secondary ms-2">
+                {theme === 'light' ? '🌙' : '☀️'}
+              </button>
+            </div>
+          </div>
+        </div>
       </nav>
 
-      <main className="container">
+      <main className="container my-4">
         <Outlet />
       </main>
 
-      <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} SmartHire. Tous droits réservés.</p>
+      <footer className="footer bg-dark text-white text-center py-3">
+        © {new Date().getFullYear()} SmartHire. Tous droits réservés.
       </footer>
     </div>
   );
