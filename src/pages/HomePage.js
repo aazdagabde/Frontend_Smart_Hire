@@ -15,7 +15,7 @@ const HomePage = () => {
       {!currentUser ? (
         <div className="hero-buttons">
           <Link to="/login" className="btn btn-primary">Se connecter</Link>
-          <Link to="/register" className="btn btn-primary" style={{ background: 'transparent', border: '2px solid white' }}>
+          <Link to="/register" className="btn btn-primary" style={{ marginLeft: '1rem' , backgroundColor: 'gray', color: 'var(--btn-secondary-text)'}}>
             S'inscrire
           </Link>
         </div>
