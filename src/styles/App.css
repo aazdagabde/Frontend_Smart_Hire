@@ -1,58 +1,60 @@
 /* src/styles/App.css */
 
-/* Variables CSS - Système de design moderne */
+/* Variables CSS - Nouvelle palette */
 :root {
-  /* Couleurs light theme */
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --secondary-color: #64748b;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --background-color: #ffffff;
-  --surface-color: #f8fafc;
-  --card-bg: #ffffff;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --border-color: #e2e8f0;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  
-  /* Espacements */
+  /* Couleurs light theme - Nouvelle palette */
+  --primary-color: #A62609;        /* Rouge/Orange principal */
+  --primary-hover: #8F2007;        /* Teinte plus foncée pour le survol */
+  --secondary-color: #BBC5AA;      /* Gris/Vert moyen */
+  --success-color: #10b981;        /* Vert original conservé pour succès */
+  --warning-color: #f59e0b;        /* Jaune original conservé pour avertissement */
+  --danger-color: #A62609;         /* Rouge/Orange réutilisé pour danger */
+  --background-color: #E6EED6;     /* Beige très clair (fond principal) */
+  --surface-color: #DDE2C6;        /* Beige légèrement plus foncé (surfaces secondaires) */
+  --card-bg: #E6EED6;              /* Fond des cartes (identique au fond principal) */
+  --text-primary: #090C02;         /* Noir/Gris très foncé (texte principal) */
+  --text-secondary: #59614C;      /* Gris/Vert foncé (texte secondaire, dérivé de #BBC5AA) */
+  --text-muted: #8A947E;           /* Gris/Vert plus clair (texte discret, dérivé de #BBC5AA) */
+  --border-color: #BBC5AA;         /* Gris/Vert moyen pour les bordures */
+
+  --shadow: 0 4px 6px -1px rgba(9, 12, 2, 0.1), 0 2px 4px -1px rgba(9, 12, 2, 0.06); /* Ombre utilisant la couleur de texte */
+  --shadow-lg: 0 10px 15px -3px rgba(9, 12, 2, 0.1), 0 4px 6px -2px rgba(9, 12, 2, 0.05); /* Ombre plus grande */
+
+  /* Espacements (inchangés) */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
-  
-  /* Bordures */
+
+  /* Bordures (inchangés) */
   --border-radius: 0.75rem;
   --border-radius-sm: 0.5rem;
   --border-radius-lg: 1rem;
-  
-  /* Transitions */
+
+  /* Transitions (inchangés) */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark theme variables */
+/* Dark theme variables - Nouvelle palette */
 [data-theme="dark"] {
-  --primary-color: #60a5fa;
-  --primary-hover: #3b82f6;
-  --secondary-color: #94a3b8;
-  --success-color: #34d399;
-  --warning-color: #fbbf24;
-  --danger-color: #f87171;
-  --background-color: #0f172a;
-  --surface-color: #1e293b;
-  --card-bg: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
-  --border-color: #334155;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --primary-color: #DDE2C6;        /* Beige clair comme couleur primaire */
+  --primary-hover: #E6EED6;        /* Beige très clair pour le survol */
+  --secondary-color: #BBC5AA;      /* Gris/Vert moyen (peut rester le même) */
+  --success-color: #34d399;        /* Vert original conservé */
+  --warning-color: #fbbf24;        /* Jaune original conservé */
+  --danger-color: #CF5638;         /* Rouge/Orange éclairci pour le mode sombre */
+  --background-color: #090C02;     /* Noir/Gris très foncé (fond principal) */
+  --surface-color: #1B200A;        /* Teinte légèrement plus claire que le fond */
+  --card-bg: #1B200A;              /* Fond des cartes */
+  --text-primary: #E6EED6;         /* Beige très clair (texte principal) */
+  --text-secondary: #DDE2C6;        /* Beige clair (texte secondaire) */
+  --text-muted: #BBC5AA;           /* Gris/Vert moyen (texte discret) */
+  --border-color: #59614C;         /* Gris/Vert foncé pour les bordures */
+
+  --shadow: 0 4px 6px -1px rgba(230, 238, 214, 0.1), 0 2px 4px -1px rgba(230, 238, 214, 0.06); /* Ombre basée sur le texte clair */
+  --shadow-lg: 0 10px 15px -3px rgba(230, 238, 214, 0.1), 0 4px 6px -2px rgba(230, 238, 214, 0.05); /* Ombre plus grande */
 }
 
 /* Reset et base */
@@ -71,7 +73,7 @@ body {
   background-color: var(--background-color);
   color: var(--text-primary);
   line-height: 1.6;
-  transition: var(--transition);
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transition plus ciblée */
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -105,10 +107,13 @@ body {
 .page-title {
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  /* Utilisation directe de la couleur primaire pour le titre */
+  color: var(--primary-color);
+  /* Suppression du gradient pour simplifier avec la nouvelle palette */
+  /* background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background-clip: text; */
   margin-bottom: var(--spacing-sm);
   line-height: 1.2;
 }
@@ -127,7 +132,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); Removed for broader compatibility or adjust effect */
 }
 
 .nav-container {
@@ -145,10 +150,7 @@ body {
   font-weight: 700;
   color: var(--primary-color);
   text-decoration: none;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  /* Suppression du gradient */
 }
 
 .nav-menu {
@@ -189,9 +191,10 @@ body {
   width: 80%;
 }
 
+/* Ajustement couleur texte bouton primaire */
 .nav-button {
   background: var(--primary-color);
-  color: white;
+  color: var(--background-color); /* Utilise la couleur de fond pour le texte pour contraster */
   border: none;
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius);
@@ -219,11 +222,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary); /* Couleur pour l'icône */
 }
 
 .theme-toggle-button:hover {
   background: var(--primary-color);
-  color: white;
+  color: var(--background-color); /* Couleur icône au survol */
   transform: rotate(15deg);
 }
 
@@ -294,7 +298,7 @@ body {
 
 .theme-toggle-button-mobile:hover {
   background: var(--primary-color);
-  color: white;
+  color: var(--background-color);
 }
 
 /* Contenu principal */
@@ -311,17 +315,17 @@ body {
   background: var(--card-bg);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-2xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow); /* Ombre par défaut */
   border: 1px solid var(--border-color);
   transition: var(--transition);
   width: 100%;
   max-width: 600px;
-  margin-bottom: var(--spacing-lg);
+  margin: 0 auto var(--spacing-lg); /* Centré par défaut */
 }
 
 .form-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg); /* Ombre plus grande au survol */
 }
 
 .form-card.full-width {
@@ -329,15 +333,12 @@ body {
 }
 
 .form-title {
-  color: var(--text-primary);
+  color: var(--primary-color); /* Utilisation directe couleur primaire */
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: var(--spacing-lg);
   text-align: center;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  /* Suppression du gradient */
 }
 
 /* Champs de formulaire */
@@ -374,17 +375,24 @@ textarea.form-input {
 .form-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(166, 38, 9, 0.1); /* Ombre focus adaptée */
 }
 
 select.form-input {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  /* Icône SVG adaptée pour le contraste */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2359614C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right var(--spacing-md) center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
 }
+
+[data-theme="dark"] select.form-input {
+ /* Icône SVG adaptée pour le contraste en mode sombre */
+ background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23BBC5AA' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
 
 textarea.form-input {
   min-height: 120px;
@@ -405,12 +413,12 @@ textarea.form-input {
   cursor: pointer;
   transition: var(--transition);
   font-size: 0.95rem;
-  width: 100%;
+  width: 100%; /* Par défaut pleine largeur, ajuster avec btn-auto */
 }
 
 .btn-primary {
   background: var(--primary-color);
-  color: white;
+  color: var(--background-color); /* Texte contrasté */
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -427,6 +435,7 @@ textarea.form-input {
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--background-color);
+  border-color: var(--text-secondary); /* Assombrir la bordure au survol */
   transform: translateY(-2px);
 }
 
@@ -438,19 +447,29 @@ textarea.form-input {
 
 .btn-outline:hover:not(:disabled) {
   background: var(--primary-color);
-  color: white;
+  color: var(--background-color); /* Texte contrasté */
   transform: translateY(-2px);
 }
 
 .btn-danger {
   background: var(--danger-color);
-  color: white;
+  color: var(--background-color); /* Texte contrasté */
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--primary-hover); /* Utilise le hover du primaire si danger=primaire */
   transform: translateY(-2px);
 }
+
+/* Styles spécifiques pour le mode sombre si danger != primaire */
+[data-theme="dark"] .btn-danger {
+  background: var(--danger-color);
+  color: var(--background-color);
+}
+[data-theme="dark"] .btn-danger:hover:not(:disabled) {
+  background: #E06C4C; /* Teinte plus claire du danger pour hover sombre */
+}
+
 
 .btn-sm {
   padding: var(--spacing-sm) var(--spacing-md);
@@ -483,6 +502,7 @@ textarea.form-input {
   background: var(--surface-color);
   color: var(--primary-color);
 }
+
 
 /* États de chargement */
 .loading-state {
@@ -533,10 +553,29 @@ textarea.form-input {
 }
 
 .alert-error {
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: rgba(166, 38, 9, 0.1); /* Couleur danger */
   border-color: var(--danger-color);
   color: var(--danger-color);
 }
+
+.alert-info {
+  background-color: rgba(187, 197, 170, 0.1); /* Couleur secondaire */
+  border-color: var(--secondary-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .alert-error {
+   background-color: rgba(207, 86, 56, 0.1); /* Couleur danger sombre */
+   border-color: var(--danger-color);
+   color: var(--danger-color);
+}
+
+[data-theme="dark"] .alert-info {
+   background-color: rgba(187, 197, 170, 0.1); /* Couleur secondaire sombre */
+   border-color: var(--secondary-color);
+   color: var(--secondary-color);
+}
+
 
 .alert-content {
   display: flex;
@@ -554,9 +593,9 @@ textarea.form-input {
 }
 
 .message-error {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(166, 38, 9, 0.1);
   color: var(--danger-color);
-  border-color: rgba(239, 68, 68, 0.3);
+  border-color: rgba(166, 38, 9, 0.3);
 }
 
 .message-success {
@@ -565,10 +604,10 @@ textarea.form-input {
   border-color: rgba(16, 185, 129, 0.3);
 }
 
-.message-info {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--primary-color);
-  border-color: rgba(59, 130, 246, 0.3);
+[data-theme="dark"] .message-error {
+   background-color: rgba(207, 86, 56, 0.1);
+   color: var(--danger-color);
+   border-color: rgba(207, 86, 56, 0.3);
 }
 
 /* États vides */
@@ -611,10 +650,7 @@ textarea.form-input {
   font-size: 3rem;
   margin-bottom: var(--spacing-md);
   font-weight: 700;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary-color); /* Couleur primaire directe */
   line-height: 1.2;
 }
 
@@ -641,12 +677,23 @@ textarea.form-input {
   min-width: 160px;
 }
 
+/* Adaptation bouton secondaire dans hero */
+.hero-buttons .btn-secondary {
+   border: 2px solid var(--primary-color);
+   color: var(--primary-color);
+   background: transparent;
+}
+.hero-buttons .btn-secondary:hover {
+   background: var(--primary-color);
+   color: var(--background-color);
+}
+
 /* Dashboard */
 .dashboard-card {
   background: var(--card-bg);
   padding: var(--spacing-2xl);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow); /* Ombre par défaut */
   text-align: center;
   border: 1px solid var(--border-color);
   max-width: 800px;
@@ -654,10 +701,7 @@ textarea.form-input {
 }
 
 .dashboard-title {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary-color); /* Couleur primaire directe */
   margin-bottom: var(--spacing-lg);
   font-size: 2rem;
   font-weight: 700;
@@ -699,23 +743,31 @@ textarea.form-input {
   color: var(--text-secondary);
   margin-bottom: var(--spacing-md);
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .offer-description {
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
   line-height: 1.5;
-  flex: 1;
+  flex-grow: 1; /* Permet à la description de prendre l'espace */
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4; /* Limite à 4 lignes */
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 6em; /* Hauteur minimale pour 4 lignes approx */
 }
 
 .offer-date {
   color: var(--text-muted);
   font-size: 0.8rem;
-  margin-top: auto;
+  margin-top: auto; /* Pousse la date en bas */
+  padding-top: var(--spacing-sm); /* Espace au-dessus de la date */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 /* Mes Candidatures */
@@ -788,6 +840,7 @@ textarea.form-input {
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
+  margin-top: var(--spacing-md); /* Espace ajouté */
 }
 
 /* Tableaux */
@@ -796,6 +849,7 @@ textarea.form-input {
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow);
+  border: 1px solid var(--border-color); /* Ajout d'une bordure globale */
 }
 
 .applicants-stats {
@@ -843,11 +897,13 @@ textarea.form-input {
   font-weight: 600;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem; /* Taille légèrement réduite */
 }
 
 .applicants-table td {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
+  vertical-align: middle; /* Alignement vertical */
 }
 
 .applicant-row:hover {
@@ -864,11 +920,17 @@ textarea.form-input {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--primary-color);
+  background: var(--secondary-color); /* Utilise la couleur secondaire pour l'avatar */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--background-color);
+  flex-shrink: 0; /* Empêche le rétrécissement */
+}
+
+.applicant-details {
+  display: flex;
+  flex-direction: column;
 }
 
 .applicant-name {
@@ -889,7 +951,8 @@ textarea.form-input {
 }
 
 .contact-value {
-  color: var(--text-primary);
+  color: var(--text-secondary); /* Couleur secondaire pour les contacts */
+  font-size: 0.9rem;
 }
 
 .copy-success {
@@ -900,7 +963,8 @@ textarea.form-input {
 
 .action-buttons {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm); /* Espace légèrement augmenté */
+  flex-wrap: wrap; /* Permet le retour à la ligne si manque de place */
 }
 
 /* Formulaires améliorés */
@@ -923,6 +987,7 @@ textarea.form-input {
   align-items: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
+  color: var(--primary-color); /* Icône en couleur primaire */
 }
 
 .form-section-title {
@@ -949,6 +1014,7 @@ textarea.form-input {
   justify-content: flex-end;
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--border-color);
+  margin-top: var(--spacing-lg); /* Ajout marge sup */
 }
 
 /* Champs personnalisés */
@@ -1016,6 +1082,7 @@ textarea.form-input {
 .checkbox {
   width: auto;
   margin: 0;
+  accent-color: var(--primary-color); /* Couleur de la coche */
 }
 
 .form-hint {
@@ -1026,6 +1093,7 @@ textarea.form-input {
 
 .required {
   color: var(--danger-color);
+  margin-left: var(--spacing-xs);
 }
 
 /* Footer */
@@ -1035,12 +1103,13 @@ textarea.form-input {
   padding: var(--spacing-xl) 0;
   text-align: center;
   color: var(--text-secondary);
-  margin-top: auto;
+  margin-top: auto; /* Pousse le footer en bas */
 }
 
 /* Scrollbar personnalisée */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px; /* Pour scrollbars horizontales */
 }
 
 ::-webkit-scrollbar-track {
@@ -1048,19 +1117,19 @@ textarea.form-input {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
+  background: var(--secondary-color); /* Utilise la couleur secondaire */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-hover);
+  background: var(--primary-color); /* Primaire au survol */
 }
 
 /* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px); /* Légère translation */
   }
   to {
     opacity: 1;
@@ -1068,234 +1137,9 @@ textarea.form-input {
   }
 }
 
-.form-card {
-  animation: fadeIn 0.6s ease-out;
+.form-card, .offer-card, .application-card, .offer-management-card {
+  animation: fadeIn 0.5s ease-out forwards; /* 'forwards' maintient l'état final */
 }
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .page-container {
-    padding: var(--spacing-lg);
-  }
-  
-  .page-header-content {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .nav-menu {
-    display: none;
-  }
-  
-  .nav-burger {
-    display: flex;
-  }
-  
-  .nav-container {
-    padding: 0 var(--spacing-sm);
-  }
-  
-  .container {
-    padding: var(--spacing-lg) var(--spacing-sm);
-  }
-  
-  .form-card {
-    padding: var(--spacing-xl) var(--spacing-lg);
-    margin: 0 var(--spacing-sm);
-  }
-  
-  .form-title {
-    font-size: 1.75rem;
-  }
-  
-  .hero-title {
-    font-size: 2.5rem;
-  }
-  
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .hero-buttons .btn {
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .application-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .application-actions {
-    justify-content: stretch;
-  }
-  
-  .application-actions .btn {
-    flex: 1;
-    min-width: 120px;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
-  }
-  
-  .applicant-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-  }
-  
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 2rem;
-  }
-  
-  .form-card {
-    padding: var(--spacing-lg) var(--spacing-md);
-  }
-  
-  .navbar {
-    padding: var(--spacing-sm);
-  }
-  
-  .form-title {
-    font-size: 1.5rem;
-  }
-  
-  .btn {
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-  
-  .page-title {
-    font-size: 1.8rem;
-  }
-}
-
-/* Styles pour les tableaux en mode mobile */
-@media (max-width: 768px) {
-  .applicants-table thead {
-    display: none;
-  }
-  
-  .applicants-table,
-  .applicants-table tbody,
-  .applicants-table tr,
-  .applicants-table td {
-    display: block;
-    width: 100%;
-  }
-  
-  .applicants-table tr {
-    margin-bottom: var(--spacing-md);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    background: var(--card-bg);
-  }
-  
-  .applicants-table td {
-    border: none;
-    padding: var(--spacing-sm) 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: right;
-  }
-  
-  .applicants-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--primary-color);
-    margin-right: var(--spacing-md);
-    text-align: left;
-    flex-basis: 40%;
-  }
-}
-
-/* Utilitaires */
-.text-center {
-  text-align: center;
-}
-
-.text-left {
-  text-align: left;
-}
-
-.text-right {
-  text-align: right;
-}
-
-.mb-0 {
-  margin-bottom: 0;
-}
-
-.mt-0 {
-  margin-top: 0;
-}
-
-.w-full {
-  width: 100%;
-}
-
-.h-full {
-  height: 100%;
-}
-
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  flex-direction: column;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.gap-2 {
-  gap: var(--spacing-sm);
-}
-
-.gap-4 {
-  gap: var(--spacing-md);
-}
-
-.gap-6 {
-  gap: var(--spacing-lg);
-}
-
-
-
-
-
-
-
-
-
-
 
 /* Styles pour OfferDetailPage */
 .offer-detail-layout {
@@ -1307,27 +1151,14 @@ textarea.form-input {
 
 .offer-header {
   margin-bottom: var(--spacing-xl);
-}
-
-.offer-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  margin-bottom: var(--spacing-sm);
-}
-
-.offer-date {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  padding-bottom: var(--spacing-xl); /* Espace ajouté sous les tags/date */
+  border-bottom: 1px solid var(--border-color); /* Ligne de séparation */
 }
 
 .offer-title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--primary-color); /* Couleur primaire directe */
   margin-bottom: var(--spacing-md);
   line-height: 1.2;
 }
@@ -1336,6 +1167,7 @@ textarea.form-input {
   display: flex;
   gap: var(--spacing-md);
   flex-wrap: wrap;
+  margin-bottom: var(--spacing-md); /* Espace sous les tags */
 }
 
 .offer-tag {
@@ -1348,10 +1180,25 @@ textarea.form-input {
   color: var(--text-secondary);
   font-size: 0.9rem;
   font-weight: 500;
+  border: 1px solid var(--border-color); /* Bordure légère */
+}
+
+.offer-meta { /* Pour la date */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.offer-date {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .offer-content {
-  margin-top: var(--spacing-xl);
+  margin-top: 0; /* Pas de marge sup car séparateur au-dessus */
 }
 
 .section-title {
@@ -1386,6 +1233,7 @@ textarea.form-input {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm); /* Espace au-dessus */
 }
 
 .radio-option,
@@ -1399,6 +1247,8 @@ textarea.form-input {
 .checkbox-input {
   width: auto;
   margin: 0;
+  accent-color: var(--primary-color);
+  cursor: pointer;
 }
 
 .radio-label,
@@ -1412,7 +1262,7 @@ textarea.form-input {
 .offers-grid {
   display: grid;
   gap: var(--spacing-lg);
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Taille min un peu plus grande */
 }
 
 .offer-management-card {
@@ -1470,16 +1320,11 @@ textarea.form-input {
   font-size: 0.85rem;
 }
 
-.offer-date {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
 .offer-actions {
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
+  margin-top: var(--spacing-md); /* Ajout d'espace */
 }
 
 .stats-grid {
@@ -1493,50 +1338,519 @@ textarea.form-input {
 @media (max-width: 1024px) {
   .offer-detail-layout {
     grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-xl); /* Espace réduit */
   }
-  
+
   .offer-detail-sidebar {
-    order: -1;
+    order: -1; /* Remonte le formulaire de candidature */
   }
 }
 
 @media (max-width: 768px) {
+  .page-container {
+    padding: var(--spacing-lg);
+  }
+
+  .page-header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .nav-menu {
+    display: none;
+  }
+
+  .nav-burger {
+    display: flex;
+  }
+
+  .nav-container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .container {
+    padding: var(--spacing-lg) var(--spacing-sm);
+  }
+
+  .form-card {
+    padding: var(--spacing-xl) var(--spacing-lg);
+    margin: 0; /* Pas de marge latérale */
+    max-width: 100%; /* Pleine largeur */
+  }
+
+  .form-title {
+    font-size: 1.75rem;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-buttons .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .application-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .application-actions {
+    justify-content: stretch;
+  }
+
+  .application-actions .btn {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch; /* Boutons pleine largeur */
+  }
+  .form-actions .btn {
+    width: 100%; /* Assure pleine largeur */
+  }
+
+
+  .action-buttons {
+    flex-direction: row; /* Reste en ligne si possible */
+    flex-wrap: wrap;
+  }
+
+  .applicant-info {
+    flex-direction: row; /* Garde en ligne sur mobile */
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
   .offers-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .offer-header {
     flex-direction: column;
     align-items: stretch;
     gap: var(--spacing-sm);
   }
-  
+
   .offer-actions {
     justify-content: stretch;
   }
-  
+
   .offer-actions .btn {
     flex: 1;
     min-width: 120px;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 480px) {
-  .offer-tags {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .form-card {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .navbar {
+    padding: var(--spacing-sm);
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+  }
+
+  .btn {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .page-title {
+    font-size: 1.8rem;
+  }
+
+   .offer-tags {
     flex-direction: column;
     align-items: flex-start;
+    gap: var(--spacing-sm); /* Espace réduit */
   }
-  
+
   .offer-actions {
     flex-direction: column;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
 }
+
+/* Styles pour les tableaux en mode mobile */
+@media (max-width: 768px) {
+  .applicants-table thead {
+    display: none;
+  }
+
+  .applicants-table,
+  .applicants-table tbody,
+  .applicants-table tr,
+  .applicants-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .applicants-table tr {
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    background: var(--card-bg);
+  }
+
+  .applicants-table td {
+    border: none;
+    padding: var(--spacing-sm) 0;
+    display: flex; /* Utilisation de flex */
+    justify-content: space-between; /* Espace entre label et valeur */
+    align-items: center;
+    text-align: right; /* Alignement de la valeur à droite */
+    border-bottom: 1px dashed var(--border-color); /* Séparateur léger */
+  }
+   .applicants-table tr td:last-child {
+      border-bottom: none; /* Pas de bordure pour le dernier td */
+   }
+
+
+  .applicants-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-right: var(--spacing-md);
+    text-align: left;
+    flex-basis: auto; /* Taille auto pour le label */
+    flex-shrink: 0; /* Empêche le rétrécissement du label */
+  }
+
+  /* Ajustement pour les boutons d'action en mode mobile */
+  .applicants-table td .action-buttons {
+    justify-content: flex-end; /* Alignement des boutons à droite */
+    flex-wrap: nowrap; /* Empêche le retour à la ligne si possible */
+  }
+}
+
+/* Utilitaires (inchangés) */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.mb-0 { margin-bottom: 0; }
+.mt-0 { margin-top: 0; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: var(--spacing-sm); }
+.gap-4 { gap: var(--spacing-md); }
+.gap-6 { gap: var(--spacing-lg); }
+
+/* Styles spécifiques pour les modales (copiés depuis CustomDataModal) */
+.modalOverlayStyle { /* Renommé pour éviter conflit de nom */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(9, 12, 2, 0.8); /* Fond avec couleur texte primaire */
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.modalContentStyle { /* Renommé pour éviter conflit de nom */
+  background: var(--card-bg); /* Fond de carte */
+  padding: 2.5rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 600px; /* Max-width pour CustomDataModal */
+  position: relative;
+  border: 1px solid var(--border-color);
+  max-height: 80vh; /* Hauteur max */
+  overflow-y: auto;  /* Scroll si nécessaire */
+}
+
+/* Ajustement spécifique pour UpdateCvModal */
+.updateCvModalContent { /* Classe spécifique pour UpdateCvModal */
+   max-width: 500px; /* Garder la largeur originale */
+}
+
+
+.closeButtonStyle { /* Renommé pour éviter conflit de nom */
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted); /* Couleur discrète */
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1; /* Pour mieux centrer le 'x' */
+}
+.closeButtonStyle:hover {
+   color: var(--danger-color); /* Devient rouge au survol */
+}
+
+/* Assurer que les styles des modales sont appliqués */
+/* Vous devrez peut-être ajouter ces classes aux éléments correspondants dans vos composants Modal */
+.custom-data-modal .modalContentStyle { max-width: 600px; }
+.update-cv-modal .modalContentStyle { max-width: 500px; }
+
+
+
+
+
+
+
+/* --- Styles pour OfferApplicantsPage --- */
+
+.applicants-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl); /* Espace entre stats et grille */
+}
+
+/* Statistiques améliorées */
+.applicants-stats-improved {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--surface-color); /* Fond légèrement différent */
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.stat-card-improved {
+  text-align: center;
+  padding: var(--spacing-md);
+  background: var(--card-bg); /* Fond de carte */
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+/* Stat number et label (styles déjà existants peuvent être utilisés ou ajustés si besoin) */
+/* .stat-number { ... } */
+/* .stat-label { ... } */
+
+/* Grille pour les cartes de candidats */
+.applicants-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Taille minimale un peu plus grande */
+  gap: var(--spacing-xl); /* Espace plus grand entre les cartes */
+}
+
+/* Carte Candidat */
+.applicant-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg); /* Espace entre les sections de la carte */
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.applicant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.applicant-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color); /* Séparateur */
+  padding-bottom: var(--spacing-md);
+}
+
+/* Avatar déjà stylé par .applicant-avatar */
+
+.applicant-card-title {
+  flex-grow: 1; /* Prend l'espace restant */
+}
+
+.applicant-name {
+  font-size: 1.15rem; /* Taille légèrement augmentée */
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.application-date-card {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.applicant-status-badge {
+  margin-left: auto; /* Pousse le badge à droite */
+  flex-shrink: 0; /* Empêche le badge de rétrécir */
+}
+
+.applicant-card-contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.contact-item-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+}
+
+.contact-item-card svg {
+  flex-shrink: 0; /* Empêche l'icône de rétrécir */
+}
+
+.contact-value {
+  flex-grow: 1; /* Prend l'espace */
+  overflow: hidden; /* Empêche le débordement */
+  text-overflow: ellipsis; /* Ajoute ... si trop long */
+  white-space: nowrap; /* Empêche le retour à la ligne */
+  font-size: 0.9rem;
+  color: var(--text-primary); /* Texte plus foncé pour meilleure lisibilité */
+}
+
+.copy-button {
+  position: relative; /* Pour le positionnement du tooltip */
+  margin-left: var(--spacing-xs);
+}
+
+.copy-success-tooltip {
+  position: absolute;
+  bottom: 100%; /* Au-dessus du bouton */
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px); /* Centré et petit espace */
+  background-color: var(--success-color);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  opacity: 0;
+  animation: fadeInTooltip 0.3s ease forwards, fadeOutTooltip 0.3s 1.2s ease forwards;
+}
+
+@keyframes fadeInTooltip {
+  to { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+}
+@keyframes fadeOutTooltip {
+  to { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+}
+
+
+/* Section Notes */
+.applicant-card-notes {
+  background-color: var(--surface-color); /* Fond distinct */
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.notes-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.notes-content {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap; /* Conserve les sauts de ligne */
+  max-height: 150px; /* Limite la hauteur avec scroll */
+  overflow-y: auto; /* Ajoute une barre de défilement si nécessaire */
+}
+
+.notes-empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Actions en bas de carte */
+.applicant-card-actions {
+  display: flex;
+  flex-wrap: wrap; /* Permet le retour à la ligne */
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color); /* Séparateur */
+  margin-top: auto; /* Pousse les actions en bas */
+}
+
+.applicant-card-actions .btn-sm {
+   padding: var(--spacing-xs) var(--spacing-sm); /* Boutons un peu plus petits */
+}
+
+/* Pour le select de statut (exemple) */
+.form-input-sm {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8rem;
+    height: auto;
+}
+
+/* Ajustements responsives pour les cartes de candidats */
+@media (max-width: 768px) {
+  .applicants-grid-layout {
+    grid-template-columns: 1fr; /* Une seule colonne */
+    gap: var(--spacing-lg);
+  }
+
+  .applicant-card-header {
+      flex-direction: column; /* Avatar au-dessus */
+      align-items: flex-start; /* Aligner à gauche */
+      gap: var(--spacing-sm);
+  }
+
+  .applicant-status-badge {
+     margin-left: 0;
+     margin-top: var(--spacing-sm);
+  }
+
+  .applicant-card-actions {
+    flex-direction: column; /* Boutons en colonne sur mobile */
+    align-items: stretch; /* Boutons pleine largeur */
+  }
+   .applicant-card-actions .btn {
+     width: 100%; /* Pleine largeur */
+   }
+}
+
+/* --- Fin Styles pour OfferApplicantsPage --- */
