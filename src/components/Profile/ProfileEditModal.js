@@ -15,7 +15,7 @@ const CloseIcon = () => (
 );
 
 const ProfileEditModal = ({ show, onClose, onProfileUpdate }) => {
-  const { currentUser } = useAuth();
+  const { currentUser } = useAuth(); // currentUser est { email, roles }
   const [profile, setProfile] = useState({ firstName: '', lastName: '', phoneNumber: '' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(NoProfileImage);
@@ -26,7 +26,7 @@ const ProfileEditModal = ({ show, onClose, onProfileUpdate }) => {
   
   // 1. Charger les données du profil quand le modal s'ouvre
   useEffect(() => {
-    if (show && currentUser) { // Vérifier que currentUser n'est pas null
+    if (show && currentUser) { 
       setError('');
       setMessage('');
       setSelectedFile(null);
@@ -34,15 +34,17 @@ const ProfileEditModal = ({ show, onClose, onProfileUpdate }) => {
       
       ProfileService.getProfile()
         .then(data => {
+          // data est le ProfileViewDTO: { id, email, firstName, lastName, ... }
           setProfile({
-            firstName: data.firstName || currentUser.firstName || '',
-            lastName: data.lastName || currentUser.lastName || '',
+            firstName: data.firstName || '', // Utiliser data, pas currentUser
+            lastName: data.lastName || '',  // Utiliser data, pas currentUser
             phoneNumber: data.phoneNumber || ''
           });
           
-          // Vérifier que currentUser.id existe avant de construire l'URL
-          if (data.hasProfilePicture && currentUser.id) {
-            setPreview(`${API_URL}/profile/${currentUser.id}/picture?timestamp=${new Date().getTime()}`);
+          // --- CORRECTION ICI ---
+          // Remplacer currentUser.id (qui est undefined) par data.id
+          if (data.hasProfilePicture && data.id) {
+            setPreview(`${API_URL}/profile/${data.id}/picture?timestamp=${new Date().getTime()}`);
           } else {
             setPreview(NoProfileImage);
           }
@@ -53,8 +55,10 @@ const ProfileEditModal = ({ show, onClose, onProfileUpdate }) => {
         })
         .finally(() => setLoading(false));
     }
-  }, [show, currentUser]); // currentUser comme dépendance
+  }, [show, currentUser]); // currentUser comme dépendance est correct
 
+  // ... (le reste du fichier handleSubmit, handleFileChange, etc. est correct) ...
+  
   // 2. Gérer la sélection du fichier image
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -72,7 +76,6 @@ const ProfileEditModal = ({ show, onClose, onProfileUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Vérifier que currentUser existe
     if (!currentUser) {
       setError('Utilisateur non connecté');
       return;
@@ -85,14 +88,17 @@ const ProfileEditModal = ({ show, onClose, onProfileUpdate }) => {
     try {
       let photoUpdated = false;
       
+      // Étape 1: Mettre à jour la photo (si elle existe)
       if (selectedFile) {
         await ProfileService.updateProfilePicture(selectedFile);
         photoUpdated = true;
       }
       
+      // Étape 2: Mettre à jour les données texte
       await ProfileService.updateProfile(profile);
       setMessage('Profil mis à jour avec succès !');
       
+      // Si la photo a été changée, forcer le rafraîchissement
       if (photoUpdated) {
         onProfileUpdate(); 
       }
@@ -102,13 +108,12 @@ const ProfileEditModal = ({ show, onClose, onProfileUpdate }) => {
       }, 1500);
 
     } catch (err) {
-      setError('Erreur: ' + err.message);
+      setError('Erreur: ' + (err.message || 'Une erreur est survenue'));
     } finally {
       setLoading(false);
     }
   };
 
-  // Ne pas rendre le modal si show est false ou currentUser est null
   if (!show || !currentUser) {
     return null;
   }

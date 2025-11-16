@@ -1,5 +1,4 @@
 /* src/components/Profile/ProfileComponents.css */
-
 /* --- ProfileAvatar (Navbar) --- */
 .profile-avatar-container {
   position: relative;
@@ -51,7 +50,7 @@
   width: 100vw;
   height: 100vh;
   /* --- CORRECTION --- */
-  /* Ces lignes étaient commentées dans votre fichier */
+  /* Décommenter ces lignes pour fixer le fond transparent */
   background-color: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(5px);
   /* --- FIN CORRECTION --- */
