@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   // Fonction de déconnexion
   const logout = () => {
     AuthService.logout(); // Supprime l'utilisateur du localStorage ET sessionStorage
-    setCurrentUser(null); // Met à jour l'état global
+    setCurrentUser(null); // Met à jour l'état global   
   };
 
   // ... (le reste du fichier, y compris 'if (loading)' et 'return', est inchangé) ...

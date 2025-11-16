@@ -1,115 +1,116 @@
 // src/services/AuthService.js
-import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/auth';
-const USER_DATA_KEY = 'smartHireUser';
+const isProduction = process.env.NODE_ENV === 'production';
+const API_BASE_URL = isProduction
+  ? "https://backend-smart-hire.onrender.com"
+  : "http://localhost:8080";
+const AUTH_API_URL = `${API_BASE_URL}/api/auth/`;
 
-/**
- * Gère la sauvegarde de l'objet utilisateur (qui contient le JWT)
- * dans le stockage approprié.
- * @param {object} userData - L'objet utilisateur (ex: { jwt, id, email, roles, ... })
- * @param {boolean} rememberMe - Faut-il utiliser localStorage (true) ou sessionStorage (false)
- */
-const handleLoginResponse = (userData, rememberMe) => {
-  // Votre API renvoie "jwt"
-  if (userData.jwt) {
-    const storage = rememberMe ? localStorage : sessionStorage;
-    // On stocke l'objet utilisateur complet
-    storage.setItem(USER_DATA_KEY, JSON.stringify(userData));
-  }
-  return userData;
-};
+console.log(`AuthService API URL set to: ${AUTH_API_URL}`);
 
 /**
- * Fonction de Connexion
- * @param {string} email
- * @param {string} password
- * @param {boolean} rememberMe
+ * Enregistre un nouvel utilisateur.
+ * @returns {Promise<object>} L'objet de réponse complet du backend ({success, message, status}).
+ * @throws {Error} Lance une erreur si l'inscription échoue.
  */
-const login = async (email, password, rememberMe = true) => {
-  try {
-    const response = await axios.post(API_URL + '/login', {
-      email,
-      password,
-    });
-    
-    // response.data est la réponse complète de votre API: 
-    // { data: { jwt, ... }, success: true, ... }
-    
-    // On vérifie que la connexion a réussi ET que le champ "data" existe
-    if (response.data && response.data.success && response.data.data) {
-      
-      // On passe SEULEMENT response.data.data (l'objet utilisateur)
-      // à handleLoginResponse.
-      return handleLoginResponse(response.data.data, rememberMe);
+const register = async (firstName, lastName, email, password, phoneNumber) => {
+  const response = await fetch(AUTH_API_URL + "register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ firstName, lastName, email, password, phoneNumber }),
+  });
 
-    } else {
-      // Gérer le cas où success=false ou data est manquant
-      throw new Error(response.data.message || 'Réponse de connexion invalide');
-    }
+  const apiResponse = await response.json();
 
-  } catch (error) {
-    const message = (error.response && error.response.data && error.response.data.message) 
-                    || error.message || error.toString();
-    console.error("Erreur AuthService.login:", message);
-    throw new Error(message); // Propager l'erreur
+  if (response.ok && apiResponse.success) {
+    return apiResponse;
+  } else {
+    throw new Error(apiResponse.message || "Erreur lors de l'inscription.");
   }
 };
 
 /**
- * Fonction de Déconnexion
- * Supprime l'utilisateur des deux stockages.
+ * Connecte un utilisateur.
+ * @returns {Promise<object>} L'objet de réponse complet du backend ({success, data, message, status}).
+ * @throws {Error} Lance une erreur si la connexion échoue.
+ */
+const login = async (email, password) => {
+  const response = await fetch(AUTH_API_URL + "login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const apiResponse = await response.json();
+
+  if (response.ok && apiResponse.success && apiResponse.data?.jwt) {
+      // On sauvegarde l'objet 'data' (qui contient jwt, id, email...)
+      localStorage.setItem("user", JSON.stringify(apiResponse.data));
+      // On retourne cet objet utilisateur
+      return apiResponse.data; // Keep returning just the user data for login function compatibility
+  } else {
+      throw new Error(apiResponse.message || "Email ou mot de passe incorrect.");
+  }
+};
+
+/**
+ * Déconnecte l'utilisateur.
  */
 const logout = () => {
-  localStorage.removeItem(USER_DATA_KEY);
-  sessionStorage.removeItem(USER_DATA_KEY);
+  localStorage.removeItem("user");
 };
 
 /**
- * Fonction pour obtenir l'utilisateur actuel
- * Vérifie d'abord localStorage, puis sessionStorage.
+ * Récupère l'utilisateur courant (l'objet 'data' qui a été sauvegardé).
  */
 const getCurrentUser = () => {
-  let user = localStorage.getItem(USER_DATA_KEY);
-  if (user) {
-    return JSON.parse(user);
-  }
-  
-  user = sessionStorage.getItem(USER_DATA_KEY);
-  if (user) {
-    return JSON.parse(user);
-  }
+   try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return null; // Pas de user
 
+      const user = JSON.parse(userStr); // { jwt, id, ... }
+
+      const decodedToken = jwtDecode(user.jwt);
+      const currentTime = Date.now() / 1000;
+
+      if (decodedToken.exp < currentTime) {
+          console.warn("Token JWT expiré, déconnexion automatique.");
+          logout();
+          return null;
+      }
+
+      return user;
+  } catch (e) {
+      console.error("Erreur lecture/décodage utilisateur depuis localStorage:", e);
+      logout();
+  }
   return null;
 };
 
 /**
- * Fonction d'Inscription
+ * Prépare l'en-tête d'autorisation.
  */
-const register = async (firstName, lastName, email, password, role) => {
-    try {
-        const response = await axios.post(API_URL + '/register', {
-            firstName,
-            lastName,
-            email,
-            password,
-            role // Ex: "ROLE_CANDIDAT"
-        });
-        return response.data;
-    } catch (error) {
-        const message = (error.response && error.response.data && error.response.data.message) 
-                        || error.message || error.toString();
-        console.error("Erreur AuthService.register:", message);
-        throw new Error(message);
-    }
+const authHeader = () => {
+  const user = getCurrentUser(); // Récupère { jwt, id, ... }
+  if (user && user.jwt) {
+    return { Authorization: 'Bearer ' + user.jwt };
+  } else {
+    return {};
+  }
 };
 
-
+// Exporter les fonctions
 const AuthService = {
+  register,
   login,
   logout,
   getCurrentUser,
-  register,
+  authHeader
 };
 
 export default AuthService;
