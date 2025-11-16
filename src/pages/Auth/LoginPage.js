@@ -1,4 +1,4 @@
-// src/pages/LoginPage.js
+// src/pages/Auth/LoginPage.js
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; // Utiliser le contexte d'authentification
@@ -14,6 +14,7 @@ function LoginPage() {
   const location = useLocation(); 
   const { login } = useAuth(); 
 
+  // L'état 'from' est récupéré pour la redirection après connexion
   const from = location.state?.from?.pathname || "/dashboard";
 
   const handleLogin = async (e) => {
@@ -25,6 +26,12 @@ function LoginPage() {
       // Calculer 'rememberMe' basé sur l'état 'doNotRemember'
       const rememberMe = !doNotRemember;
       await login(email, password, rememberMe); // <-- Passer la valeur à login()
+
+      // --- AJOUT ---
+      // Définit l'indicateur pour ouvrir le modal de profil dans le Layout
+      sessionStorage.setItem('isFirstLogin', 'true');
+      // --- FIN DE L'AJOUT ---
+
       navigate(from, { replace: true }); 
     } catch (error) {
       console.error("Erreur de connexion:", error);

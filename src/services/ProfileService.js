@@ -7,8 +7,10 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 // Fonction pour obtenir les en-têtes d'authentification
 const getAuthHeaders = () => {
   const user = AuthService.getCurrentUser(); // Utilise la logique de AuthService
-  if (user && user.token) {
-    return { Authorization: 'Bearer ' + user.token };
+  
+  // CORRECTION : Votre 'user' stocké contient 'jwt', pas 'token'
+  if (user && user.jwt) { 
+    return { Authorization: 'Bearer ' + user.jwt }; // CORRIGÉ
   }
   return {};
 };
@@ -18,6 +20,10 @@ const handleAxiosResponse = (response) => {
     // Supposant que votre API renvoie { success: true, data: {...}, message: "..." }
     if (response.data && response.data.success) {
         return response.data.data; // Renvoie l'objet "data"
+    }
+    // Gérer aussi les réponses qui n'ont pas de 'data' (juste un message de succès)
+    if (response.data && response.data.success === true) {
+        return response.data;
     }
     return response.data;
 };
@@ -37,7 +43,6 @@ const getProfile = async () => {
     const response = await axios.get(API_URL + '/profile', {
       headers: getAuthHeaders()
     });
-    // Votre API renvoie { success: true, data: {...}, ... }
     return handleAxiosResponse(response); 
   } catch (error) {
     handleAxiosError(error);
@@ -68,8 +73,7 @@ const updateProfilePicture = async (file) => {
         'Content-Type': 'multipart/form-data'
       }
     });
-    // Cette API renvoie { success: true, message: "..." }
-    return response.data;
+    return handleAxiosResponse(response);
   } catch (error) {
     handleAxiosError(error);
   }
