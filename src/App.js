@@ -18,6 +18,7 @@ import OfferManagePage from './pages/Offer/OfferManagePage';
 import OfferCreateEditPage from './pages/Offer/OfferCreateEditPage';
 import MyApplicationsPage from './pages/Application/MyApplicationsPage'; // Page ajoutée à l'étape 2
 import OfferApplicantsPage from './pages/Offer/OfferApplicantsPage'; // Page ajoutée à l'étape 3
+import ProfilePage from './pages/Profile/ProfilePage'; // <-- AJOUT
 
 // Styles
 import './styles/App.css'; // Peut être enlevé si déjà dans index.js ou layout.js
@@ -64,7 +65,8 @@ function App() {
         {/* --- Routes Protégées (Connexion requise pour tous les rôles) --- */}
         <Route element={<ProtectedRoute />}>
           <Route path="dashboard" element={<DashboardPage />} />
-          {/* Ajoutez d'autres routes générales protégées ici (ex: profil) */}
+          {/* NOUVELLE ROUTE AJOUTÉE */}
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
 
         {/* --- Routes Protégées (Rôle RH requis) --- */}
