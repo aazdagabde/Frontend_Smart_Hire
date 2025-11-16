@@ -50,12 +50,15 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  /* --- CORRECTION --- */
+  /* Ces lignes étaient commentées dans votre fichier */
   background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  /* --- FIN CORRECTION --- */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(5px);
 }
 
 .profile-modal-content {

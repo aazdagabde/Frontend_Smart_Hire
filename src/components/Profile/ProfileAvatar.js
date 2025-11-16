@@ -1,7 +1,12 @@
 // src/components/Profile/ProfileAvatar.js
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import './ProfileComponents.css'; // Nous allons créer ce fichier CSS
+import { useAuth } from '../../contexts/AuthContext'; //
+import './ProfileComponents.css'; //
+import NoProfileImage from '../../assets/noprofile.jpeg'; //
+
+// --- CORRECTION AVERTISSEMENT ---
+// On déplace la constante API_URL ici, à l'extérieur du composant.
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
 // Icône de Crayon (Edit)
 const EditIcon = () => (
@@ -11,31 +16,25 @@ const EditIcon = () => (
   </svg>
 );
 
-// URL de l'API
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
-
 const ProfileAvatar = ({ onClick, refreshKey }) => {
   const { currentUser } = useAuth();
-  const [imageUrl, setImageUrl] = useState('/default-avatar.png'); // Image par défaut
+  const [imageUrl, setImageUrl] = useState(NoProfileImage); 
 
   useEffect(() => {
     if (currentUser && currentUser.id) {
-      // On ajoute 'timestamp' (via refreshKey) pour forcer le navigateur
-      // à re-télécharger l'image après une mise à jour, contournant le cache.
       const newUrl = `${API_URL}/profile/${currentUser.id}/picture?timestamp=${refreshKey}`;
       
-      // On vérifie si l'image existe avant de l'afficher
       fetch(newUrl)
         .then(res => {
           if (res.ok) {
             setImageUrl(newUrl);
           } else {
-            setImageUrl('/default-avatar.png');
+            setImageUrl(NoProfileImage); 
           }
         })
-        .catch(() => setImageUrl('/default-avatar.png'));
+        .catch(() => setImageUrl(NoProfileImage)); 
     }
-  }, [currentUser.id, refreshKey]); // Se met à jour si l'ID ou la clé change
+  }, [currentUser, refreshKey]); // Dépendance correcte
 
   return (
     <div className="profile-avatar-container" onClick={onClick} title="Modifier le profil">
@@ -43,7 +42,7 @@ const ProfileAvatar = ({ onClick, refreshKey }) => {
         src={imageUrl}
         alt="Avatar"
         className="profile-avatar-image"
-        onError={(e) => { e.target.src = '/default-avatar.png'; }} // Fallback
+        onError={(e) => { e.target.src = NoProfileImage; }} 
       />
       <div className="profile-avatar-overlay">
         <EditIcon />
