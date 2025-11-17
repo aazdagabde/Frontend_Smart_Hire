@@ -505,7 +505,7 @@ function OfferApplicantsPage() {
                                                 {/* --- MODIFICATION : Affichage de la photo de profil --- */}
                                                 {/* Assure-toi que 'app.candidateId' est bien fourni par ton API */}
                                                 <img
-                                                    src={`${API_URL}/profile/${app.candidateId}/picture`}
+                                                    src={`${API_URL}/profile/${app.applicantId}/picture`}
                                                     alt={`Profil de ${app.applicantName || 'Candidat'}`}
                                                     className="applicant-avatar" // Cette classe doit styler l'image
                                                     onError={(e) => { e.target.src = NoProfileImage; }}
