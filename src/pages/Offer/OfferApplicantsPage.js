@@ -1,11 +1,13 @@
-// Fichier : src/pages/Offer/OfferApplicantsPage.js
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ApplicationService from '../../services/ApplicationService';
 import OfferService from '../../services/OfferService';
 import CustomDataModal from '../../components/CustomDataModal';
 import InternalNotesModal from '../../components/InternalNotesModal';
+import NoProfileImage from '../../assets/noprofile.jpeg'; // <-- AJOUTÉ
+
+// URL de l'API pour les images
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api'; // <-- AJOUTÉ
 
 // --- Icônes SVG ---
 const CopyIcon = () => (
@@ -113,7 +115,7 @@ const StarRating = ({ score, maxScore = 5, onRate, applicationId, disabled }) =>
       {/* Affichage optionnel du score numérique */}
       <span className="score-text">
          {score !== null && score !== undefined ? `${score}/100` : '(Non noté)'}
-       </span>
+        </span>
     </div>
   );
 };
@@ -163,22 +165,22 @@ function OfferApplicantsPage() {
                         // Fallback vers l'API publique si l'API RH échoue (ex: rôle non RH accède ?)
                         const publicOfferResponse = await OfferService.getOfferById(offerId);
                         if(publicOfferResponse.success && publicOfferResponse.data) {
-                             setOfferTitle(publicOfferResponse.data.title);
+                            setOfferTitle(publicOfferResponse.data.title);
                         }
                     }
                 } catch (offerErr) {
-                     console.warn("Could not fetch offer title via RH endpoint, trying public:", offerErr);
-                     try {
+                    console.warn("Could not fetch offer title via RH endpoint, trying public:", offerErr);
+                    try {
                         const publicOfferResponse = await OfferService.getOfferById(offerId);
-                         if(publicOfferResponse.success && publicOfferResponse.data) {
-                             setOfferTitle(publicOfferResponse.data.title);
-                         } else {
+                        if(publicOfferResponse.success && publicOfferResponse.data) {
+                            setOfferTitle(publicOfferResponse.data.title);
+                        } else {
                             setOfferTitle(`Offre #${offerId}`); // Fallback final
-                         }
-                     } catch (publicErr) {
+                        }
+                    } catch (publicErr) {
                         console.error("Could not fetch offer title:", publicErr);
                         setOfferTitle(`Offre #${offerId}`); // Fallback final
-                     }
+                    }
                 }
 
                 // Récupérer les candidatures
@@ -194,11 +196,11 @@ function OfferApplicantsPage() {
                 console.error("Error fetching applicants:", err);
                 // Logique de gestion d'erreur affinée
                  if (err.message.includes('403') || err.message.toLowerCase().includes('autorisé')) {
-                   setError("Vous n'avez pas l'autorisation de voir les candidats pour cette offre.");
+                    setError("Vous n'avez pas l'autorisation de voir les candidats pour cette offre.");
                  } else if (err.message.includes('404') || err.message.toLowerCase().includes('not found')) {
-                   setError("L'offre demandée ou les candidatures associées n'ont pas été trouvées.");
+                    setError("L'offre demandée ou les candidatures associées n'ont pas été trouvées.");
                  } else {
-                   setError(err.message || 'Une erreur est survenue lors du chargement des données.');
+                    setError(err.message || 'Une erreur est survenue lors du chargement des données.');
                  }
                 setApplicants([]);
             } finally {
@@ -228,16 +230,16 @@ function OfferApplicantsPage() {
                 processedApplicants.sort((a, b) => (a.cvScore ?? 101) - (b.cvScore ?? 101)); // Les non-notés (null) vont à la fin
                 break;
             case 'appliedAt_asc':
-                 processedApplicants.sort((a, b) => new Date(a.appliedAt) - new Date(b.appliedAt));
+                processedApplicants.sort((a, b) => new Date(a.appliedAt) - new Date(b.appliedAt));
                 break;
              case 'name_asc':
-                  processedApplicants.sort((a, b) => (a.applicantName || '').localeCompare(b.applicantName || ''));
-                 break;
+                 processedApplicants.sort((a, b) => (a.applicantName || '').localeCompare(b.applicantName || ''));
+                break;
              case 'name_desc':
-                  processedApplicants.sort((a, b) => (b.applicantName || '').localeCompare(a.applicantName || ''));
-                 break;
+                 processedApplicants.sort((a, b) => (b.applicantName || '').localeCompare(a.applicantName || ''));
+                break;
             default: // appliedAt_desc (Tri par défaut)
-                 processedApplicants.sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt));
+                processedApplicants.sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt));
         }
 
         return processedApplicants;
@@ -420,18 +422,18 @@ function OfferApplicantsPage() {
         <div className="page-container">
             {/* ... En-tête de page ... */}
              <div className="page-header">
-                <div className="page-header-content">
-                    <div>
-                        <h1 className="page-title">Candidats</h1>
-                        <p className="page-subtitle">
-                         Pour l'offre : <strong>"{offerTitle || `Offre #${offerId}`}"</strong>
-                        </p>
-                    </div>
-                    <Link to="/offers/manage" className="btn btn-outline btn-auto"> {/* btn-auto */}
-                        ← Retour aux offres
-                    </Link>
-                </div>
-            </div>
+                 <div className="page-header-content">
+                     <div>
+                         <h1 className="page-title">Candidats</h1>
+                         <p className="page-subtitle">
+                          Pour l'offre : <strong>"{offerTitle || `Offre #${offerId}`}"</strong>
+                         </p>
+                     </div>
+                     <Link to="/offers/manage" className="btn btn-outline btn-auto"> {/* btn-auto */}
+                         ← Retour aux offres
+                     </Link>
+                 </div>
+             </div>
 
             {loading && ( /* ... Loading state ... */
                  <div className="loading-state"><div className="spinner"></div><p>Chargement des candidats...</p></div>
@@ -445,151 +447,159 @@ function OfferApplicantsPage() {
                     {applicants.length === 0 ? (
                         /* ... Empty state ... */
                          <div className="empty-state">
-                           <div className="empty-state-icon"><UserIcon /></div>
-                           <h3>Aucun candidat</h3>
-                           <p>Personne n'a encore postulé à cette offre.</p>
+                            <div className="empty-state-icon"><UserIcon /></div>
+                            <h3>Aucun candidat</h3>
+                            <p>Personne n'a encore postulé à cette offre.</p>
                          </div>
                     ) : (
                         <div className="applicants-container"> {/* Nouveau conteneur global */}
 
-                           {/* Barre de Filtres et Tri */}
-                            <div className="applicants-filters-bar">
-                                <div className="form-group filter-group">
-                                    <label htmlFor="statusFilter" className="form-label form-label-sm">Filtrer</label>
-                                    <select
-                                        id="statusFilter"
-                                        className="form-input form-input-sm"
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                    >
-                                        <option value="ALL">Tous les statuts</option>
-                                        {statusOptions.map(status => (
-                                            <option key={status} value={status}>
-                                                {translateStatus(status)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            {/* Barre de Filtres et Tri */}
+                             <div className="applicants-filters-bar">
+                                 <div className="form-group filter-group">
+                                     <label htmlFor="statusFilter" className="form-label form-label-sm">Filtrer</label>
+                                     <select
+                                         id="statusFilter"
+                                         className="form-input form-input-sm"
+                                         value={statusFilter}
+                                         onChange={(e) => setStatusFilter(e.target.value)}
+                                     >
+                                         <option value="ALL">Tous les statuts</option>
+                                         {statusOptions.map(status => (
+                                             <option key={status} value={status}>
+                                                 {translateStatus(status)}
+                                             </option>
+                                         ))}
+                                     </select>
+                                 </div>
 
-                                <div className="form-group filter-group">
-                                    <label htmlFor="sortBy" className="form-label form-label-sm">Trier par</label>
-                                    <select
-                                        id="sortBy"
-                                        className="form-input form-input-sm"
-                                        value={sortBy}
-                                        onChange={(e) => setSortBy(e.target.value)}
-                                    >
-                                        <option value="appliedAt_desc">Plus récent</option>
-                                        <option value="appliedAt_asc">Plus ancien</option>
-                                        <option value="score_desc">Meilleure note</option>
-                                        <option value="score_asc">Moins bonne note</option>
-                                        <option value="name_asc">Nom (A-Z)</option>
-                                        <option value="name_desc">Nom (Z-A)</option>
-                                    </select>
-                                </div>
-                                <div className="applicant-count-info">
-                                     {filteredAndSortedApplicants.length} sur {applicants.length} candidat(s) affiché(s)
-                                </div>
-                            </div>
+                                 <div className="form-group filter-group">
+                                     <label htmlFor="sortBy" className="form-label form-label-sm">Trier par</label>
+                                     <select
+                                         id="sortBy"
+                                         className="form-input form-input-sm"
+                                         value={sortBy}
+                                         onChange={(e) => setSortBy(e.target.value)}
+                                     >
+                                         <option value="appliedAt_desc">Plus récent</option>
+                                         <option value="appliedAt_asc">Plus ancien</option>
+                                         <option value="score_desc">Meilleure note</option>
+                                         <option value="score_asc">Moins bonne note</option>
+                                         <option value="name_asc">Nom (A-Z)</option>
+                                         <option value="name_desc">Nom (Z-A)</option>
+                                     </select>
+                                 </div>
+                                 <div className="applicant-count-info">
+                                      {filteredAndSortedApplicants.length} sur {applicants.length} candidat(s) affiché(s)
+                                 </div>
+                             </div>
 
-                             {/* Grille des cartes de candidats */}
-                             {filteredAndSortedApplicants.length > 0 ? (
-                                <div className="applicants-grid-layout">
-                                    {filteredAndSortedApplicants.map(app => (
-                                        <div key={app.id} className="applicant-card">
-                                            {/* Header avec avatar, nom, date, statut */}
-                                            <div className="applicant-card-header">
-                                                <div className="applicant-avatar">
-                                                    {app.applicantName?.charAt(0).toUpperCase() || '?'}
-                                                </div>
-                                                <div className="applicant-card-title">
-                                                    <h3 className="applicant-name">{app.applicantName || 'Nom inconnu'}</h3>
-                                                    <span className="application-date-card">
-                                                        Postulé le {new Date(app.appliedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                    </span>
-                                                </div>
-                                                 {/* Sélecteur de statut */}
-                                                <div className="applicant-status-selector">
-                                                    {updatingStatusId === app.id ? (
-                                                        <div className="spinner-small"></div>
-                                                    ) : (
-                                                        <select
-                                                            value={app.status}
-                                                            onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                                                            style={getStatusStyle(app.status)} // Applique le style basé sur la valeur
-                                                            className="status-select"
-                                                            disabled={updatingStatusId === app.id}
-                                                            aria-label={`Statut de ${app.applicantName}`}
-                                                        >
-                                                            {statusOptions.map(status => (
-                                                                <option key={status} value={status}>
-                                                                    {translateStatus(status)}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                             {/* Section Note CV */}
-                                             <div className="applicant-card-rating">
-                                                <label className="form-label form-label-sm">Note CV</label>
-                                                <StarRating
-                                                    score={app.cvScore}
-                                                    maxScore={5}
-                                                    onRate={handleScoreUpdate}
-                                                    applicationId={app.id}
-                                                    disabled={updatingScoreId === app.id}
+                               {/* Grille des cartes de candidats */}
+                               {filteredAndSortedApplicants.length > 0 ? (
+                                 <div className="applicants-grid-layout">
+                                     {filteredAndSortedApplicants.map(app => (
+                                         <div key={app.id} className="applicant-card">
+                                             {/* Header avec avatar, nom, date, statut */}
+                                             <div className="applicant-card-header">
+                                                
+                                                {/* --- MODIFICATION : Affichage de la photo de profil --- */}
+                                                {/* Assure-toi que 'app.candidateId' est bien fourni par ton API */}
+                                                <img
+                                                    src={`${API_URL}/profile/${app.candidateId}/picture`}
+                                                    alt={`Profil de ${app.applicantName || 'Candidat'}`}
+                                                    className="applicant-avatar" // Cette classe doit styler l'image
+                                                    onError={(e) => { e.target.src = NoProfileImage; }}
                                                 />
-                                                 {updatingScoreId === app.id && <div className="spinner-small" style={{marginLeft: '10px'}}></div>}
+                                                {/* --- FIN MODIFICATION --- */}
+
+                                                 <div className="applicant-card-title">
+                                                     <h3 className="applicant-name">{app.applicantName || 'Nom inconnu'}</h3>
+                                                     <span className="application-date-card">
+                                                         Postulé le {new Date(app.appliedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                     </span>
+                                                 </div>
+                                                  {/* Sélecteur de statut */}
+                                                 <div className="applicant-status-selector">
+                                                     {updatingStatusId === app.id ? (
+                                                         <div className="spinner-small"></div>
+                                                     ) : (
+                                                         <select
+                                                             value={app.status}
+                                                             onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                                                             style={getStatusStyle(app.status)} // Applique le style basé sur la valeur
+                                                             className="status-select"
+                                                             disabled={updatingStatusId === app.id}
+                                                             aria-label={`Statut de ${app.applicantName}`}
+                                                         >
+                                                             {statusOptions.map(status => (
+                                                                 <option key={status} value={status}>
+                                                                     {translateStatus(status)}
+                                                                 </option>
+                                                             ))}
+                                                         </select>
+                                                     )}
+                                                 </div>
                                              </div>
 
+                                              {/* Section Note CV */}
+                                              <div className="applicant-card-rating">
+                                                 <label className="form-label form-label-sm">Note CV</label>
+                                                 <StarRating
+                                                     score={app.cvScore}
+                                                     maxScore={5}
+                                                     onRate={handleScoreUpdate}
+                                                     applicationId={app.id}
+                                                     disabled={updatingScoreId === app.id}
+                                                 />
+                                                  {updatingScoreId === app.id && <div className="spinner-small" style={{marginLeft: '10px'}}></div>}
+                                              </div>
 
-                                            {/* Informations de contact */}
-                                            <div className="applicant-card-contact">
-                                                <div className="contact-item-card">
-                                                    <MailIcon />
-                                                    <span className="contact-value">{app.applicantEmail}</span>
-                                                    <button onClick={() => handleCopyToClipboard(app.applicantEmail, `email-${app.id}`)} className="btn-icon copy-button" title="Copier l'email">
-                                                        <CopyIcon />
-                                                        {copySuccessId === `email-${app.id}` && <span className="copy-success-tooltip">Copié!</span>}
-                                                    </button>
-                                                </div>
-                                                {app.applicantPhoneNumber && (
-                                                    <div className="contact-item-card">
-                                                        <PhoneIcon />
-                                                        <span className="contact-value">{app.applicantPhoneNumber}</span>
-                                                        <button onClick={() => handleCopyToClipboard(app.applicantPhoneNumber, `phone-${app.id}`)} className="btn-icon copy-button" title="Copier le téléphone">
-                                                            <CopyIcon />
-                                                            {copySuccessId === `phone-${app.id}` && <span className="copy-success-tooltip">Copié!</span>}
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
 
-                                            {/* Actions */}
-                                            <div className="applicant-card-actions">
-                                                <button className="btn btn-secondary btn-sm btn-icon-text" onClick={() => handleViewCv(app.id)} disabled={viewingCvId === app.id} title={`Voir le CV (${app.cvFileName || ''})`}>
-                                                    {viewingCvId === app.id ? <div className="spinner-small"></div> : <ViewCvIcon />}
-                                                    <span>CV</span>
-                                                </button>
-                                                <button className="btn btn-secondary btn-sm btn-icon-text" onClick={() => handleViewCustomData(app.id, app.applicantName)} disabled={dataLoadingId === app.id} title="Voir les réponses">
-                                                    {dataLoadingId === app.id ? <div className="spinner-small"></div> : <MessageIcon />}
-                                                    <span>Réponses</span>
-                                                </button>
-                                                <button className="btn btn-secondary btn-sm btn-icon-text" onClick={() => handleOpenNotesModal(app)} title="Gérer les notes internes">
-                                                    <NotesIcon />
-                                                    <span>Notes ({app.internalNotes ? 'Voir/Mod.' : 'Ajouter'})</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                             ) : (
-                                 <div className="empty-state" style={{paddingTop: '2rem'}}>
-                                      <p>Aucun candidat ne correspond à vos filtres actuels.</p>
-                                  </div>
-                             )}
+                                             {/* Informations de contact */}
+                                             <div className="applicant-card-contact">
+                                                 <div className="contact-item-card">
+                                                     <MailIcon />
+                                                     <span className="contact-value">{app.applicantEmail}</span>
+                                                     <button onClick={() => handleCopyToClipboard(app.applicantEmail, `email-${app.id}`)} className="btn-icon copy-button" title="Copier l'email">
+                                                         <CopyIcon />
+                                                         {copySuccessId === `email-${app.id}` && <span className="copy-success-tooltip">Copié!</span>}
+                                                     </button>
+                                                 </div>
+                                                 {app.applicantPhoneNumber && (
+                                                     <div className="contact-item-card">
+                                                         <PhoneIcon />
+                                                         <span className="contact-value">{app.applicantPhoneNumber}</span>
+                                                         <button onClick={() => handleCopyToClipboard(app.applicantPhoneNumber, `phone-${app.id}`)} className="btn-icon copy-button" title="Copier le téléphone">
+                                                             <CopyIcon />
+                                                             {copySuccessId === `phone-${app.id}` && <span className="copy-success-tooltip">Copié!</span>}
+                                                         </button>
+                                                     </div>
+                                                 )}
+                                             </div>
+
+                                             {/* Actions */}
+                                             <div className="applicant-card-actions">
+                                                 <button className="btn btn-secondary btn-sm btn-icon-text" onClick={() => handleViewCv(app.id)} disabled={viewingCvId === app.id} title={`Voir le CV (${app.cvFileName || ''})`}>
+                                                     {viewingCvId === app.id ? <div className="spinner-small"></div> : <ViewCvIcon />}
+                                                     <span>CV</span>
+                                                 </button>
+                                                 <button className="btn btn-secondary btn-sm btn-icon-text" onClick={() => handleViewCustomData(app.id, app.applicantName)} disabled={dataLoadingId === app.id} title="Voir les réponses">
+                                                     {dataLoadingId === app.id ? <div className="spinner-small"></div> : <MessageIcon />}
+                                                     <span>Réponses</span>
+                                                 </button>
+                                                 <button className="btn btn-secondary btn-sm btn-icon-text" onClick={() => handleOpenNotesModal(app)} title="Gérer les notes internes">
+                                                     <NotesIcon />
+                                                     <span>Notes ({app.internalNotes ? 'Voir/Mod.' : 'Ajouter'})</span>
+                                                 </button>
+                                             </div>
+                                         </div>
+                                     ))}
+                                 </div>
+                               ) : (
+                                   <div className="empty-state" style={{paddingTop: '2rem'}}>
+                                       <p>Aucun candidat ne correspond à vos filtres actuels.</p>
+                                   </div>
+                               )}
                         </div>
                     )}
                 </>
