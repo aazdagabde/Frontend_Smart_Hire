@@ -58,15 +58,19 @@ function ProfilePage() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const data = await ProfileService.getProfile();
+        // Utilise getProfile() qui appelle GET /api/profile/me
+        const data = await ProfileService.getProfile(); 
         setProfile({
           firstName: data.firstName || '',
           lastName: data.lastName || '',
           phoneNumber: data.phoneNumber || ''
         });
+        
         // Mettre à jour l'URL de l'image (en forçant la re-génération pour éviter le cache)
         if (data.hasProfilePicture) {
-          setProfilePicUrl(`${API_URL}/profile/${currentUser.id}/picture?timestamp=${new Date().getTime()}`);
+          // L'ID vient du currentUser (ou des data de getProfile si elles contiennent l'id)
+          const userId = data.id || currentUser.id; 
+          setProfilePicUrl(`${API_URL}/profile/${userId}/picture?timestamp=${new Date().getTime()}`);
         }
       } catch (err) {
         setError("Erreur lors du chargement du profil. " + err.message);
@@ -75,10 +79,9 @@ function ProfilePage() {
       }
     };
 
-    if (currentUser && currentUser.id) {
+    if (currentUser && (currentUser.id || ProfileService.getProfile)) {
         fetchProfile();
     }
-    // API_URL n'est plus une dépendance car elle est définie à l'extérieur
   }, [currentUser]); // Re-charger si l'utilisateur change
 
   // 2. Gérer le changement des champs du formulaire
@@ -88,6 +91,7 @@ function ProfilePage() {
   };
 
   // 3. Gérer la soumission du formulaire (Nom, Tél)
+  // Correspond à PUT /api/profile/update
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setMessage('');
@@ -97,7 +101,6 @@ function ProfilePage() {
     try {
       const updatedData = await ProfileService.updateProfile(profile);
       setMessage("Profil mis à jour avec succès !");
-      // Mettre à jour l'état local avec les données retournées (au cas où)
       setProfile({
         firstName: updatedData.firstName || '',
         lastName: updatedData.lastName || '',
@@ -118,6 +121,7 @@ function ProfilePage() {
   };
 
   // 5. Gérer l'upload de la nouvelle image
+  // Correspond à PUT /api/profile/picture
   const handlePictureUpload = async () => {
     if (!selectedFile) return;
 
@@ -128,10 +132,12 @@ function ProfilePage() {
     try {
       await ProfileService.updateProfilePicture(selectedFile);
       setMessage("Photo de profil mise à jour !");
-      // Mettre à jour l'URL de l'image (avec timestamp pour forcer le rechargement)
-      setProfilePicUrl(`${API_URL}/profile/${currentUser.id}/picture?timestamp=${new Date().getTime()}`);
-      setSelectedFile(null); // Réinitialiser le fichier
-      if(fileInputRef.current) fileInputRef.current.value = ""; // Vider le champ input file
+      
+      const userId = (profile && profile.id) || currentUser.id;
+    
+      setProfilePicUrl(`${API_URL}/profile/${userId}/picture?timestamp=${new Date().getTime()}`);
+      setSelectedFile(null); 
+      if(fileInputRef.current) fileInputRef.current.value = ""; 
     } catch (err) {
       setError("Erreur lors de l'upload. " + err.message);
     } finally {
@@ -157,7 +163,7 @@ function ProfilePage() {
 
         <div className="profile-container">
           
-          {/* Section Photo de Profil */}
+          {/* Section Photo de Profil (Logique séparée) */}
           <div className="profile-picture-section">
             <img 
               src={profilePicUrl || '/default-avatar.png'} // Prévoyez une image par défaut
@@ -187,7 +193,7 @@ function ProfilePage() {
             </button>
           </div>
 
-          {/* Section Formulaire d'informations */}
+          {/* Section Formulaire d'informations (Logique séparée) */}
           <div className="profile-form-section">
             <form onSubmit={handleProfileUpdate}>
               <div className="form-group">

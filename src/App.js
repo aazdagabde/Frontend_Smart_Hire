@@ -1,8 +1,13 @@
 // src/App.js
 import React from 'react';
-// Correction : Suppression de 'BrowserRouter as Router' de l'import
+// L'import de 'Router' n'est pas nécessaire ici car il est dans index.js
 import { Routes, Route, Link } from 'react-router-dom';
-// AuthProvider est déjà dans index.js
+
+// Contexte et Modal
+import { useAuth } from './contexts/AuthContext'; // <-- AJOUT ÉTAPE 1
+import WelcomePhotoModal from './components/WelcomePhotoModal'; // <-- AJOUT ÉTAPE 1
+
+// Composants de layout et de route
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
@@ -16,9 +21,9 @@ import OfferListPage from './pages/Offer/OfferListPage';
 import OfferDetailPage from './pages/Offer/OfferDetailPage';
 import OfferManagePage from './pages/Offer/OfferManagePage';
 import OfferCreateEditPage from './pages/Offer/OfferCreateEditPage';
-import MyApplicationsPage from './pages/Application/MyApplicationsPage'; // Page ajoutée à l'étape 2
-import OfferApplicantsPage from './pages/Offer/OfferApplicantsPage'; // Page ajoutée à l'étape 3
-import ProfilePage from './pages/Profile/ProfilePage'; // <-- AJOUT
+import MyApplicationsPage from './pages/Application/MyApplicationsPage';
+import OfferApplicantsPage from './pages/Offer/OfferApplicantsPage';
+import ProfilePage from './pages/Profile/ProfilePage';
 
 // Styles
 import './styles/App.css'; // Peut être enlevé si déjà dans index.js ou layout.js
@@ -46,50 +51,54 @@ function App() {
   const RECRUITER_ROLE = 'ROLE_RH';
   const CANDIDATE_ROLE = 'ROLE_CANDIDAT';
 
+  // Récupérer l'état du modal depuis le contexte
+  const { currentUser, showUploadPhotoModal } = useAuth();
+
   return (
-    // Correction : Suppression du <Router> redondant qui enveloppait <Routes>
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        {/* --- Routes Publiques --- */}
-        <Route index element={<HomePage />} />
-        <Route path="offers" element={<OfferListPage />} />
-        <Route path="offers/:id" element={<OfferDetailPage />} />
-        <Route path="unauthorized" element={<UnauthorizedPage />} />
+    // Utiliser un Fragment React pour envelopper le modal et les routes
+    <>
+      {/* Le modal s'affichera par-dessus tout si les conditions sont remplies */}
+      {currentUser && showUploadPhotoModal && <WelcomePhotoModal />}
 
-        {/* --- Routes Publiques Seulement (pour utilisateurs non connectés) --- */}
-        <Route element={<PublicOnlyRoute />}>
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          {/* --- Routes Publiques --- */}
+          <Route index element={<HomePage />} />
+          <Route path="offers" element={<OfferListPage />} />
+          <Route path="offers/:id" element={<OfferDetailPage />} />
+          <Route path="unauthorized" element={<UnauthorizedPage />} />
+
+          {/* --- Routes Publiques Seulement (pour utilisateurs non connectés) --- */}
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
+          </Route>
+
+          {/* --- Routes Protégées (Connexion requise pour tous les rôles) --- */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
+
+          {/* --- Routes Protégées (Rôle RH requis) --- */}
+          <Route element={<ProtectedRoute requiredRole={RECRUITER_ROLE} />}>
+            <Route path="offers/manage" element={<OfferManagePage />} />
+            <Route path="offers/create" element={<OfferCreateEditPage />} />
+            <Route path="offers/edit/:id" element={<OfferCreateEditPage />} />
+            <Route path="offers/:offerId/applicants" element={<OfferApplicantsPage />} />
+          </Route>
+
+          {/* --- Routes Protégées (Rôle CANDIDAT requis) --- */}
+          <Route element={<ProtectedRoute requiredRole={CANDIDATE_ROLE} />}>
+            <Route path="my-applications" element={<MyApplicationsPage />} />
+          </Route>
+
+          {/* --- Route 404 --- */}
+          <Route path="*" element={<NotFoundPage />} />
+
         </Route>
-
-        {/* --- Routes Protégées (Connexion requise pour tous les rôles) --- */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="dashboard" element={<DashboardPage />} />
-          {/* NOUVELLE ROUTE AJOUTÉE */}
-          <Route path="profile" element={<ProfilePage />} />
-        </Route>
-
-        {/* --- Routes Protégées (Rôle RH requis) --- */}
-        {/* Utilise 'requiredRole' pour spécifier le rôle */}
-        <Route element={<ProtectedRoute requiredRole={RECRUITER_ROLE} />}>
-          <Route path="offers/manage" element={<OfferManagePage />} />
-          <Route path="offers/create" element={<OfferCreateEditPage />} />
-          <Route path="offers/edit/:id" element={<OfferCreateEditPage />} />
-          {/* Route pour voir les candidats d'une offre (Étape 3) */}
-          <Route path="offers/:offerId/applicants" element={<OfferApplicantsPage />} />
-        </Route>
-
-        {/* --- Routes Protégées (Rôle CANDIDAT requis) --- */}
-        <Route element={<ProtectedRoute requiredRole={CANDIDATE_ROLE} />}>
-          <Route path="my-applications" element={<MyApplicationsPage />} />
-        </Route>
-
-        {/* --- Route 404 --- */}
-        <Route path="*" element={<NotFoundPage />} />
-
-      </Route>
-    </Routes>
-    // Correction : Fin de la suppression du <Router> redondant
+      </Routes>
+    </>
   );
 }
 
