@@ -136,19 +136,32 @@ const deleteCustomField = async (offerId, fieldId) => {
     return handleApiResponse(response);
 };
 
+// --- NOUVELLE FONCTION POUR L'IA (Sprint 3) ---
+const analyzeAllCvs = async (offerId) => {
+    const response = await fetch(`${OFFERS_API_URL}/${offerId}/analyze-cvs`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            ...AuthService.authHeader()
+        }
+    });
+    return handleApiResponse(response);
+};
+
 
 // Exporter toutes les fonctions
 const OfferService = {
   getAllPublicOffers,
   getMyOffers,
   getOfferById,
-  getOfferDetailsForEdit, // Exporter la nouvelle fonction
+  getOfferDetailsForEdit,
   createOffer,
   updateOffer,
   deleteOffer,
   getCustomFields,
   createCustomField,
-  deleteCustomField
+  deleteCustomField,
+  analyzeAllCvs // <--- AJOUTÉ ICI
 };
 
 export default OfferService;
