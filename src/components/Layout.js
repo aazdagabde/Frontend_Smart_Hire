@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/AuthContext'; //
 import { useTheme } from '../contexts/ThemeContext'; //
 
 // NOUVEAUX IMPORTS
-import ProfileAvatar from './profile/ProfileAvatar';
-import ProfileEditModal from './profile/ProfileEditModal';
+import ProfileAvatar from './Profile/ProfileAvatar';
+import ProfileEditModal from './Profile/ProfileEditModal';
 
 // Icons améliorés
 const SunIcon = () => (
