@@ -1,0 +1,106 @@
+/* src/components/Profile/ProfileComponents.css */
+/* --- ProfileAvatar (Navbar) --- */
+.profile-avatar-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden; /* Assure que l'overlay reste dans le cercle */
+  border: 2px solid var(--primary-color);
+}
+
+.profile-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: filter 0.2s ease-in-out;
+}
+
+.profile-avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.profile-avatar-container:hover .profile-avatar-image {
+  filter: blur(1px) brightness(0.8);
+}
+
+.profile-avatar-container:hover .profile-avatar-overlay {
+  opacity: 1;
+}
+
+/* --- ProfileEditModal --- */
+.profile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* --- CORRECTION --- */
+  /* Décommenter ces lignes pour fixer le fond transparent */
+  /*background-color: rgba(0, 0, 0, 0.7);*/
+  backdrop-filter: blur(5px);
+  /* --- FIN CORRECTION --- */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100099999999;
+}
+
+.profile-modal-content {
+  background: var(--background-color-card);
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 450px;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: modal-fade-in 0.3s ease;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 0.25rem;
+}
+.profile-modal-close-btn:hover {
+  color: var(--primary-color);
+}
+
+.profile-modal-avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  border: 3px solid var(--border-color);
+}

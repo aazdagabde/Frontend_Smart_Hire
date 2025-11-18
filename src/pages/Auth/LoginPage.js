@@ -1,4 +1,4 @@
-// src/pages/LoginPage.js
+// src/pages/Auth/LoginPage.js
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; // Utiliser le contexte d'authentification
@@ -6,42 +6,44 @@ import { useAuth } from '../../contexts/AuthContext'; // Utiliser le contexte d'
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  // const [doNotRemember, setDoNotRemember] = useState(false); // <-- SUPPRIMÉ
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(''); // Pour les messages d'erreur ou de succès
   const navigate = useNavigate();
-  const location = useLocation(); // Pour récupérer l'URL précédente si redirigé ici
-  const { login } = useAuth(); // Récupérer la fonction login depuis le contexte
+  const location = useLocation(); 
+  const { login } = useAuth(); 
 
-  // Déterminer la destination après une connexion réussie
-  // Si l'utilisateur a été redirigé vers login, 'location.state.from' contiendra l'URL d'origine
-  const from = location.state?.from?.pathname || "/dashboard"; // Par défaut: /dashboard
+  // L'état 'from' est récupéré pour la redirection après connexion
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Empêcher le rechargement de la page
-    setMessage(''); // Réinitialiser les messages
-    setLoading(true); // Activer l'indicateur de chargement
+    e.preventDefault(); 
+    setMessage(''); 
+    setLoading(true); 
 
     try {
-      await login(email, password); // Appel de la fonction login du AuthContext
-      // Pas besoin de définir un message de succès ici, la redirection suffit
-      // setMessage('Connexion réussie ! Redirection...'); // Optionnel
-      navigate(from, { replace: true }); // Rediriger vers la page d'origine ou le dashboard
+      // const rememberMe = !doNotRemember; // <-- SUPPRIMÉ
+      await login(email, password); // <-- 'rememberMe' supprimé de l'appel
+
+      // sessionStorage.setItem('isFirstLogin', 'true'); // <-- SUPPRIMÉ (géré par AuthContext)
+
+      navigate(from, { replace: true }); 
     } catch (error) {
-      // Afficher le message d'erreur renvoyé par AuthService/AuthContext
       console.error("Erreur de connexion:", error);
-      setMessage(error.message || 'Une erreur est survenue lors de la connexion.');
+      // Afficher l'erreur retournée par l'API si elle existe
+      const errorMessage = error.response?.data?.message || error.message || "Email ou mot de passe incorrect.";
+      setMessage(errorMessage);
     } finally {
-      setLoading(false); // Désactiver l'indicateur de chargement
+      setLoading(false); 
     }
   };
 
   return (
-    // Utiliser la classe CSS définie dans App.css
-    <div className="form-card">
+    <div className="form-card" style={{ maxWidth: '450px' }}> {/* Style ajouté pour la largeur max */}
       <h2 className="form-title">Connexion</h2>
 
       <form onSubmit={handleLogin}>
-        {/* Champ Email */}
+        
         <div className="form-group">
           <label htmlFor="email" className="form-label">Email</label>
           <input
@@ -51,12 +53,12 @@ function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Entrez votre email"
-            required // Champ obligatoire
-            autoComplete="email" // Aide le navigateur à pré-remplir
+            required
+            autoComplete="email"
           />
         </div>
 
-        {/* Champ Mot de passe */}
+        
         <div className="form-group">
           <label htmlFor="password" className="form-label">Mot de passe</label>
           <input
@@ -66,33 +68,34 @@ function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Entrez votre mot de passe"
-            required // Champ obligatoire
-            autoComplete="current-password" // Aide le navigateur
+            required
+            autoComplete="current-password"
           />
         </div>
 
-        {/* Affichage des messages d'erreur/succès */}
+        {/* --- SECTION "NE PAS ME RAPPELER" SUPPRIMÉE --- */}
+        
+
+        {/* Affichage des messages */}
         {message && (
-          <div className={`message ${message.includes('réussie') ? 'message-success' : 'message-error'}`}>
+          <div className="message message-error"> {/* Toujours 'message-error' pour le login */}
             {message}
           </div>
         )}
 
-        {/* Bouton de soumission */}
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {/* Afficher un spinner pendant le chargement */}
+        
+        <button typeS="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
           {loading && <span className="loading" style={{ marginRight: '0.5rem' }}></span>}
           {loading ? 'Connexion...' : 'Se connecter'}
         </button>
       </form>
 
-      {/* Lien vers la page d'inscription */}
-      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-        <p>Pas encore de compte ? <Link to="/register" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>S'inscrire</Link></p>
+      
+      <div className="form-footer"> {/* Utilisation de la classe 'form-footer' */}
+        <p>Pas encore de compte ? 
+          <Link to="/register" className="form-link">S'inscrire</Link>
+        </p>
       </div>
-
-      {/* Suppression du compte de test */}
-      {/* <div style={{ marginTop: '2rem', ... }}>...</div> */}
     </div>
   );
 }

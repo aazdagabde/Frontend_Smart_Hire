@@ -1,8 +1,12 @@
 // src/components/Layout.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Ajout de useEffect
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext'; //
+import { useTheme } from '../contexts/ThemeContext'; //
+
+// NOUVEAUX IMPORTS
+import ProfileAvatar from './profile/ProfileAvatar';
+import ProfileEditModal from './profile/ProfileEditModal';
 
 // Icons améliorés
 const SunIcon = () => (
@@ -26,10 +30,25 @@ const MoonIcon = () => (
 );
 
 const Layout = () => {
-  const { currentUser, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { currentUser, logout } = useAuth(); //
+  const { theme, toggleTheme } = useTheme(); //
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // --- NOUVELLE LOGIQUE D'ÉTAT ---
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [avatarRefreshKey, setAvatarRefreshKey] = useState(0);
+
+  // --- NOUVELLE LOGIQUE "PREMIÈRE CONNEXION" ---
+  useEffect(() => {
+    // Vérifie si l'indicateur 'isFirstLogin' est dans sessionStorage
+    const isFirst = sessionStorage.getItem('isFirstLogin');
+    
+    if (currentUser && isFirst) {
+      setIsProfileModalOpen(true); // Ouvre le modal
+      sessionStorage.removeItem('isFirstLogin'); // Supprime l'indicateur
+    }
+  }, [currentUser]); // Se déclenche quand currentUser est chargé
 
   const handleLogout = () => {
     logout();
@@ -47,6 +66,19 @@ const Layout = () => {
 
   const isRecruiter = currentUser?.roles?.some(role => role === 'ROLE_RH' || role === 'ROLE_ADMIN');
   const isCandidate = currentUser?.roles?.includes('ROLE_CANDIDAT');
+  
+  // Fonction pour fermer le modal de profil
+  const handleCloseProfileModal = () => {
+    setIsProfileModalOpen(false);
+  };
+
+  // Fonction pour rafraîchir l'avatar après mise à jour
+  const handleProfileUpdate = () => {
+    setAvatarRefreshKey(key => key + 1);
+    // TODO (Optionnel): Mettre à jour le 'currentUser' dans AuthContext
+    // si le nom/prénom a changé, pour qu'il s'affiche
+    // instantanément dans la navbar sans rafraîchir la page.
+  };
 
   return (
     <div className="App">
@@ -76,9 +108,17 @@ const Layout = () => {
                   <li><Link to="/my-applications" className="nav-link">Mes Candidatures</Link></li>
                 )}
                 <li className="nav-user-info" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  
+                  {/* --- MODIFICATION ICI --- */}
+                  <ProfileAvatar 
+                    onClick={() => setIsProfileModalOpen(true)}
+                    refreshKey={avatarRefreshKey}
+                  />
                   <span className="nav-user-name" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                     {currentUser.firstName || currentUser.email}
                   </span>
+                  {/* --- FIN MODIFICATION --- */}
+
                   <button className="nav-button" onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>
                     Déconnexion
                   </button>
@@ -124,6 +164,21 @@ const Layout = () => {
             </>
           ) : (
             <>
+              {/* --- MODIFICATION MENU MOBILE --- */}
+              <li style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <ProfileAvatar 
+                  onClick={() => {
+                    setIsProfileModalOpen(true);
+                    closeMobileMenu();
+                  }}
+                  refreshKey={avatarRefreshKey}
+                />
+                <span className="nav-user-name" style={{ color: 'var(--text-color)', fontWeight: 'bold' }}>
+                  {currentUser.firstName || currentUser.email}
+                </span>
+              </li>
+              {/* --- FIN MODIFICATION --- */}
+            
               <li><Link to="/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link></li>
               {isRecruiter && (
                 <li><Link to="/offers/manage" className="nav-link" onClick={closeMobileMenu}>Gérer Offres</Link></li>
@@ -131,19 +186,10 @@ const Layout = () => {
               {isCandidate && (
                 <li><Link to="/my-applications" className="nav-link" onClick={closeMobileMenu}>Mes Candidatures</Link></li>
               )}
-              <li className="nav-user-info" style={{ padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <span className="nav-user-name" style={{ color: 'var(--text-secondary)' }}>
-                    {currentUser.firstName || currentUser.email}
-                  </span>
-                  <button 
-                    className="nav-button" 
-                    onClick={handleLogout}
-                    style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                  >
+              <li className="nav-user-info" style={{ padding: '1rem' }}>
+                 <button className="nav-button" onClick={handleLogout} style={{ width: '100%' }}>
                     Déconnexion
                   </button>
-                </div>
               </li>
             </>
           )}
@@ -172,6 +218,17 @@ const Layout = () => {
       <footer className="footer">
         <p>&copy; {new Date().getFullYear()} SmartHire. Tous droits réservés.</p>
       </footer>
+
+      {/* --- AJOUT DU MODAL À LA FIN DU LAYOUT --- */}
+      {/* Le modal est appelé ici. Il est invisible par défaut 
+        (show={isProfileModalOpen} est false) et ne s'affiche
+        que lorsque isProfileModalOpen devient true.
+      */}
+      <ProfileEditModal 
+        show={isProfileModalOpen}
+        onClose={handleCloseProfileModal}
+        onProfileUpdate={handleProfileUpdate}
+      />
     </div>
   );
 };

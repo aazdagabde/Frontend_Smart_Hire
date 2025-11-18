@@ -1853,4 +1853,13 @@ textarea.form-input {
    }
 }
 
+.applicant-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover; /* Important: empêche l'image d'être déformée */
+  background-color: var(--surface-color); /* Couleur de fond pendant le chargement */
+  border: 1px solid var(--border-color); /* Optionnel */
+}
+
 /* --- Fin Styles pour OfferApplicantsPage --- */

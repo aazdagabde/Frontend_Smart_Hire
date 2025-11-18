@@ -1,69 +1,106 @@
 // src/contexts/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import AuthService from '../services/AuthService'; // Ajustez le chemin si nécessaire
+import AuthService from '../services/AuthService';
+import ProfileService from '../services/ProfileService'; // Importer le service de profil
 
-// Création du contexte
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
-// Composant fournisseur du contexte
+export const useAuth = () => useContext(AuthContext);
+
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Gérer l'état de chargement initial
+    const [currentUser, setCurrentUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    // Nouvel état pour gérer le modal de photo
+    const [showUploadPhotoModal, setShowUploadPhotoModal] = useState(false);
 
-  // Au montage du composant, vérifier si un utilisateur est déjà dans le localStorage
-  useEffect(() => {
-    const user = AuthService.getCurrentUser();
-    if (user) {
-      // Ici, vous pourriez ajouter une logique pour vérifier si le token JWT est encore valide
-      // avant de définir l'utilisateur. Pour l'instant, on fait confiance au localStorage.
-      setCurrentUser(user);
+    // Au montage du composant, vérifier si un utilisateur est déjà dans le localStorage
+    useEffect(() => {
+        const user = AuthService.getCurrentUser(); 
+        if (user) {
+            setCurrentUser(user);
+        }
+        setLoading(false);
+    }, []);
+
+    const login = async (email, password, rememberMe) => {
+        try {
+            // 1. Connexion
+            const loginResponse = await AuthService.login(email, password, rememberMe);
+            
+            // 2. Récupérer le profil complet
+            // Nous avons besoin de ProfileService pour obtenir 'hasProfilePicture'
+            try {
+                const profileData = await ProfileService.getProfile();
+                const userWithProfile = {
+                    ...loginResponse,
+                    ...profileData
+                };
+                setCurrentUser(userWithProfile); // Stocker le profil complet
+
+                // 3. Vérifier si la photo manque et déclencher le modal
+                if (!profileData.hasProfilePicture) {
+                    setShowUploadPhotoModal(true);
+                }
+
+            } catch (profileError) {
+                console.error("Erreur lors de la récupération du profil:", profileError);
+                // Gérer le cas où le profil n'existe pas ou l'appel échoue
+                // Pour l'instant, on connecte l'utilisateur sans la vérification de la photo
+                setCurrentUser(loginResponse); // Solution de repli
+            }
+            
+            return loginResponse;
+
+        } catch (error) {
+            console.error("Erreur de connexion:", error);
+            setCurrentUser(null);
+            AuthService.logout();
+            throw error;
+        }
+    };
+
+    const logout = () => {
+        AuthService.logout();
+        setCurrentUser(null);
+        setShowUploadPhotoModal(false);
+    };
+
+    // Fonction pour rafraîchir les données utilisateur (après upload par exemple)
+    const refreshUserData = async () => {
+        try {
+            const profileData = await ProfileService.getProfile();
+            setCurrentUser(prevUser => ({
+                ...prevUser,
+                ...profileData
+            }));
+        } catch (error) {
+            console.error("Erreur lors du rafraîchissement du profil:", error);
+            // Déconnexion si le profil ne peut être récupéré
+            logout(); 
+        }
+    };
+
+    const value = {
+        currentUser,
+        loading,
+        login,
+        logout,
+        refreshUserData, // Exposer la fonction
+        showUploadPhotoModal, // Exposer l'état
+        setShowUploadPhotoModal, // Exposer le setter
+    };
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.2rem' }}>
+                Chargement...
+            </div>
+        ); 
     }
-    setLoading(false); // Indiquer que la vérification initiale est terminée
-  }, []);
 
-  // Fonction de connexion qui met à jour l'état et utilise AuthService
-  const login = async (email, password) => {
-    try {
-      const userData = await AuthService.login(email, password); // Appelle l'API via le service
-      setCurrentUser(userData); // Met à jour l'état global
-      return userData; // Retourne les données pour une redirection éventuelle
-    } catch (error) {
-      setCurrentUser(null); // Assurer la déconnexion en cas d'erreur
-      AuthService.logout(); // Nettoyer aussi localStorage
-      console.error("Erreur de connexion dans AuthContext:", error);
-      throw error; // Propager l'erreur pour l'afficher dans le formulaire
-    }
-  };
-
-  // Fonction de déconnexion
-  const logout = () => {
-    AuthService.logout(); // Supprime l'utilisateur du localStorage
-    setCurrentUser(null); // Met à jour l'état global
-    // La redirection sera gérée par le composant qui appelle logout (ex: Navbar)
-  };
-
-  // Pendant le chargement initial, afficher un message ou un spinner
-  if (loading) {
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.2rem' }}>
-            Chargement...
-        </div>
-     ); // Améliorez ceci avec un vrai composant Spinner si vous en avez un
-  }
-
-  // Rendre le fournisseur avec les valeurs (utilisateur actuel, fonctions login/logout, état de chargement)
-  return (
-    <AuthContext.Provider value={{ currentUser, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-// Hook personnalisé pour consommer facilement le contexte dans d'autres composants
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
