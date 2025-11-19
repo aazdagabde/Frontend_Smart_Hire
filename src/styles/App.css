@@ -5,12 +5,12 @@
   /* Couleurs light theme - Nouvelle palette */
   --primary-color: #A62609;        /* Rouge/Orange principal */
   --primary-hover: #8F2007;        /* Teinte plus foncée pour le survol */
-  --secondary-color: #BBC5AA;      /* Gris/Vert moyen */
+  --secondary-color: #ffffff;      /* Gris/Vert moyen */
   --success-color: #10b981;        /* Vert original conservé pour succès */
   --warning-color: #f59e0b;        /* Jaune original conservé pour avertissement */
   --danger-color: #A62609;         /* Rouge/Orange réutilisé pour danger */
   --background-color: #E6EED6;     /* Beige très clair (fond principal) */
-  --surface-color: #DDE2C6;        /* Beige légèrement plus foncé (surfaces secondaires) */
+  --surface-color: #ffffff;        /* Beige légèrement plus foncé (surfaces secondaires) */
   --card-bg: #E6EED6;              /* Fond des cartes (identique au fond principal) */
   --text-primary: #090C02;         /* Noir/Gris très foncé (texte principal) */
   --text-secondary: #59614C;      /* Gris/Vert foncé (texte secondaire, dérivé de #BBC5AA) */
