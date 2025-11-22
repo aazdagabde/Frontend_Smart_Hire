@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react'; // 1. Ajout de useCallback
 import { useParams, Link } from 'react-router-dom';
 import ApplicationService from '../../services/ApplicationService';
 import OfferService from '../../services/OfferService';
-import CustomDataModal from '../../components/CustomDataModal';
-import InternalNotesModal from '../../components/InternalNotesModal';
+// 2. Suppression des imports inutilisés (CustomDataModal, InternalNotesModal)
 import NoProfileImage from '../../assets/noprofile.jpeg';
 import './OfferApplicantsPage.css'; 
 
@@ -46,7 +45,7 @@ function OfferApplicantsPage() {
     // --- États de l'Interface (UI) ---
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [activeTab, setActiveTab] = useState('ALL'); // Valeurs: ALL, SHORTLIST, REJECTED
+    const [activeTab, setActiveTab] = useState('ALL'); 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     
     // --- États pour la Sélection Automatique ---
@@ -54,17 +53,15 @@ function OfferApplicantsPage() {
     const [isSelecting, setIsSelecting] = useState(false);
 
     // --- États des Modales ---
-    const [modalContent, setModalContent] = useState({ isOpen: false, title: '', content: '', type: '' }); // Pour AI Summary/Questions
+    const [modalContent, setModalContent] = useState({ isOpen: false, title: '', content: '', type: '' }); 
 
-    // --- Chargement Initial ---
-    useEffect(() => {
-        loadData();
-    }, [offerId]);
-
-    const loadData = async () => {
+    // 3. Correction : Utilisation de useCallback pour loadData
+    // Cela permet à la fonction de ne pas être recréée à chaque rendu, satisfaisant le useEffect
+    const loadData = useCallback(async () => {
+        if (!offerId) return; // Sécurité
         setLoading(true);
         try {
-            // 1. Charger détails offre (pour récupérer la deadline)
+            // 1. Charger détails offre
             const offerResp = await OfferService.getOfferDetailsForEdit(offerId);
             if (offerResp.success) {
                 setOfferDetails(offerResp.data);
@@ -82,7 +79,12 @@ function OfferApplicantsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [offerId]); // loadData dépend uniquement de offerId
+
+    // --- Chargement Initial ---
+    useEffect(() => {
+        loadData();
+    }, [loadData]); // 4. Maintenant, on peut mettre loadData en dépendance sans créer de boucle infinie
 
     // --- Logique Calculée (Stats & Filtres) ---
 
@@ -90,7 +92,7 @@ function OfferApplicantsPage() {
         const total = applicants.length;
         const analyzed = applicants.filter(a => a.cvScore !== null).length;
         const accepted = applicants.filter(a => a.status === 'ACCEPTED').length;
-        // Calcul score moyen (seulement sur ceux notés)
+        
         const avgScore = analyzed > 0 
             ? Math.round(applicants.reduce((acc, curr) => acc + (curr.cvScore || 0), 0) / analyzed) 
             : 0;
@@ -110,7 +112,7 @@ function OfferApplicantsPage() {
             return list.filter(a => a.status === 'REJECTED');
         }
         
-        // Pour l'onglet 'ALL', on trie par score décroissant par défaut, puis par date
+        // Pour l'onglet 'ALL'
         return list.sort((a, b) => {
             const scoreA = a.cvScore || -1;
             const scoreB = b.cvScore || -1;
@@ -121,7 +123,6 @@ function OfferApplicantsPage() {
 
     const isDeadlinePassed = useMemo(() => {
         if (!offerDetails?.deadline) return false; 
-        // Comparaison simple de dates
         const today = new Date();
         today.setHours(0,0,0,0);
         const deadlineDate = new Date(offerDetails.deadline);
@@ -131,7 +132,6 @@ function OfferApplicantsPage() {
 
     // --- Actions Utilisateur ---
 
-    // 1. Lancer l'analyse IA
     const handleAnalyzeAll = async () => {
         if (!window.confirm("Voulez-vous lancer l'analyse IA pour tous les CVs ? Cela peut prendre une minute.")) return;
         
@@ -140,7 +140,6 @@ function OfferApplicantsPage() {
             await OfferService.analyzeAllCvs(offerId);
             alert("🤖 Analyse lancée en arrière-plan ! Les scores vont apparaître progressivement.");
             
-            // Polling simple : Recharge les données après 4 secondes pour voir les premiers résultats
             setTimeout(loadData, 4000);
         } catch (e) { 
             alert("Erreur: " + e.message); 
@@ -149,9 +148,7 @@ function OfferApplicantsPage() {
         }
     };
 
-    // 2. Sélectionner le Top N (Validation finale)
     const handleSelectTopN = async () => {
-        // Vérification de la règle de Deadline
         if (offerDetails?.deadline && !isDeadlinePassed) {
             alert(`⚠️ Impossible de classer avant la date limite du ${new Date(offerDetails.deadline).toLocaleDateString()}.`);
             return;
@@ -163,11 +160,10 @@ function OfferApplicantsPage() {
 
         setIsSelecting(true);
         try {
-            // Appel au service (endpoint créé à l'étape 3)
             await OfferService.selectTopCandidates(offerId, topNCount);
             
-            await loadData(); // Recharger pour mettre à jour les statuts
-            setActiveTab('SHORTLIST'); // Basculer automatiquement vers l'onglet des admis
+            await loadData();
+            setActiveTab('SHORTLIST');
             alert(`✅ Top ${topNCount} candidats sélectionnés ! Les autres ont été marqués comme rejetés.`);
         } catch (e) { 
             alert("Erreur lors de la sélection : " + e.message); 
@@ -176,7 +172,6 @@ function OfferApplicantsPage() {
         }
     };
 
-    // 3. Générer contenu IA (Résumé ou Questions) pour un candidat admis
     const handleGenerateAiContent = async (appId, type) => {
         setModalContent({ isOpen: true, title: 'Génération en cours...', content: 'Veuillez patienter pendant que l\'IA analyse le profil...', type });
         
@@ -192,7 +187,7 @@ function OfferApplicantsPage() {
                 setModalContent({ 
                     isOpen: true, 
                     title: type === 'SUMMARY' ? '📝 Résumé du Profil & Justification' : '❓ Questions d\'Entretien Suggérées', 
-                    content: res.data || res.message, // S'adapte selon le retour backend
+                    content: res.data || res.message,
                     type 
                 });
             }
@@ -207,7 +202,6 @@ function OfferApplicantsPage() {
 
     return (
         <div className="dashboard-layout">
-            
             {/* Header Dashboard */}
             <div className="dashboard-header">
                 <div>
@@ -254,7 +248,6 @@ function OfferApplicantsPage() {
                     colorClass="green" 
                 />
                 
-                {/* Carte d'action IA */}
                 <div className="action-card">
                     <ProgressBar value={stats.analyzed} max={stats.total} label="Candidats Analysés (IA)" />
                     <button 
@@ -272,7 +265,7 @@ function OfferApplicantsPage() {
                 </div>
             </div>
 
-            {/* Barre de Contrôle (Tabs + Selection) */}
+            {/* Barre de Contrôle */}
             <div className="control-bar">
                 <div className="tabs">
                     <button 
@@ -295,7 +288,6 @@ function OfferApplicantsPage() {
                     </button>
                 </div>
 
-                {/* Outil de sélection Top N */}
                 <div className="selection-tool">
                     <span className="tool-label">Sélection Automatique :</span>
                     <label htmlFor="topN" style={{fontSize:'0.85rem', color:'#6b7280'}}>Garder les</label>
@@ -333,7 +325,6 @@ function OfferApplicantsPage() {
                 ) : (
                     filteredApplicants.map(app => (
                         <div key={app.id} className={`applicant-row ${app.status}`}>
-                            {/* Colonne Avatar */}
                             <div className="col-avatar">
                                 <img 
                                     src={`${API_URL}/profile/${app.applicantId}/picture`} 
@@ -342,7 +333,6 @@ function OfferApplicantsPage() {
                                 />
                             </div>
                             
-                            {/* Colonne Infos */}
                             <div className="col-info">
                                 <div className="app-name">{app.applicantName || 'Candidat Inconnu'}</div>
                                 <div className="app-date">
@@ -350,7 +340,6 @@ function OfferApplicantsPage() {
                                 </div>
                             </div>
                             
-                            {/* Colonne Score avec dégradé */}
                             <div className="col-score">
                                 {app.cvScore !== null ? (
                                     <div className="score-badge" style={{ 
@@ -363,14 +352,12 @@ function OfferApplicantsPage() {
                                 )}
                             </div>
                             
-                            {/* Colonne Statut */}
                             <div className="col-status">
                                 <span className={`status-pill ${app.status}`}>
                                     {app.status === 'ACCEPTED' ? 'CONVOQUÉ' : app.status}
                                 </span>
                             </div>
                             
-                            {/* Colonne Actions */}
                             <div className="col-actions">
                                 <button 
                                     className="btn-icon" 
@@ -380,7 +367,6 @@ function OfferApplicantsPage() {
                                     📄
                                 </button>
                                 
-                                {/* Actions spécifiques aux candidats convoqués */}
                                 {app.status === 'ACCEPTED' && (
                                     <>
                                         <button 
@@ -410,7 +396,6 @@ function OfferApplicantsPage() {
                 <div className="modal-overlay" onClick={() => setModalContent({...modalContent, isOpen: false})}>
                     <div className="modal-content ai-modal" onClick={e => e.stopPropagation()}>
                         <h3>{modalContent.title}</h3>
-                        
                         <div className="modal-body-text">
                             {modalContent.content ? (
                                 modalContent.content.split('\n').map((line, i) => (
@@ -422,7 +407,6 @@ function OfferApplicantsPage() {
                                 <p>Aucun contenu généré.</p>
                             )}
                         </div>
-                        
                         <div style={{display:'flex', justifyContent:'flex-end', marginTop:'1rem'}}>
                             <button 
                                 className="btn btn-primary" 
