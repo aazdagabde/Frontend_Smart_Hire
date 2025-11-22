@@ -1,26 +1,26 @@
 /* src/styles/App.css */
 
-/* Variables CSS - Nouvelle palette */
+/* Variables CSS - Nouvelle palette bleu/aubergine */
 :root {
-  /* Couleurs light theme - Nouvelle palette */
-  --primary-color: #A62609;        /* Rouge/Orange principal */
-  --primary-hover: #8F2007;        /* Teinte plus foncée pour le survol */
-  --secondary-color: #BBC5AA;      /* Gris/Vert moyen */
-  --success-color: #10b981;        /* Vert original conservé pour succès */
-  --warning-color: #f59e0b;        /* Jaune original conservé pour avertissement */
-  --danger-color: #A62609;         /* Rouge/Orange réutilisé pour danger */
-  --background-color: #E6EED6;     /* Beige très clair (fond principal) */
-  --surface-color: #DDE2C6;        /* Beige légèrement plus foncé (surfaces secondaires) */
-  --card-bg: #E6EED6;              /* Fond des cartes (identique au fond principal) */
-  --text-primary: #090C02;         /* Noir/Gris très foncé (texte principal) */
-  --text-secondary: #59614C;      /* Gris/Vert foncé (texte secondaire, dérivé de #BBC5AA) */
-  --text-muted: #8A947E;           /* Gris/Vert plus clair (texte discret, dérivé de #BBC5AA) */
-  --border-color: #BBC5AA;         /* Gris/Vert moyen pour les bordures */
+  /* Couleurs light theme */
+  --primary-color: #4A8BDF;
+  --primary-hover: #3A7BCF;
+  --secondary-color: #A0006D;
+  --success-color: #4A8BDF;
+  --warning-color: #A0006D;
+  --danger-color: #A0006D;
+  --background-color: #EFFAFD;
+  --surface-color: #FFFFFF;
+  --card-bg: #FFFFFF;
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A8BDF;
+  --text-muted: #666666;
+  --border-color: #4A8BDF;
 
-  --shadow: 0 4px 6px -1px rgba(9, 12, 2, 0.1), 0 2px 4px -1px rgba(9, 12, 2, 0.06); /* Ombre utilisant la couleur de texte */
-  --shadow-lg: 0 10px 15px -3px rgba(9, 12, 2, 0.1), 0 4px 6px -2px rgba(9, 12, 2, 0.05); /* Ombre plus grande */
+  --shadow: 0 4px 6px -1px rgba(74, 139, 223, 0.1), 0 2px 4px -1px rgba(74, 139, 223, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(74, 139, 223, 0.1), 0 4px 6px -2px rgba(74, 139, 223, 0.05);
 
-  /* Espacements (inchangés) */
+  /* Espacements */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -28,33 +28,33 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* Bordures (inchangés) */
+  /* Bordures */
   --border-radius: 0.75rem;
   --border-radius-sm: 0.5rem;
   --border-radius-lg: 1rem;
 
-  /* Transitions (inchangés) */
+  /* Transitions */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark theme variables - Nouvelle palette */
+/* Dark theme variables */
 [data-theme="dark"] {
-  --primary-color: #DDE2C6;        /* Beige clair comme couleur primaire */
-  --primary-hover: #E6EED6;        /* Beige très clair pour le survol */
-  --secondary-color: #BBC5AA;      /* Gris/Vert moyen (peut rester le même) */
-  --success-color: #34d399;        /* Vert original conservé */
-  --warning-color: #fbbf24;        /* Jaune original conservé */
-  --danger-color: #CF5638;         /* Rouge/Orange éclairci pour le mode sombre */
-  --background-color: #090C02;     /* Noir/Gris très foncé (fond principal) */
-  --surface-color: #1B200A;        /* Teinte légèrement plus claire que le fond */
-  --card-bg: #1B200A;              /* Fond des cartes */
-  --text-primary: #E6EED6;         /* Beige très clair (texte principal) */
-  --text-secondary: #DDE2C6;        /* Beige clair (texte secondaire) */
-  --text-muted: #BBC5AA;           /* Gris/Vert moyen (texte discret) */
-  --border-color: #59614C;         /* Gris/Vert foncé pour les bordures */
+  --primary-color: #4A8BDF;
+  --primary-hover: #5A9BEF;
+  --secondary-color: #A0006D;
+  --success-color: #4A8BDF;
+  --warning-color: #A0006D;
+  --danger-color: #A0006D;
+  --background-color: #0A1F33;
+  --surface-color: #1A2F44;
+  --card-bg: #1A2F44;
+  --text-primary: #EFFAFD;
+  --text-secondary: #4A8BDF;
+  --text-muted: #A8B6C8;
+  --border-color: #4A8BDF;
 
-  --shadow: 0 4px 6px -1px rgba(230, 238, 214, 0.1), 0 2px 4px -1px rgba(230, 238, 214, 0.06); /* Ombre basée sur le texte clair */
-  --shadow-lg: 0 10px 15px -3px rgba(230, 238, 214, 0.1), 0 4px 6px -2px rgba(230, 238, 214, 0.05); /* Ombre plus grande */
+  --shadow: 0 4px 6px -1px rgba(74, 139, 223, 0.2), 0 2px 4px -1px rgba(74, 139, 223, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(74, 139, 223, 0.2), 0 4px 6px -2px rgba(74, 139, 223, 0.1);
 }
 
 /* Reset et base */
@@ -73,7 +73,7 @@ body {
   background-color: var(--background-color);
   color: var(--text-primary);
   line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease; /* Transition plus ciblée */
+  transition: background-color 0.3s ease, color 0.3s ease;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -107,13 +107,7 @@ body {
 .page-title {
   font-size: 2.5rem;
   font-weight: 700;
-  /* Utilisation directe de la couleur primaire pour le titre */
   color: var(--primary-color);
-  /* Suppression du gradient pour simplifier avec la nouvelle palette */
-  /* background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text; */
   margin-bottom: var(--spacing-sm);
   line-height: 1.2;
 }
@@ -132,7 +126,6 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  /* backdrop-filter: blur(10px); Removed for broader compatibility or adjust effect */
 }
 
 .nav-container {
@@ -150,7 +143,6 @@ body {
   font-weight: 700;
   color: var(--primary-color);
   text-decoration: none;
-  /* Suppression du gradient */
 }
 
 .nav-menu {
@@ -191,10 +183,9 @@ body {
   width: 80%;
 }
 
-/* Ajustement couleur texte bouton primaire */
 .nav-button {
   background: var(--primary-color);
-  color: var(--background-color); /* Utilise la couleur de fond pour le texte pour contraster */
+  color: #EFFAFD;
   border: none;
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius);
@@ -222,12 +213,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary); /* Couleur pour l'icône */
+  color: var(--text-secondary);
 }
 
 .theme-toggle-button:hover {
   background: var(--primary-color);
-  color: var(--background-color); /* Couleur icône au survol */
+  color: #EFFAFD;
   transform: rotate(15deg);
 }
 
@@ -298,7 +289,7 @@ body {
 
 .theme-toggle-button-mobile:hover {
   background: var(--primary-color);
-  color: var(--background-color);
+  color: #EFFAFD;
 }
 
 /* Contenu principal */
@@ -315,17 +306,17 @@ body {
   background: var(--card-bg);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-2xl);
-  box-shadow: var(--shadow); /* Ombre par défaut */
+  box-shadow: var(--shadow);
   border: 1px solid var(--border-color);
   transition: var(--transition);
   width: 100%;
   max-width: 600px;
-  margin: 0 auto var(--spacing-lg); /* Centré par défaut */
+  margin: 0 auto var(--spacing-lg);
 }
 
 .form-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg); /* Ombre plus grande au survol */
+  box-shadow: var(--shadow-lg);
 }
 
 .form-card.full-width {
@@ -333,12 +324,11 @@ body {
 }
 
 .form-title {
-  color: var(--primary-color); /* Utilisation directe couleur primaire */
+  color: var(--primary-color);
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: var(--spacing-lg);
   text-align: center;
-  /* Suppression du gradient */
 }
 
 /* Champs de formulaire */
@@ -375,13 +365,12 @@ textarea.form-input {
 .form-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(166, 38, 9, 0.1); /* Ombre focus adaptée */
+  box-shadow: 0 0 0 3px rgba(74, 139, 223, 0.1);
 }
 
 select.form-input {
   appearance: none;
-  /* Icône SVG adaptée pour le contraste */
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2359614C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234A8BDF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right var(--spacing-md) center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
@@ -389,10 +378,8 @@ select.form-input {
 }
 
 [data-theme="dark"] select.form-input {
- /* Icône SVG adaptée pour le contraste en mode sombre */
- background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23BBC5AA' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234A8BDF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
 }
-
 
 textarea.form-input {
   min-height: 120px;
@@ -413,12 +400,12 @@ textarea.form-input {
   cursor: pointer;
   transition: var(--transition);
   font-size: 0.95rem;
-  width: 100%; /* Par défaut pleine largeur, ajuster avec btn-auto */
+  width: 100%;
 }
 
 .btn-primary {
   background: var(--primary-color);
-  color: var(--background-color); /* Texte contrasté */
+  color: #EFFAFD;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -435,7 +422,7 @@ textarea.form-input {
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--background-color);
-  border-color: var(--text-secondary); /* Assombrir la bordure au survol */
+  border-color: var(--text-secondary);
   transform: translateY(-2px);
 }
 
@@ -447,29 +434,28 @@ textarea.form-input {
 
 .btn-outline:hover:not(:disabled) {
   background: var(--primary-color);
-  color: var(--background-color); /* Texte contrasté */
+  color: #EFFAFD;
   transform: translateY(-2px);
 }
 
 .btn-danger {
   background: var(--danger-color);
-  color: var(--background-color); /* Texte contrasté */
+  color: #EFFAFD;
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: var(--primary-hover); /* Utilise le hover du primaire si danger=primaire */
+  background: #B0007D;
   transform: translateY(-2px);
 }
 
-/* Styles spécifiques pour le mode sombre si danger != primaire */
 [data-theme="dark"] .btn-danger {
   background: var(--danger-color);
-  color: var(--background-color);
-}
-[data-theme="dark"] .btn-danger:hover:not(:disabled) {
-  background: #E06C4C; /* Teinte plus claire du danger pour hover sombre */
+  color: #EFFAFD;
 }
 
+[data-theme="dark"] .btn-danger:hover:not(:disabled) {
+  background: #B0007D;
+}
 
 .btn-sm {
   padding: var(--spacing-sm) var(--spacing-md);
@@ -502,7 +488,6 @@ textarea.form-input {
   background: var(--surface-color);
   color: var(--primary-color);
 }
-
 
 /* États de chargement */
 .loading-state {
@@ -547,35 +532,34 @@ textarea.form-input {
 }
 
 .alert-success {
-  background-color: rgba(16, 185, 129, 0.1);
-  border-color: var(--success-color);
-  color: var(--success-color);
+  background-color: rgba(74, 139, 223, 0.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .alert-error {
-  background-color: rgba(166, 38, 9, 0.1); /* Couleur danger */
+  background-color: rgba(160, 0, 109, 0.1);
   border-color: var(--danger-color);
   color: var(--danger-color);
 }
 
 .alert-info {
-  background-color: rgba(187, 197, 170, 0.1); /* Couleur secondaire */
-  border-color: var(--secondary-color);
+  background-color: rgba(74, 139, 223, 0.1);
+  border-color: var(--primary-color);
   color: var(--text-secondary);
 }
 
 [data-theme="dark"] .alert-error {
-   background-color: rgba(207, 86, 56, 0.1); /* Couleur danger sombre */
-   border-color: var(--danger-color);
-   color: var(--danger-color);
+  background-color: rgba(160, 0, 109, 0.2);
+  border-color: var(--danger-color);
+  color: var(--danger-color);
 }
 
 [data-theme="dark"] .alert-info {
-   background-color: rgba(187, 197, 170, 0.1); /* Couleur secondaire sombre */
-   border-color: var(--secondary-color);
-   color: var(--secondary-color);
+  background-color: rgba(74, 139, 223, 0.2);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
-
 
 .alert-content {
   display: flex;
@@ -593,21 +577,21 @@ textarea.form-input {
 }
 
 .message-error {
-  background: rgba(166, 38, 9, 0.1);
+  background: rgba(160, 0, 109, 0.1);
   color: var(--danger-color);
-  border-color: rgba(166, 38, 9, 0.3);
+  border-color: rgba(160, 0, 109, 0.3);
 }
 
 .message-success {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
-  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(74, 139, 223, 0.1);
+  color: var(--primary-color);
+  border-color: rgba(74, 139, 223, 0.3);
 }
 
 [data-theme="dark"] .message-error {
-   background-color: rgba(207, 86, 56, 0.1);
-   color: var(--danger-color);
-   border-color: rgba(207, 86, 56, 0.3);
+  background-color: rgba(160, 0, 109, 0.2);
+  color: var(--danger-color);
+  border-color: rgba(160, 0, 109, 0.4);
 }
 
 /* États vides */
@@ -650,7 +634,7 @@ textarea.form-input {
   font-size: 3rem;
   margin-bottom: var(--spacing-md);
   font-weight: 700;
-  color: var(--primary-color); /* Couleur primaire directe */
+  color: var(--primary-color);
   line-height: 1.2;
 }
 
@@ -677,15 +661,15 @@ textarea.form-input {
   min-width: 160px;
 }
 
-/* Adaptation bouton secondaire dans hero */
 .hero-buttons .btn-secondary {
-   border: 2px solid var(--primary-color);
-   color: var(--primary-color);
-   background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  background: transparent;
 }
+
 .hero-buttons .btn-secondary:hover {
-   background: var(--primary-color);
-   color: var(--background-color);
+  background: var(--primary-color);
+  color: #EFFAFD;
 }
 
 /* Dashboard */
@@ -693,7 +677,7 @@ textarea.form-input {
   background: var(--card-bg);
   padding: var(--spacing-2xl);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow); /* Ombre par défaut */
+  box-shadow: var(--shadow);
   text-align: center;
   border: 1px solid var(--border-color);
   max-width: 800px;
@@ -701,7 +685,7 @@ textarea.form-input {
 }
 
 .dashboard-title {
-  color: var(--primary-color); /* Couleur primaire directe */
+  color: var(--primary-color);
   margin-bottom: var(--spacing-lg);
   font-size: 2rem;
   font-weight: 700;
@@ -752,19 +736,19 @@ textarea.form-input {
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
   line-height: 1.5;
-  flex-grow: 1; /* Permet à la description de prendre l'espace */
+  flex-grow: 1;
   display: -webkit-box;
-  -webkit-line-clamp: 4; /* Limite à 4 lignes */
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 6em; /* Hauteur minimale pour 4 lignes approx */
+  min-height: 6em;
 }
 
 .offer-date {
   color: var(--text-muted);
   font-size: 0.8rem;
-  margin-top: auto; /* Pousse la date en bas */
-  padding-top: var(--spacing-sm); /* Espace au-dessus de la date */
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -840,7 +824,7 @@ textarea.form-input {
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
-  margin-top: var(--spacing-md); /* Espace ajouté */
+  margin-top: var(--spacing-md);
 }
 
 /* Tableaux */
@@ -849,7 +833,7 @@ textarea.form-input {
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow);
-  border: 1px solid var(--border-color); /* Ajout d'une bordure globale */
+  border: 1px solid var(--border-color);
 }
 
 .applicants-stats {
@@ -897,13 +881,13 @@ textarea.form-input {
   font-weight: 600;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
-  font-size: 0.9rem; /* Taille légèrement réduite */
+  font-size: 0.9rem;
 }
 
 .applicants-table td {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
-  vertical-align: middle; /* Alignement vertical */
+  vertical-align: middle;
 }
 
 .applicant-row:hover {
@@ -920,12 +904,12 @@ textarea.form-input {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--secondary-color); /* Utilise la couleur secondaire pour l'avatar */
+  background: var(--secondary-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--background-color);
-  flex-shrink: 0; /* Empêche le rétrécissement */
+  color: #EFFAFD;
+  flex-shrink: 0;
 }
 
 .applicant-details {
@@ -951,20 +935,20 @@ textarea.form-input {
 }
 
 .contact-value {
-  color: var(--text-secondary); /* Couleur secondaire pour les contacts */
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
 .copy-success {
   font-size: 0.8rem;
-  color: var(--success-color);
+  color: var(--primary-color);
   font-weight: 600;
 }
 
 .action-buttons {
   display: flex;
-  gap: var(--spacing-sm); /* Espace légèrement augmenté */
-  flex-wrap: wrap; /* Permet le retour à la ligne si manque de place */
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 /* Formulaires améliorés */
@@ -987,7 +971,7 @@ textarea.form-input {
   align-items: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
-  color: var(--primary-color); /* Icône en couleur primaire */
+  color: var(--primary-color);
 }
 
 .form-section-title {
@@ -1014,7 +998,7 @@ textarea.form-input {
   justify-content: flex-end;
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--border-color);
-  margin-top: var(--spacing-lg); /* Ajout marge sup */
+  margin-top: var(--spacing-lg);
 }
 
 /* Champs personnalisés */
@@ -1082,7 +1066,7 @@ textarea.form-input {
 .checkbox {
   width: auto;
   margin: 0;
-  accent-color: var(--primary-color); /* Couleur de la coche */
+  accent-color: var(--primary-color);
 }
 
 .form-hint {
@@ -1103,13 +1087,13 @@ textarea.form-input {
   padding: var(--spacing-xl) 0;
   text-align: center;
   color: var(--text-secondary);
-  margin-top: auto; /* Pousse le footer en bas */
+  margin-top: auto;
 }
 
 /* Scrollbar personnalisée */
 ::-webkit-scrollbar {
   width: 8px;
-  height: 8px; /* Pour scrollbars horizontales */
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -1117,19 +1101,19 @@ textarea.form-input {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary-color); /* Utilise la couleur secondaire */
+  background: var(--primary-color);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-color); /* Primaire au survol */
+  background: var(--secondary-color);
 }
 
 /* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px); /* Légère translation */
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -1138,7 +1122,7 @@ textarea.form-input {
 }
 
 .form-card, .offer-card, .application-card, .offer-management-card {
-  animation: fadeIn 0.5s ease-out forwards; /* 'forwards' maintient l'état final */
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 /* Styles pour OfferDetailPage */
@@ -1151,14 +1135,14 @@ textarea.form-input {
 
 .offer-header {
   margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-xl); /* Espace ajouté sous les tags/date */
-  border-bottom: 1px solid var(--border-color); /* Ligne de séparation */
+  padding-bottom: var(--spacing-xl);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .offer-title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-color); /* Couleur primaire directe */
+  color: var(--primary-color);
   margin-bottom: var(--spacing-md);
   line-height: 1.2;
 }
@@ -1167,7 +1151,7 @@ textarea.form-input {
   display: flex;
   gap: var(--spacing-md);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-md); /* Espace sous les tags */
+  margin-bottom: var(--spacing-md);
 }
 
 .offer-tag {
@@ -1180,10 +1164,10 @@ textarea.form-input {
   color: var(--text-secondary);
   font-size: 0.9rem;
   font-weight: 500;
-  border: 1px solid var(--border-color); /* Bordure légère */
+  border: 1px solid var(--border-color);
 }
 
-.offer-meta { /* Pour la date */
+.offer-meta {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -1198,7 +1182,7 @@ textarea.form-input {
 }
 
 .offer-content {
-  margin-top: 0; /* Pas de marge sup car séparateur au-dessus */
+  margin-top: 0;
 }
 
 .section-title {
@@ -1233,7 +1217,7 @@ textarea.form-input {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm); /* Espace au-dessus */
+  margin-top: var(--spacing-sm);
 }
 
 .radio-option,
@@ -1262,7 +1246,7 @@ textarea.form-input {
 .offers-grid {
   display: grid;
   gap: var(--spacing-lg);
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Taille min un peu plus grande */
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
 
 .offer-management-card {
@@ -1324,7 +1308,7 @@ textarea.form-input {
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
-  margin-top: var(--spacing-md); /* Ajout d'espace */
+  margin-top: var(--spacing-md);
 }
 
 .stats-grid {
@@ -1338,11 +1322,11 @@ textarea.form-input {
 @media (max-width: 1024px) {
   .offer-detail-layout {
     grid-template-columns: 1fr;
-    gap: var(--spacing-xl); /* Espace réduit */
+    gap: var(--spacing-xl);
   }
 
   .offer-detail-sidebar {
-    order: -1; /* Remonte le formulaire de candidature */
+    order: -1;
   }
 }
 
@@ -1378,8 +1362,8 @@ textarea.form-input {
 
   .form-card {
     padding: var(--spacing-xl) var(--spacing-lg);
-    margin: 0; /* Pas de marge latérale */
-    max-width: 100%; /* Pleine largeur */
+    margin: 0;
+    max-width: 100%;
   }
 
   .form-title {
@@ -1416,20 +1400,19 @@ textarea.form-input {
 
   .form-actions {
     flex-direction: column;
-    align-items: stretch; /* Boutons pleine largeur */
+    align-items: stretch;
   }
   .form-actions .btn {
-    width: 100%; /* Assure pleine largeur */
+    width: 100%;
   }
 
-
   .action-buttons {
-    flex-direction: row; /* Reste en ligne si possible */
+    flex-direction: row;
     flex-wrap: wrap;
   }
 
   .applicant-info {
-    flex-direction: row; /* Garde en ligne sur mobile */
+    flex-direction: row;
     align-items: center;
     gap: var(--spacing-sm);
   }
@@ -1490,7 +1473,7 @@ textarea.form-input {
    .offer-tags {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-sm); /* Espace réduit */
+    gap: var(--spacing-sm);
   }
 
   .offer-actions {
@@ -1527,16 +1510,15 @@ textarea.form-input {
   .applicants-table td {
     border: none;
     padding: var(--spacing-sm) 0;
-    display: flex; /* Utilisation de flex */
-    justify-content: space-between; /* Espace entre label et valeur */
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    text-align: right; /* Alignement de la valeur à droite */
-    border-bottom: 1px dashed var(--border-color); /* Séparateur léger */
+    text-align: right;
+    border-bottom: 1px dashed var(--border-color);
   }
    .applicants-table tr td:last-child {
-      border-bottom: none; /* Pas de bordure pour le dernier td */
+      border-bottom: none;
    }
-
 
   .applicants-table td::before {
     content: attr(data-label);
@@ -1544,18 +1526,17 @@ textarea.form-input {
     color: var(--primary-color);
     margin-right: var(--spacing-md);
     text-align: left;
-    flex-basis: auto; /* Taille auto pour le label */
-    flex-shrink: 0; /* Empêche le rétrécissement du label */
+    flex-basis: auto;
+    flex-shrink: 0;
   }
 
-  /* Ajustement pour les boutons d'action en mode mobile */
   .applicants-table td .action-buttons {
-    justify-content: flex-end; /* Alignement des boutons à droite */
-    flex-wrap: nowrap; /* Empêche le retour à la ligne si possible */
+    justify-content: flex-end;
+    flex-wrap: nowrap;
   }
 }
 
-/* Utilitaires (inchangés) */
+/* Utilitaires */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
@@ -1572,14 +1553,14 @@ textarea.form-input {
 .gap-4 { gap: var(--spacing-md); }
 .gap-6 { gap: var(--spacing-lg); }
 
-/* Styles spécifiques pour les modales (copiés depuis CustomDataModal) */
-.modalOverlayStyle { /* Renommé pour éviter conflit de nom */
+/* Styles spécifiques pour les modales */
+.modalOverlayStyle {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(9, 12, 2, 0.8); /* Fond avec couleur texte primaire */
+  background-color: rgba(10, 31, 51, 0.8);
   backdrop-filter: blur(5px);
   display: flex;
   justify-content: center;
@@ -1587,66 +1568,54 @@ textarea.form-input {
   z-index: 1050;
 }
 
-.modalContentStyle { /* Renommé pour éviter conflit de nom */
-  background: var(--card-bg); /* Fond de carte */
+.modalContentStyle {
+  background: var(--card-bg);
   padding: 2.5rem;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   width: 90%;
-  max-width: 600px; /* Max-width pour CustomDataModal */
+  max-width: 600px;
   position: relative;
   border: 1px solid var(--border-color);
-  max-height: 80vh; /* Hauteur max */
-  overflow-y: auto;  /* Scroll si nécessaire */
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
-/* Ajustement spécifique pour UpdateCvModal */
-.updateCvModalContent { /* Classe spécifique pour UpdateCvModal */
-   max-width: 500px; /* Garder la largeur originale */
+.updateCvModalContent {
+   max-width: 500px;
 }
 
-
-.closeButtonStyle { /* Renommé pour éviter conflit de nom */
+.closeButtonStyle {
   position: absolute;
   top: 1rem;
   right: 1rem;
   background: transparent;
   border: none;
-  color: var(--text-muted); /* Couleur discrète */
+  color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
-  line-height: 1; /* Pour mieux centrer le 'x' */
+  line-height: 1;
 }
 .closeButtonStyle:hover {
-   color: var(--danger-color); /* Devient rouge au survol */
+   color: var(--danger-color);
 }
 
-/* Assurer que les styles des modales sont appliqués */
-/* Vous devrez peut-être ajouter ces classes aux éléments correspondants dans vos composants Modal */
 .custom-data-modal .modalContentStyle { max-width: 600px; }
 .update-cv-modal .modalContentStyle { max-width: 500px; }
 
-
-
-
-
-
-
 /* --- Styles pour OfferApplicantsPage --- */
-
 .applicants-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl); /* Espace entre stats et grille */
+  gap: var(--spacing-xl);
 }
 
-/* Statistiques améliorées */
 .applicants-stats-improved {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: var(--spacing-lg);
   padding: var(--spacing-lg);
-  background: var(--surface-color); /* Fond légèrement différent */
+  background: var(--surface-color);
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
 }
@@ -1654,22 +1623,17 @@ textarea.form-input {
 .stat-card-improved {
   text-align: center;
   padding: var(--spacing-md);
-  background: var(--card-bg); /* Fond de carte */
+  background: var(--card-bg);
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
 }
-/* Stat number et label (styles déjà existants peuvent être utilisés ou ajustés si besoin) */
-/* .stat-number { ... } */
-/* .stat-label { ... } */
 
-/* Grille pour les cartes de candidats */
 .applicants-grid-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Taille minimale un peu plus grande */
-  gap: var(--spacing-xl); /* Espace plus grand entre les cartes */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--spacing-xl);
 }
 
-/* Carte Candidat */
 .applicant-card {
   background: var(--card-bg);
   border-radius: var(--border-radius-lg);
@@ -1677,7 +1641,7 @@ textarea.form-input {
   padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg); /* Espace entre les sections de la carte */
+  gap: var(--spacing-lg);
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
@@ -1691,18 +1655,16 @@ textarea.form-input {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  border-bottom: 1px solid var(--border-color); /* Séparateur */
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: var(--spacing-md);
 }
 
-/* Avatar déjà stylé par .applicant-avatar */
-
 .applicant-card-title {
-  flex-grow: 1; /* Prend l'espace restant */
+  flex-grow: 1;
 }
 
 .applicant-name {
-  font-size: 1.15rem; /* Taille légèrement augmentée */
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--spacing-xs);
@@ -1714,8 +1676,8 @@ textarea.form-input {
 }
 
 .applicant-status-badge {
-  margin-left: auto; /* Pousse le badge à droite */
-  flex-shrink: 0; /* Empêche le badge de rétrécir */
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .applicant-card-contact {
@@ -1732,29 +1694,29 @@ textarea.form-input {
 }
 
 .contact-item-card svg {
-  flex-shrink: 0; /* Empêche l'icône de rétrécir */
+  flex-shrink: 0;
 }
 
 .contact-value {
-  flex-grow: 1; /* Prend l'espace */
-  overflow: hidden; /* Empêche le débordement */
-  text-overflow: ellipsis; /* Ajoute ... si trop long */
-  white-space: nowrap; /* Empêche le retour à la ligne */
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.9rem;
-  color: var(--text-primary); /* Texte plus foncé pour meilleure lisibilité */
+  color: var(--text-primary);
 }
 
 .copy-button {
-  position: relative; /* Pour le positionnement du tooltip */
+  position: relative;
   margin-left: var(--spacing-xs);
 }
 
 .copy-success-tooltip {
   position: absolute;
-  bottom: 100%; /* Au-dessus du bouton */
+  bottom: 100%;
   left: 50%;
-  transform: translateX(-50%) translateY(-4px); /* Centré et petit espace */
-  background-color: var(--success-color);
+  transform: translateX(-50%) translateY(-4px);
+  background-color: var(--primary-color);
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
@@ -1771,10 +1733,8 @@ textarea.form-input {
   to { opacity: 0; transform: translateX(-50%) translateY(-4px); }
 }
 
-
-/* Section Notes */
 .applicant-card-notes {
-  background-color: var(--surface-color); /* Fond distinct */
+  background-color: var(--surface-color);
   padding: var(--spacing-md);
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
@@ -1794,9 +1754,9 @@ textarea.form-input {
   font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.5;
-  white-space: pre-wrap; /* Conserve les sauts de ligne */
-  max-height: 150px; /* Limite la hauteur avec scroll */
-  overflow-y: auto; /* Ajoute une barre de défilement si nécessaire */
+  white-space: pre-wrap;
+  max-height: 150px;
+  overflow-y: auto;
 }
 
 .notes-empty {
@@ -1805,37 +1765,34 @@ textarea.form-input {
   font-style: italic;
 }
 
-/* Actions en bas de carte */
 .applicant-card-actions {
   display: flex;
-  flex-wrap: wrap; /* Permet le retour à la ligne */
+  flex-wrap: wrap;
   gap: var(--spacing-sm);
   padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border-color); /* Séparateur */
-  margin-top: auto; /* Pousse les actions en bas */
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
 }
 
 .applicant-card-actions .btn-sm {
-   padding: var(--spacing-xs) var(--spacing-sm); /* Boutons un peu plus petits */
+   padding: var(--spacing-xs) var(--spacing-sm);
 }
 
-/* Pour le select de statut (exemple) */
 .form-input-sm {
     padding: var(--spacing-xs) var(--spacing-sm);
     font-size: 0.8rem;
     height: auto;
 }
 
-/* Ajustements responsives pour les cartes de candidats */
 @media (max-width: 768px) {
   .applicants-grid-layout {
-    grid-template-columns: 1fr; /* Une seule colonne */
+    grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
 
   .applicant-card-header {
-      flex-direction: column; /* Avatar au-dessus */
-      align-items: flex-start; /* Aligner à gauche */
+      flex-direction: column;
+      align-items: flex-start;
       gap: var(--spacing-sm);
   }
 
@@ -1845,11 +1802,11 @@ textarea.form-input {
   }
 
   .applicant-card-actions {
-    flex-direction: column; /* Boutons en colonne sur mobile */
-    align-items: stretch; /* Boutons pleine largeur */
+    flex-direction: column;
+    align-items: stretch;
   }
    .applicant-card-actions .btn {
-     width: 100%; /* Pleine largeur */
+     width: 100%;
    }
 }
 
@@ -1857,9 +1814,7 @@ textarea.form-input {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover; /* Important: empêche l'image d'être déformée */
-  background-color: var(--surface-color); /* Couleur de fond pendant le chargement */
-  border: 1px solid var(--border-color); /* Optionnel */
+  object-fit: cover;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
 }
-
-/* --- Fin Styles pour OfferApplicantsPage --- */

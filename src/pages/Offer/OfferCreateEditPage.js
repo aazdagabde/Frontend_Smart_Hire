@@ -48,7 +48,8 @@ function OfferCreateEditPage() {
     description: '', 
     location: '', 
     contractType: 'CDI', 
-    status: 'DRAFT' 
+    status: 'DRAFT' ,
+    deadline: ''
   });
   const [loading, setLoading] = useState(isEditMode);
   const [error, setError] = useState('');
@@ -364,6 +365,21 @@ function OfferCreateEditPage() {
                       placeholder="Ex: Paris, Toulouse, Télétravail..."
                     />
                   </div>
+
+                    <div className="form-group">
+                      <label htmlFor="deadline" className="form-label">
+                        Date limite de candidature
+                      </label>
+                      <input
+                        type="date"
+                        id="deadline"
+                        className="form-input"
+                        value={offerData.deadline || ''}
+                        onChange={handleChange}
+                        min={new Date().toISOString().split('T')[0]} // Empêcher dates passées
+                      />
+                      <p className="form-hint">Après cette date, vous pourrez utiliser la sélection automatique.</p>
+                    </div>
 
                   <div className="form-group">
                     <label htmlFor="contractType" className="form-label">

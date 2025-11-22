@@ -149,6 +149,40 @@ const analyzeAllCvs = async (offerId) => {
 };
 
 
+// Sélectionner le Top N
+const selectTopCandidates = async (offerId, count) => {
+    const response = await fetch(`${OFFERS_API_URL}/${offerId}/select-top/${count}`, {
+        method: "POST",
+        headers: AuthService.authHeader()
+    });
+    return handleApiResponse(response);
+};
+
+// Générer Résumé IA
+const generateAiSummary = async (applicationId) => {
+    // Note: Vous devrez peut-être créer cet endpoint dans ApplicationController ou AIService
+    // Pour simplifier, supposons un endpoint dans ApplicationController : /api/applications/{id}/ai-summary
+    const response = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/ai-summary`, {
+        method: "POST",
+        headers: AuthService.authHeader()
+    });
+    return handleApiResponse(response);
+};
+
+// Générer Questions IA
+const generateAiQuestions = async (applicationId) => {
+    const response = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/ai-questions`, {
+        method: "POST",
+        headers: AuthService.authHeader()
+    });
+    return handleApiResponse(response);
+};
+
+
+
+
+
+
 // Exporter toutes les fonctions
 const OfferService = {
   getAllPublicOffers,
@@ -161,7 +195,10 @@ const OfferService = {
   getCustomFields,
   createCustomField,
   deleteCustomField,
-  analyzeAllCvs // <--- AJOUTÉ ICI
+  analyzeAllCvs,
+  selectTopCandidates,
+  generateAiSummary,
+  generateAiQuestions
 };
 
 export default OfferService;

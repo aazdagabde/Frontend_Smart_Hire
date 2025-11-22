@@ -25,6 +25,9 @@ const HomePage = () => {
              <Link to="/dashboard" className="btn btn-primary" style={{ marginTop: '1rem', width: 'auto' }}>
                  Accéder au Dashboard
              </Link>
+             <Link to="/offers" className="btn btn-secondary" style={{ marginTop: '1rem', marginLeft: '1rem', width: 'auto' }}>
+                 Voir les offres
+             </Link>
          </div>
       )}
     </div>
