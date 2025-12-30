@@ -174,6 +174,21 @@ const updateInternalNotes = async (applicationId, notes) => {
 };
 
 
+/**
+ * Sélectionne automatiquement les N meilleurs candidats pour une offre.
+ */
+const selectTopCandidates = async (offerId, number = 3) => {
+    // Notez bien l'URL : /api/applications/offer/{id}/select-top
+    const response = await fetch(`${APPLICATIONS_API_URL}/offer/${offerId}/select-top?n=${number}`, {
+        method: "POST",
+        headers: {
+            ...AuthService.authHeader() // Important pour le token JWT
+        }
+    });
+    return handleApiResponse(response);
+};
+
+
 // --- Exports ---
 
 const ApplicationService = {
@@ -185,7 +200,8 @@ const ApplicationService = {
   getApplicationCustomData,
   updateApplicationStatus,
   updateCvScore,
-  updateInternalNotes // Nouveau
+  updateInternalNotes, // Nouveau
+  selectTopCandidates
 };
 
 export default ApplicationService;

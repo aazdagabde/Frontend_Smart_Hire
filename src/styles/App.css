@@ -1,24 +1,27 @@
 /* src/styles/App.css */
 
-/* Variables CSS - Nouvelle palette bleu/aubergine */
+/* Variables CSS - Palette SmartHire Moderne */
 :root {
-  /* Couleurs light theme */
-  --primary-color: #4A8BDF;
-  --primary-hover: #3A7BCF;
-  --secondary-color: #A0006D;
-  --success-color: #4A8BDF;
-  --warning-color: #A0006D;
-  --danger-color: #A0006D;
-  --background-color: #EFFAFD;
-  --surface-color: #FFFFFF;
-  --card-bg: #FFFFFF;
-  --text-primary: #1A1A1A;
-  --text-secondary: #4A8BDF;
-  --text-muted: #666666;
-  --border-color: #4A8BDF;
+  /* Couleurs light theme - Nouvelle palette */
+  --primary-color: #2563eb;       /* Bleu royal vibrant */
+  --primary-light: #dbeafe;       /* Bleu très clair pour les fonds */
+  --primary-hover: #1d4ed8;
+  --secondary-color: #0f172a;     /* Bleu nuit (Slate) pour le texte principal */
+  --accent-color: #f59e0b;        /* Orange/Ambre pour les deadlines/actions */
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --background-color: #f8fafc;    /* Gris très léger (presque blanc) */
+  --surface-color: #ffffff;
+  --card-bg: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
 
-  --shadow: 0 4px 6px -1px rgba(74, 139, 223, 0.1), 0 2px 4px -1px rgba(74, 139, 223, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(74, 139, 223, 0.1), 0 4px 6px -2px rgba(74, 139, 223, 0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 
   /* Espacements */
   --spacing-xs: 0.25rem;
@@ -39,22 +42,25 @@
 
 /* Dark theme variables */
 [data-theme="dark"] {
-  --primary-color: #4A8BDF;
-  --primary-hover: #5A9BEF;
-  --secondary-color: #A0006D;
-  --success-color: #4A8BDF;
-  --warning-color: #A0006D;
-  --danger-color: #A0006D;
-  --background-color: #0A1F33;
-  --surface-color: #1A2F44;
-  --card-bg: #1A2F44;
-  --text-primary: #EFFAFD;
-  --text-secondary: #4A8BDF;
-  --text-muted: #A8B6C8;
-  --border-color: #4A8BDF;
+  --primary-color: #2563eb;
+  --primary-light: #1e3a8a;
+  --primary-hover: #3b82f6;
+  --secondary-color: #f1f5f9;
+  --accent-color: #f59e0b;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --background-color: #0f172a;
+  --surface-color: #1e293b;
+  --card-bg: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
 
-  --shadow: 0 4px 6px -1px rgba(74, 139, 223, 0.2), 0 2px 4px -1px rgba(74, 139, 223, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(74, 139, 223, 0.2), 0 4px 6px -2px rgba(74, 139, 223, 0.1);
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.2);
 }
 
 /* Reset et base */
@@ -185,7 +191,7 @@ body {
 
 .nav-button {
   background: var(--primary-color);
-  color: #EFFAFD;
+  color: white;
   border: none;
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius);
@@ -195,6 +201,7 @@ body {
   text-decoration: none;
   display: inline-block;
   text-align: center;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
 }
 
 .nav-button:hover {
@@ -218,7 +225,7 @@ body {
 
 .theme-toggle-button:hover {
   background: var(--primary-color);
-  color: #EFFAFD;
+  color: white;
   transform: rotate(15deg);
 }
 
@@ -289,7 +296,7 @@ body {
 
 .theme-toggle-button-mobile:hover {
   background: var(--primary-color);
-  color: #EFFAFD;
+  color: white;
 }
 
 /* Contenu principal */
@@ -299,6 +306,85 @@ body {
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
   width: 100%;
+}
+
+/* --- Cartes Modernes --- */
+.offer-card-modern {
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.offer-card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+/* Bandeau de couleur décoratif en haut des cartes */
+.offer-card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), #60a5fa);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.offer-card-modern:hover::before {
+  opacity: 1;
+}
+
+/* --- Badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.badge-contract { background-color: var(--primary-light); color: var(--primary-color); }
+.badge-location { background-color: var(--surface-color); color: var(--text-muted); }
+.badge-deadline { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+.badge-deadline.urgent { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+/* --- Recherche --- */
+.search-container-modern {
+  background: var(--card-bg);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  align-items: center;
+  border: 1px solid var(--border-color);
+}
+
+.search-input-modern {
+  flex-grow: 1;
+  border: none;
+  font-size: 1rem;
+  padding: var(--spacing-sm);
+  outline: none;
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.search-input-modern::placeholder {
+  color: var(--text-muted);
 }
 
 /* Cartes améliorées */
@@ -365,12 +451,12 @@ textarea.form-input {
 .form-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(74, 139, 223, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 select.form-input {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234A8BDF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right var(--spacing-md) center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
@@ -378,7 +464,7 @@ select.form-input {
 }
 
 [data-theme="dark"] select.form-input {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234A8BDF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
 }
 
 textarea.form-input {
@@ -386,7 +472,7 @@ textarea.form-input {
   resize: vertical;
 }
 
-/* Boutons améliorés */
+/* --- Boutons --- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -405,7 +491,8 @@ textarea.form-input {
 
 .btn-primary {
   background: var(--primary-color);
-  color: #EFFAFD;
+  color: white;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -434,27 +521,27 @@ textarea.form-input {
 
 .btn-outline:hover:not(:disabled) {
   background: var(--primary-color);
-  color: #EFFAFD;
+  color: white;
   transform: translateY(-2px);
 }
 
 .btn-danger {
   background: var(--danger-color);
-  color: #EFFAFD;
+  color: white;
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #B0007D;
+  background: #dc2626;
   transform: translateY(-2px);
 }
 
 [data-theme="dark"] .btn-danger {
   background: var(--danger-color);
-  color: #EFFAFD;
+  color: white;
 }
 
 [data-theme="dark"] .btn-danger:hover:not(:disabled) {
-  background: #B0007D;
+  background: #dc2626;
 }
 
 .btn-sm {
@@ -532,31 +619,31 @@ textarea.form-input {
 }
 
 .alert-success {
-  background-color: rgba(74, 139, 223, 0.1);
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: var(--success-color);
+  color: var(--success-color);
 }
 
 .alert-error {
-  background-color: rgba(160, 0, 109, 0.1);
+  background-color: rgba(239, 68, 68, 0.1);
   border-color: var(--danger-color);
   color: var(--danger-color);
 }
 
 .alert-info {
-  background-color: rgba(74, 139, 223, 0.1);
+  background-color: rgba(37, 99, 235, 0.1);
   border-color: var(--primary-color);
   color: var(--text-secondary);
 }
 
 [data-theme="dark"] .alert-error {
-  background-color: rgba(160, 0, 109, 0.2);
+  background-color: rgba(239, 68, 68, 0.2);
   border-color: var(--danger-color);
   color: var(--danger-color);
 }
 
 [data-theme="dark"] .alert-info {
-  background-color: rgba(74, 139, 223, 0.2);
+  background-color: rgba(37, 99, 235, 0.2);
   border-color: var(--primary-color);
   color: var(--primary-color);
 }
@@ -577,21 +664,21 @@ textarea.form-input {
 }
 
 .message-error {
-  background: rgba(160, 0, 109, 0.1);
+  background: rgba(239, 68, 68, 0.1);
   color: var(--danger-color);
-  border-color: rgba(160, 0, 109, 0.3);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .message-success {
-  background: rgba(74, 139, 223, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--primary-color);
-  border-color: rgba(74, 139, 223, 0.3);
+  border-color: rgba(37, 99, 235, 0.3);
 }
 
 [data-theme="dark"] .message-error {
-  background-color: rgba(160, 0, 109, 0.2);
+  background-color: rgba(239, 68, 68, 0.2);
   color: var(--danger-color);
-  border-color: rgba(160, 0, 109, 0.4);
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
 /* États vides */
@@ -669,7 +756,7 @@ textarea.form-input {
 
 .hero-buttons .btn-secondary:hover {
   background: var(--primary-color);
-  color: #EFFAFD;
+  color: white;
 }
 
 /* Dashboard */
@@ -908,7 +995,7 @@ textarea.form-input {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #EFFAFD;
+  color: white;
   flex-shrink: 0;
 }
 
@@ -1106,7 +1193,7 @@ textarea.form-input {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-color);
+  background: var(--primary-hover);
 }
 
 /* Animations */
@@ -1560,7 +1647,7 @@ textarea.form-input {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(10, 31, 51, 0.8);
+  background-color: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(5px);
   display: flex;
   justify-content: center;
@@ -1817,4 +1904,451 @@ textarea.form-input {
   object-fit: cover;
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
+}
+
+
+
+
+
+/* --- Ajout pour la Modal de Candidature --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6); /* Fond sombre flouté */
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content-modern {
+  background: white;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #ef4444;
+}
+
+/* Animation simple */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Style pour les métadonnées dans le header (Date + Deadline) */
+.offer-meta-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .offer-meta-container {
+        align-items: flex-start;
+        text-align: left;
+        margin-top: 1rem;
+    }
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.meta-item.deadline {
+    color: var(--danger-color);
+    font-weight: 600;
+    background: #fee2e2;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+
+
+/* src/styles/App.css */
+
+/* --- Styles Modernes pour la Modale de Candidature --- */
+
+/* Zone de Glisser-Déposer pour le CV */
+.upload-zone-modern {
+  border: 2px dashed #cbd5e1; /* Bordure hachurée grise */
+  border-radius: var(--radius-md);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Effet au survol ou si un fichier est glissé dessus */
+.upload-zone-modern:hover,
+.upload-zone-modern.dragover {
+  border-color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+
+/* L'input fichier réel est caché, c'est le label qui déclenche l'action */
+.hidden-input {
+  display: none;
+}
+
+.upload-icon-large {
+  font-size: 3rem;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text-main {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.upload-highlight {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.upload-text-sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Style quand un fichier est sélectionné */
+.file-selected-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #e2e8f0;
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+/* Section "Questions employeur" */
+.custom-fields-container {
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-subtitle-modern {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+/* Amélioration des Textarea et Inputs dans la modale */
+.modal-content-modern textarea.form-input,
+.modal-content-modern input[type="text"].form-input {
+    border: 1px solid #cbd5e1;
+    background: #fcfcfc;
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-content-modern textarea.form-input:focus,
+.modal-content-modern input[type="text"].form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: white;
+    outline: none;
+}
+
+/* Boutons de la modale */
+.modal-actions {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end; /* Alignement à droite */
+    gap: 1rem;
+}
+
+.btn-modal-cancel {
+    background: white;
+    border: 1px solid #cbd5e1;
+    color: var(--text-muted);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-modal-cancel:hover { background: #f1f5f9; color: var(--text-main); }
+
+.btn-modal-confirm {
+    background: var(--primary-color);
+    /* Petit dégradé subtil pour le moderniser */
+    background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.btn-modal-confirm:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
+}
+
+
+/* src/styles/App.css */
+
+/* --- Barre de Recherche "Capsule" --- */
+.search-container-modern {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 50px; /* Arrondi complet */
+  padding: 6px;        /* Espace interne autour du contenu */
+  padding-left: 20px;  /* Espace pour l'icône loupe */
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  max-width: 700px;
+  margin: 0 auto 3rem auto;
+  transition: all 0.3s ease;
+}
+
+/* Effet quand on clique dans la barre */
+.search-container-modern:focus-within {
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.15);
+  border-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.search-input-modern {
+  flex: 1;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  color: #334155;
+  background: transparent;
+  padding: 8px 12px;
+}
+
+/* Nouveau style pour le bouton "Rechercher" */
+.btn-search-modern {
+  background-color: #2563eb; /* Bleu royal */
+  color: white;
+  border: none;
+  border-radius: 50px; /* Arrondi complet */
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s;
+  white-space: nowrap; /* Empêche le texte de passer à la ligne */
+}
+
+.btn-search-modern:hover {
+  background-color: #1d4ed8; /* Bleu plus foncé au survol */
+}
+
+.btn-search-modern:active {
+  transform: scale(0.98); /* Petit effet de clic */
+}
+
+
+
+
+
+/* src/styles/App.css */
+
+/* --- Badges de Statut Modernes --- */
+.badge-status-pending { 
+  background-color: #fff7ed; 
+  color: #ea580c; 
+  border: 1px solid #ffedd5; 
+}
+.badge-status-reviewed { 
+  background-color: #eff6ff; 
+  color: #2563eb; 
+  border: 1px solid #dbeafe; 
+}
+.badge-status-accepted { 
+  background-color: #ecfdf5; 
+  color: #059669; 
+  border: 1px solid #d1fae5; 
+}
+.badge-status-rejected { 
+  background-color: #fef2f2; 
+  color: #dc2626; 
+  border: 1px solid #fee2e2; 
+}
+
+/* --- Carte de Candidature Moderne --- */
+.application-card-modern {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+}
+
+.application-card-modern:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
+
+.app-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.app-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.app-card-title:hover {
+  color: var(--primary-color);
+}
+
+.app-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  align-items: center;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Message du Recruteur stylisé */
+.app-card-message {
+  background-color: #f8fafc;
+  border-left: 4px solid var(--primary-color);
+  padding: 1rem;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.app-card-message.success { border-left-color: var(--success-color); background-color: #f0fdf4; }
+.app-card-message.danger { border-left-color: var(--danger-color); background-color: #fef2f2; }
+
+/* Actions en bas de carte */
+.app-card-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .app-card-actions {
+    flex-direction: column;
+  }
+  .app-card-actions button, .app-card-actions a {
+    width: 100%;
+  }
+}
+
+
+
+/* src/styles/App.css */
+
+/* --- Bouton Secondaire Moderne (Modifier, Annuler...) --- */
+.btn-secondary-modern {
+  background-color: #ffffff;
+  color: #334155; /* Gris foncé pour le texte (Slate 700) */
+  border: 1px solid #cbd5e1; /* Bordure grise subtile */
+  padding: 0.6rem 1.25rem;   /* Un peu plus d'espace interne */
+  border-radius: 50px;       /* Forme "Capsule" arrondie */
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;               /* Espace entre l'icône et le texte */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Effet au survol : devient bleu clair avec bordure bleue */
+.btn-secondary-modern:hover {
+  border-color: #2563eb;     /* Bleu royal */
+  color: #2563eb;
+  background-color: #eff6ff; /* Fond bleu très pâle */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Effet au clic */
+.btn-secondary-modern:active {
+  transform: scale(0.98);
+  background-color: #dbeafe;
 }

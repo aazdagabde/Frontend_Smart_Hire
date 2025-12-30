@@ -3,116 +3,148 @@ import React, { useState, useEffect } from 'react';
 import OfferService from '../../services/OfferService';
 import { Link } from 'react-router-dom';
 
+// Icônes simples
+const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
+const MapPinIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
+const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+
+// Helper pour la deadline
+const getDeadlineInfo = (deadlineDate) => {
+  if (!deadlineDate) return null;
+  const deadline = new Date(deadlineDate);
+  const now = new Date();
+  const diffTime = deadline - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return { text: "Expirée", urgent: true };
+  if (diffDays <= 3) return { text: `J-${diffDays} !`, urgent: true };
+  return { text: deadline.toLocaleDateString('fr-FR'), urgent: false };
+};
+
 function OfferListPage() {
   const [offers, setOffers] = useState([]);
+  const [filteredOffers, setFilteredOffers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  // État pour le terme de recherche
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState('ALL'); // ALL, CDI, STAGE, etc.
 
-  // Charger les offres initialement sans terme de recherche
   useEffect(() => {
-    fetchOffers(); // Appelle fetchOffers sans argument la première fois
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Le tableau vide assure que cela ne s'exécute qu'au montage
+    fetchOffers();
+  }, []);
 
-  // Fonction pour récupérer les offres, avec ou sans terme
+  useEffect(() => {
+    // Filtrage local pour la rapidité
+    let result = offers;
+    if (activeFilter !== 'ALL') {
+        result = result.filter(o => o.contractType === activeFilter);
+    }
+    // Le searchTerm est déjà géré par l'API, mais on peut aussi le faire ici
+    setFilteredOffers(result);
+  }, [activeFilter, offers]);
+
   const fetchOffers = async (term = '') => {
     setLoading(true);
-    setError('');
     try {
-      // Passer le terme au service
       const apiResponse = await OfferService.getAllPublicOffers(term);
-      // Vérifie si la réponse et les données existent et si data est un tableau
-      if (apiResponse && apiResponse.data && Array.isArray(apiResponse.data)) {
+      if (apiResponse?.data && Array.isArray(apiResponse.data)) {
         setOffers(apiResponse.data);
-      } else {
-        // Si les données ne sont pas un tableau (même si la réponse est ok), log et met un tableau vide
-        console.warn("Received non-array data for offers:", apiResponse?.data);
-        setOffers([]);
+        setFilteredOffers(apiResponse.data);
       }
     } catch (err) {
-      console.error("Error fetching offers:", err); // Log l'erreur complète
-      setError(err.message || 'Erreur lors du chargement des offres.');
-      setOffers([]); // Assure que offers est un tableau vide en cas d'erreur
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Gérer le changement dans l'input de recherche
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchOffers(searchTerm);
   };
-
-  // Gérer la soumission du formulaire de recherche
-  const handleSearchSubmit = (event) => {
-    event.preventDefault(); // Empêche le rechargement de la page
-    fetchOffers(searchTerm); // Relancer la recherche avec le terme actuel
-  };
-
 
   return (
-    <div style={{ width: '100%' }}>
-      <h2 className="form-title">Offres Disponibles</h2>
+    <div className="page-container">
+      <div style={{maxWidth: '800px', margin: '0 auto 3rem auto', textAlign:'center'}}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--secondary-color)', marginBottom: '1rem'}}>
+          Trouvez votre futur <span style={{color: 'var(--primary-color)'}}>Job</span>
+        </h1>
+        <p style={{color: 'var(--text-muted)', fontSize: '1.1rem'}}>
+          Découvrez les meilleures opportunités sélectionnées par SmartHire.
+        </p>
+      </div>
 
-      {/* Barre de recherche (maintenant active) */}
-      <form onSubmit={handleSearchSubmit} style={{ marginBottom: '2rem', display: 'flex', gap: '10px' }}>
-        <input
-          type="text"
-          className="form-input"
-          placeholder="Rechercher par mot-clé (titre, description, lieu)..." // Placeholder mis à jour
-          value={searchTerm}
-          onChange={handleSearchChange}
-          style={{ flexGrow: 1 }}
-        />
-        <button type="submit" className="btn btn-primary" style={{ width: 'auto' }}>
-          Rechercher
+{/* Barre de recherche Moderne Corrigée */}
+      <div className="search-container-modern">
+        <SearchIcon /> {/* Assurez-vous que l'icône est bien importée/définie en haut du fichier */}
+        
+        <form onSubmit={handleSearchSubmit} style={{flex: 1, display: 'flex'}}>
+            <input
+            type="text"
+            className="search-input-modern"
+            placeholder="Rechercher un poste, une compétence..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </form>
+        
+        <button onClick={handleSearchSubmit} className="btn-search-modern">
+            Rechercher
         </button>
-      </form>
+      </div>
 
+      {/* Filtres Rapides */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+        {['ALL', 'CDI', 'CDD', 'STAGE', 'FREELANCE'].map(type => (
+            <button
+                key={type}
+                onClick={() => setActiveFilter(type)}
+                className={`badge ${activeFilter === type ? 'badge-contract' : 'badge-location'}`}
+                style={{ border: 'none', cursor: 'pointer', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+            >
+                {type === 'ALL' ? 'Tout voir' : type}
+            </button>
+        ))}
+      </div>
 
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--primary-color)' }}>
-            <span className="loading" style={{ borderTopColor: 'var(--primary-color)' }}></span> Chargement des offres...
-        </div>
-      )}
-      {error && <div className="message message-error">{error}</div>}
-
-      {!loading && !error && (
-        <div className="offer-list" style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-          {offers.length === 0 ? (
-            <p style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: 'var(--gray-color)' }}>
-              {/* Message adapté si une recherche a été effectuée */}
-              {searchTerm ? `Aucune offre ne correspond à "${searchTerm}".` : "Aucune offre n'est actuellement disponible."}
-            </p>
-          ) : (
-            offers.map(offer => (
-              // Carte individuelle pour chaque offre
-              <div key={offer.id} className="form-card" style={{ padding: '1.5rem', maxWidth: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.2s ease-in-out', ':hover': { transform: 'translateY(-5px)' } }}>
-                <div> {/* Conteneur pour le contenu textuel */}
-                    <h3 style={{ marginBottom: '0.5rem', color: 'var(--primary-color)', fontSize: '1.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {offer.title}
-                    </h3>
-                    <p style={{ color: 'var(--gray-color)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                        📍 {offer.location || 'Non spécifié'} - 📄 {offer.contractType}
-                    </p>
-                    {/* Description avec limitation de hauteur et '...' */}
-                    <p style={{ marginBottom: '1rem', fontSize: '0.95rem', lineHeight: '1.5', height: '6em' /* Environ 4 lignes */, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>
-                        {offer.description ? offer.description : "Pas de description."}
-                    </p>
-                     {/* Afficher la date de création */}
-                     <p style={{ fontSize: '0.8rem', color: '#adb5bd', marginTop: 'auto', paddingTop: '0.5rem' }}>
-                        Publié le {new Date(offer.createdAt).toLocaleDateString()}
-                    </p>
+      {/* Grille des Offres */}
+      {loading ? (
+        <div className="loading-state"><div className="spinner"></div></div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          {filteredOffers.map(offer => {
+            const deadlineInfo = getDeadlineInfo(offer.deadline);
+            return (
+              <div key={offer.id} className="offer-card-modern">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <span className="badge badge-contract">{offer.contractType}</span>
+                    {deadlineInfo && (
+                        <span className={`badge badge-deadline ${deadlineInfo.urgent ? 'urgent' : ''}`} title="Date limite">
+                            <ClockIcon />&nbsp;{deadlineInfo.text}
+                        </span>
+                    )}
                 </div>
-                 {/* Bouton Voir Détails */}
-                <Link to={`/offers/${offer.id}`} className="btn btn-primary" style={{ width: '100%', fontSize: '0.9rem', padding: '0.6rem 1rem', marginTop: '1rem' /* Espace avant le bouton */ }}>
-                  Voir Détails
-                </Link>
+                
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--secondary-color)', marginBottom: '0.5rem' }}>
+                    {offer.title}
+                </h3>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                    <MapPinIcon /> {offer.location}
+                </div>
+
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {offer.description}
+                </p>
+
+                <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Publié le {new Date(offer.createdAt).toLocaleDateString()}</span>
+                    <Link to={`/offers/${offer.id}`} style={{ textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600', fontSize: '0.9rem' }}>
+                        Voir l'offre →
+                    </Link>
+                </div>
               </div>
-            ))
-          )}
+            );
+          })}
         </div>
       )}
     </div>
