@@ -149,7 +149,8 @@ const analyzeAllCvs = async (offerId) => {
 };
 
 
-// Sélectionner le Top N
+//** */ Sélectionner le Top N
+/*
 const selectTopCandidates = async (offerId, count) => {
     const response = await fetch(`${OFFERS_API_URL}/${offerId}/select-top/${count}`, {
         method: "POST",
@@ -157,6 +158,7 @@ const selectTopCandidates = async (offerId, count) => {
     });
     return handleApiResponse(response);
 };
+*/
 
 // Générer Résumé IA
 const generateAiSummary = async (applicationId) => {
@@ -196,7 +198,7 @@ const OfferService = {
   createCustomField,
   deleteCustomField,
   analyzeAllCvs,
-  selectTopCandidates,
+  //selectTopCandidates,
   generateAiSummary,
   generateAiQuestions
 };

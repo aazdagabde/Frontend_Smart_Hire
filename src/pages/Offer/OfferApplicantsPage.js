@@ -160,7 +160,7 @@ function OfferApplicantsPage() {
 
         setIsSelecting(true);
         try {
-            await OfferService.selectTopCandidates(offerId, topNCount);
+            await ApplicationService.selectTopCandidates(offerId, topNCount);
             
             await loadData();
             setActiveTab('SHORTLIST');
