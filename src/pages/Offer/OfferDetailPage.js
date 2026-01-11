@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import OfferService from '../../services/OfferService';
 import ApplicationService from '../../services/ApplicationService';
 import { useAuth } from '../../contexts/AuthContext';
+import defaultOfferImage from '../../assets/image_offre.png'; // Image par défaut
 
 // --- Icônes SVG ---
 const DocumentIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>;
@@ -29,7 +30,7 @@ function OfferDetailPage() {
   const [error, setError] = useState('');
   
   // États pour la candidature
-  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false); // NOUVEAU : Gère l'ouverture de la modal
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [cvFile, setCvFile] = useState(null);
   const [customFields, setCustomFields] = useState([]);
   const [customData, setCustomData] = useState({});
@@ -166,7 +167,6 @@ function OfferDetailPage() {
     }
   };
 
-  // Helper pour obtenir la date formatée pour l'affichage
   const getDeadlineDate = (dateString) => {
     if (!dateString) return null;
     return new Date(dateString).toLocaleDateString('fr-FR');
@@ -193,6 +193,24 @@ function OfferDetailPage() {
           {/* Colonne principale */}
           <div className="offer-detail-main">
             <div className="form-card full-width">
+              
+              {/* --- IMAGE DE L'OFFRE (BANNIÈRE) --- */}
+              <div className="offer-image-banner" style={{
+                  width: 'calc(100% + 3rem)', // Pour compenser le padding du parent si nécessaire, ou on ajuste le style
+                  margin: '-1.5rem -1.5rem 1.5rem -1.5rem', // Marges négatives pour coller aux bords si le form-card a du padding
+                  height: '250px', 
+                  overflow: 'hidden', 
+                  borderRadius: '12px 12px 0 0',
+                  backgroundColor: '#f1f5f9'
+              }}>
+                  <img
+                      src={offer.hasImage ? OfferService.getOfferImageUrl(offer.id) : defaultOfferImage}
+                      alt={offer.title}
+                      style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                      onError={(e) => {e.target.onerror = null; e.target.src = defaultOfferImage}}
+                  />
+              </div>
+
               <div className="offer-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem'}}>
                 
                 <div style={{flex: 1}}>
@@ -203,7 +221,6 @@ function OfferDetailPage() {
                     </div>
                 </div>
 
-                {/* MODIFICATION : Date et Deadline ici */}
                 <div className="offer-meta-container">
                     <div className="meta-item">
                         <CalendarIcon /> 
@@ -232,7 +249,7 @@ function OfferDetailPage() {
           {/* Colonne latérale */}
           <div className="offer-detail-sidebar">
             
-            {/* Bloc Action : Bouton Postuler */}
+            {/* Bloc Action */}
             <div className="form-card" style={{ borderTop: '4px solid var(--primary-color)' }}>
               <div className="form-section-header">
                 <DocumentIcon />
@@ -277,7 +294,7 @@ function OfferDetailPage() {
         </div>
       )}
 
-      {/* --- MODAL DE CANDIDATURE MODERNE --- */}
+      {/* --- MODAL DE CANDIDATURE (Reste inchangé) --- */}
       {isApplyModalOpen && (
           <div className="modal-overlay" onClick={() => setIsApplyModalOpen(false)}>
               <div className="modal-content-modern" onClick={e => e.stopPropagation()}>
@@ -285,7 +302,6 @@ function OfferDetailPage() {
                       <CloseIcon />
                   </button>
                   
-                  {/* En-tête de la modale */}
                   <h2 className="form-title" style={{textAlign:'left', fontSize: '1.5rem', marginBottom: '0.5rem'}}>Postuler à l'offre</h2>
                   <p className="page-subtitle" style={{marginBottom: '2rem', fontSize:'1rem'}}>Complétez votre dossier pour <strong>{offer.title}</strong>.</p>
 
@@ -303,23 +319,16 @@ function OfferDetailPage() {
                   ) : (
                     <form onSubmit={handleApply} className="application-form">
                       
-                      {/* --- ZONE D'UPLOAD MODERNE --- */}
                       <div className="form-group" style={{marginBottom: '2rem'}}>
                         <label className="form-label" style={{fontSize: '1.1rem', marginBottom:'1rem', display:'block'}}>Votre CV (PDF) <span className="required">*</span></label>
-                        
-                        {/* L'input réel est caché */}
                         <input type="file" id="cvFile" accept="application/pdf" onChange={handleFileChange} required className="hidden-input" />
-                        
-                        {/* Le label agit comme la zone de clique/drop */}
                         <label htmlFor="cvFile" className={`upload-zone-modern ${cvFile ? 'has-file' : ''}`}>
                              {cvFile ? (
-                                 // Affichage si un fichier est sélectionné
                                  <div className="file-selected-info">
                                      <span style={{fontSize:'1.5rem'}}>📄</span>
                                      <span>Fichier sélectionné : <strong>{cvFile.name}</strong></span>
                                  </div>
                              ) : (
-                                 // Affichage par défaut
                                  <>
                                      <div className="upload-icon-large">☁️</div>
                                      <div className="upload-text-main">
@@ -331,7 +340,6 @@ function OfferDetailPage() {
                         </label>
                       </div>
 
-                      {/* --- SECTION QUESTIONS SUPPLEMENTAIRES --- */}
                       {!fieldsLoading && Array.isArray(customFields) && customFields.length > 0 && (
                         <div className="custom-fields-container">
                           <h4 className="section-subtitle-modern">Questions de l'employeur</h4>
@@ -352,7 +360,6 @@ function OfferDetailPage() {
 
                       {applyError && <div className="alert alert-error" style={{marginTop: '1.5rem'}}>{applyError}</div>}
 
-                      {/* --- BOUTONS D'ACTION --- */}
                       <div className="modal-actions">
                           <button type="button" onClick={() => setIsApplyModalOpen(false)} className="btn-modal-cancel" disabled={applyLoading}>
                               Annuler
