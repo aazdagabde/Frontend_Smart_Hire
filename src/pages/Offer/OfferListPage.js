@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import OfferService from '../../services/OfferService';
 import { Link } from 'react-router-dom';
+import defaultOfferImage from '../../assets/image_offre.png'; // Image par défaut
 
 // Icônes simples
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
@@ -26,19 +27,17 @@ function OfferListPage() {
   const [filteredOffers, setFilteredOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState('ALL'); // ALL, CDI, STAGE, etc.
+  const [activeFilter, setActiveFilter] = useState('ALL');
 
   useEffect(() => {
     fetchOffers();
   }, []);
 
   useEffect(() => {
-    // Filtrage local pour la rapidité
     let result = offers;
     if (activeFilter !== 'ALL') {
         result = result.filter(o => o.contractType === activeFilter);
     }
-    // Le searchTerm est déjà géré par l'API, mais on peut aussi le faire ici
     setFilteredOffers(result);
   }, [activeFilter, offers]);
 
@@ -73,10 +72,8 @@ function OfferListPage() {
         </p>
       </div>
 
-{/* Barre de recherche Moderne Corrigée */}
       <div className="search-container-modern">
-        <SearchIcon /> {/* Assurez-vous que l'icône est bien importée/définie en haut du fichier */}
-        
+        <SearchIcon />
         <form onSubmit={handleSearchSubmit} style={{flex: 1, display: 'flex'}}>
             <input
             type="text"
@@ -86,13 +83,11 @@ function OfferListPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             />
         </form>
-        
         <button onClick={handleSearchSubmit} className="btn-search-modern">
             Rechercher
         </button>
       </div>
 
-      {/* Filtres Rapides */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         {['ALL', 'CDI', 'CDD', 'STAGE', 'FREELANCE'].map(type => (
             <button
@@ -106,7 +101,6 @@ function OfferListPage() {
         ))}
       </div>
 
-      {/* Grille des Offres */}
       {loading ? (
         <div className="loading-state"><div className="spinner"></div></div>
       ) : (
@@ -114,33 +108,51 @@ function OfferListPage() {
           {filteredOffers.map(offer => {
             const deadlineInfo = getDeadlineInfo(offer.deadline);
             return (
-              <div key={offer.id} className="offer-card-modern">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                    <span className="badge badge-contract">{offer.contractType}</span>
-                    {deadlineInfo && (
-                        <span className={`badge badge-deadline ${deadlineInfo.urgent ? 'urgent' : ''}`} title="Date limite">
-                            <ClockIcon />&nbsp;{deadlineInfo.text}
-                        </span>
-                    )}
-                </div>
+              // On retire le padding par défaut de la carte pour coller l'image aux bords
+              <div key={offer.id} className="offer-card-modern" style={{padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
                 
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--secondary-color)', marginBottom: '0.5rem' }}>
-                    {offer.title}
-                </h3>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                    <MapPinIcon /> {offer.location}
+                {/* --- IMAGE MINIATURE --- */}
+                <div style={{height: '180px', width: '100%', position: 'relative', backgroundColor: '#f1f5f9'}}>
+                    <img
+                        src={offer.hasImage ? OfferService.getOfferImageUrl(offer.id) : defaultOfferImage}
+                        alt={offer.title}
+                        style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                        onError={(e) => {e.target.onerror = null; e.target.src = defaultOfferImage}}
+                    />
+                     {/* Badge ContractType superposé sur l'image */}
+                    <span className="badge badge-contract" style={{position: 'absolute', top: '10px', left: '10px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)'}}>
+                        {offer.contractType}
+                    </span>
                 </div>
 
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {offer.description}
-                </p>
+                {/* --- CONTENU DE LA CARTE --- */}
+                <div style={{padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column'}}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                        {deadlineInfo && (
+                            <span className={`badge badge-deadline ${deadlineInfo.urgent ? 'urgent' : ''}`} title="Date limite">
+                                <ClockIcon />&nbsp;{deadlineInfo.text}
+                            </span>
+                        )}
+                    </div>
+                    
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--secondary-color)', marginBottom: '0.5rem' }}>
+                        {offer.title}
+                    </h3>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                        <MapPinIcon /> {offer.location}
+                    </div>
 
-                <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Publié le {new Date(offer.createdAt).toLocaleDateString()}</span>
-                    <Link to={`/offers/${offer.id}`} style={{ textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600', fontSize: '0.9rem' }}>
-                        Voir l'offre →
-                    </Link>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {offer.description}
+                    </p>
+
+                    <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Publié le {new Date(offer.createdAt).toLocaleDateString()}</span>
+                        <Link to={`/offers/${offer.id}`} style={{ textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600', fontSize: '0.9rem' }}>
+                            Voir l'offre →
+                        </Link>
+                    </div>
                 </div>
               </div>
             );

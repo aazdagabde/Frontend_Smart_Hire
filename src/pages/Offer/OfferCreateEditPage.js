@@ -51,6 +51,10 @@ function OfferCreateEditPage() {
     status: 'DRAFT' ,
     deadline: ''
   });
+  
+  // NOUVEAU : State pour l'image
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const [loading, setLoading] = useState(isEditMode);
   const [error, setError] = useState('');
   const [customFields, setCustomFields] = useState([]);
@@ -161,16 +165,36 @@ function OfferCreateEditPage() {
 
     try {
       let response;
+      let currentOfferId; // Pour stocker l'ID de l'offre (créée ou éditée)
+
       if (isEditMode) {
         response = await OfferService.updateOffer(id, payload);
+        currentOfferId = id;
       } else {
         response = await OfferService.createOffer(payload);
+        // Récupérer l'ID de la nouvelle offre
+        if (response.success && response.data && response.data.id) {
+            currentOfferId = response.data.id;
+        }
       }
 
       if (response.success) {
+        
+        // MODIFICATION : Upload de l'image si sélectionnée
+        if (selectedImage && currentOfferId) {
+            try {
+                await OfferService.uploadOfferImage(currentOfferId, selectedImage);
+            } catch (imageErr) {
+                console.error("Erreur upload image:", imageErr);
+                // On affiche une alerte mais on ne bloque pas la redirection
+                showActionMessage("Offre sauvegardée, mais erreur lors de l'envoi de l'image.", "warning");
+            }
+        }
+
         let nextUrl = '/offers/manage';
-        if (!isEditMode && response.data && response.data.id) {
-          nextUrl = `/offers/edit/${response.data.id}`;
+        // Si on vient de créer une offre (pas en mode edit), on redirige vers l'édition de cette offre
+        if (!isEditMode && currentOfferId) {
+          nextUrl = `/offers/edit/${currentOfferId}`;
         }
 
         const successMsg = isEditMode ? 'Offre mise à jour !' : 'Offre créée !';
@@ -288,7 +312,7 @@ function OfferCreateEditPage() {
 
       <div className="form-layout">
         <div className="form-main">
-          {/* Carte principale modifiée pour être full-width et avoir un header */}
+          {/* Carte principale */}
           <div className="form-card full-width"> 
             {actionMessage.text && (
               <div className={`alert alert-${actionMessage.type === 'success' ? 'success' : 'error'}`}>
@@ -306,7 +330,6 @@ function OfferCreateEditPage() {
               </div>
             )}
 
-            {/* En-tête de section ajouté pour la cohérence */}
             <div className="form-section-header">
               <DocumentIcon />
               <h3 className="form-section-title">Informations principales</h3>
@@ -317,7 +340,6 @@ function OfferCreateEditPage() {
 
             {(!loading || !isEditMode) && (
               <form onSubmit={handleSubmit} className="offer-form">
-                {/* La div .form-section et le h3 ont été retirés d'ici pour être mis en en-tête de carte */}
                 <div className="form-group">
                   <label htmlFor="title" className="form-label">
                     Titre de l'offre <span className="required">*</span>
@@ -348,6 +370,21 @@ function OfferCreateEditPage() {
                     minLength="20"
                     placeholder="Décrivez en détail le poste, les missions, les compétences requises..."
                   ></textarea>
+                </div>
+
+                {/* NOUVEAU : Champ pour l'image */}
+                <div className="form-group">
+                  <label htmlFor="image" className="form-label">
+                    Image de l'offre (Optionnel)
+                  </label>
+                  <input
+                    type="file"
+                    id="image"
+                    className="form-input"
+                    accept="image/*"
+                    onChange={(e) => setSelectedImage(e.target.files[0])}
+                  />
+                  <p className="form-hint">Une image attrayante pour la liste des offres (minuature).</p>
                 </div>
 
                 <div className="form-grid">
@@ -445,7 +482,7 @@ function OfferCreateEditPage() {
           </div>
 
           {isEditMode && (
-            // Carte des champs personnalisés modifiée pour être full-width
+            // Carte des champs personnalisés
             <div className="form-card full-width">
               <div className="form-section-header">
                 <SettingsIcon />

@@ -19,21 +19,27 @@ const handleApiResponse = async (response) => {
   let apiResponse;
   try {
     // Essayer de parser la réponse JSON
-    apiResponse = await response.json();
+    // Note: On utilise text() puis JSON.parse() pour éviter de planter sur un body vide
+    const text = await response.text();
+    apiResponse = text ? JSON.parse(text) : {};
   } catch (e) {
     // Si pas JSON (erreur serveur HTML, etc.)
     console.error("Failed to parse API response as JSON:", response.status, response.statusText);
     throw new Error(`Erreur ${response.status}: Réponse inattendue du serveur (${response.statusText})`);
   }
 
-  // Si la réponse est OK (2xx) ET contient success: true
-  if (response.ok && apiResponse.success) {
-    return apiResponse; // Contient { success, data?, message? }
-  } else {
-    // Si réponse pas OK ou success: false, lancer une erreur avec le message backend
-    console.error("API Error Response:", apiResponse);
-    throw new Error(apiResponse.message || `Erreur ${response.status} (${response.statusText})`);
+  // Si la réponse est OK (2xx) ET contient success: true (ou est vide mais OK, selon le cas)
+  // Pour plus de sécurité avec votre backend actuel qui renvoie parfois des objets sans "success: true" explicite dans les ResponseEntity.ok() simples
+  if (response.ok) {
+     // Si l'API renvoie { success: ... }, on l'utilise. Sinon si c'est OK, on suppose que c'est bon.
+     if (apiResponse.success === undefined || apiResponse.success === true) {
+         return apiResponse.success !== undefined ? apiResponse : { success: true, ...apiResponse };
+     }
   }
+  
+  // Si réponse pas OK ou success: false explicite
+  console.error("API Error Response:", apiResponse);
+  throw new Error(apiResponse.message || `Erreur ${response.status} (${response.statusText})`);
 };
 
 
@@ -103,6 +109,35 @@ const deleteOffer = async (id) => {
   if (response.status === 204) return { success: true, message: "Offre supprimée" };
   return handleApiResponse(response);
 };
+
+// --- GESTION DES IMAGES D'OFFRE (NOUVEAU) ---
+
+// Upload l'image de l'offre
+const uploadOfferImage = async (id, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // Note: Avec FormData, on ne met PAS 'Content-Type': 'multipart/form-data' manuellement
+    // Le navigateur le fait automatiquement avec le boundary correct.
+    const response = await fetch(`${OFFERS_API_URL}/${id}/image`, {
+        method: "PUT",
+        headers: AuthService.authHeader(),
+        body: formData
+    });
+
+    // Gestion manuelle car le backend renvoie 200 OK avec body vide (Void)
+    if (response.ok) {
+        return { success: true, message: "Image mise à jour avec succès" };
+    }
+    return handleApiResponse(response);
+};
+
+// Helper pour obtenir l'URL de l'image (pour l'attribut src)
+const getOfferImageUrl = (id) => {
+    return `${OFFERS_API_URL}/${id}/image`;
+};
+
+// --- CHAMPS PERSONNALISÉS ---
 
 // Récupère les champs personnalisés d'une offre
 const getCustomFields = async (offerId) => {
@@ -181,10 +216,6 @@ const generateAiQuestions = async (applicationId) => {
 };
 
 
-
-
-
-
 // Exporter toutes les fonctions
 const OfferService = {
   getAllPublicOffers,
@@ -194,6 +225,8 @@ const OfferService = {
   createOffer,
   updateOffer,
   deleteOffer,
+  uploadOfferImage, // Nouveau
+  getOfferImageUrl, // Nouveau
   getCustomFields,
   createCustomField,
   deleteCustomField,
