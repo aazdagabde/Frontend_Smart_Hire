@@ -19,13 +19,14 @@ const handleApiResponse = async (response) => {
 
     let apiResponse;
     try {
-        apiResponse = await response.json();
+        const text = await response.text();
+        apiResponse = text ? JSON.parse(text) : {};
     } catch (e) {
         throw new Error(`Erreur ${response.status}: Réponse inattendue du serveur (${response.statusText})`);
     }
 
-    if (response.ok && apiResponse.success) {
-        return apiResponse;
+    if (response.ok) {
+        return apiResponse.success !== undefined ? apiResponse : { success: true, data: apiResponse };
     } else {
         throw new Error(apiResponse.message || `Erreur ${response.status}: ${response.statusText}`);
     }
@@ -41,14 +42,12 @@ const handleFileResponse = async (response) => {
             apiResponse = await response.json();
             throw new Error(apiResponse.message || `Erreur ${response.status}: ${response.statusText}`);
         } catch (e) {
-            // Si la réponse d'erreur n'est pas JSON, lancez une erreur générique
             throw new Error(`Erreur ${response.status}: ${response.statusText}`);
         }
     }
     
-    // Obtenir le nom du fichier depuis l'en-tête, s'il existe
     const disposition = response.headers.get('content-disposition');
-    let filename = 'document.pdf'; // Nom par défaut
+    let filename = 'document.pdf';
     if (disposition && disposition.indexOf('filename') !== -1) {
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
         const matches = filenameRegex.exec(disposition);
@@ -82,15 +81,13 @@ const getMyApplications = async () => {
     return handleApiResponse(response);
 };
 
-// Récupérer les candidatures pour une offre (RH)
 const getApplicationsForOffer = async (offerId) => {
      const response = await fetch(`${APPLICATIONS_API_URL}/offer/${offerId}`, {
-        headers: AuthService.authHeader() // Token RH nécessaire
+        headers: AuthService.authHeader()
     });
     return handleApiResponse(response);
 };
 
-// Mettre à jour le CV
 const updateCv = async (applicationId, formData) => {
     const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/cv`, {
         method: "PUT",
@@ -134,33 +131,19 @@ const updateCvScore = async (applicationId, score) => {
 };
 
 
-// --- FONCTIONS MODIFIÉES / NOUVELLES ---
+// --- AMÉLIORATIONS & PILOTAGE ---
 
-/**
- * MODIFIÉ (Amélioration 2) : Récupère le CV et l'ouvre dans un nouvel onglet.
- */
 const downloadCv = async (applicationId) => {
     const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/cv`, {
         headers: AuthService.authHeader()
     });
 
-    // Utiliser handleFileResponse pour gérer les erreurs et le blob
     const { blob } = await handleFileResponse(response);
-    
-    // Créer une URL objet pour ce Blob (qui est de type application/pdf)
     const fileURL = URL.createObjectURL(blob);
-    
-    // Ouvrir cette URL dans un nouvel onglet
     window.open(fileURL, '_blank');
-    
-    // Le navigateur gérera la révocation de l'URL objet lorsque l'onglet sera fermé.
     return { success: true };
 };
 
-
-/**
- * NOUVEAU (Amélioration 3) : Mettre à jour les notes internes du RH.
- */
 const updateInternalNotes = async (applicationId, notes) => {
     const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/notes`, {
         method: "PUT",
@@ -168,40 +151,80 @@ const updateInternalNotes = async (applicationId, notes) => {
             'Content-Type': 'application/json',
             ...AuthService.authHeader()
         },
-        body: JSON.stringify({ notes }), // Envoyer les notes
+        body: JSON.stringify({ notes }),
     });
-    return handleApiResponse(response); // Renvoie { success, data, message }
+    return handleApiResponse(response);
 };
 
+// 1. Analyse IA
+const analyzeAllCvs = async (offerId) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${offerId}/analyze-cvs`, {
+        method: "POST",
+        headers: AuthService.authHeader()
+    });
+    return handleApiResponse(response);
+};
 
-/**
- * Sélectionne automatiquement les N meilleurs candidats pour une offre.
- */
+// 2. Sélection de masse (CORRIGÉ : URL sans /offer/)
+const bulkSelectCandidates = async (offerId, bulkData) => {
+    // L'URL backend est : @PostMapping("/{id}/bulk-select") -> /api/applications/{id}/bulk-select
+    // Suppression de "/offer/" ici pour correspondre
+    const response = await fetch(`${APPLICATIONS_API_URL}/${offerId}/bulk-select`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            ...AuthService.authHeader()
+        },
+        body: JSON.stringify(bulkData)
+    });
+    return handleApiResponse(response);
+};
+
+// 3. Top N (Méthode simple) - L'URL backend est bien /offer/...
 const selectTopCandidates = async (offerId, number = 3) => {
-    // Notez bien l'URL : /api/applications/offer/{id}/select-top
     const response = await fetch(`${APPLICATIONS_API_URL}/offer/${offerId}/select-top?n=${number}`, {
         method: "POST",
         headers: {
-            ...AuthService.authHeader() // Important pour le token JWT
+            ...AuthService.authHeader()
         }
     });
     return handleApiResponse(response);
 };
 
+// Générer résumé IA
+const generateAiSummary = async (applicationId) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/ai-summary`, {
+        method: "POST",
+        headers: AuthService.authHeader()
+    });
+    return handleApiResponse(response);
+};
 
-// --- Exports ---
+// Générer questions IA
+const generateAiQuestions = async (applicationId) => {
+    const response = await fetch(`${APPLICATIONS_API_URL}/${applicationId}/ai-questions`, {
+        method: "POST",
+        headers: AuthService.authHeader()
+    });
+    return handleApiResponse(response);
+};
+
 
 const ApplicationService = {
   applyToOffer,
   getMyApplications,
   getApplicationsForOffer,
-  downloadCv, // Modifié
+  downloadCv,
   updateCv,
   getApplicationCustomData,
   updateApplicationStatus,
   updateCvScore,
-  updateInternalNotes, // Nouveau
-  selectTopCandidates
+  updateInternalNotes,
+  analyzeAllCvs,
+  bulkSelectCandidates,
+  selectTopCandidates,
+  generateAiSummary,
+  generateAiQuestions
 };
 
 export default ApplicationService;

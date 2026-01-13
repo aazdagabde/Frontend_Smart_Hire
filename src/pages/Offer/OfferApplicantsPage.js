@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'; // 1. Ajout de useCallback
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ApplicationService from '../../services/ApplicationService';
 import OfferService from '../../services/OfferService';
-// 2. Suppression des imports inutilisés (CustomDataModal, InternalNotesModal)
 import NoProfileImage from '../../assets/noprofile.jpeg';
-import './OfferApplicantsPage.css'; 
+import './OfferApplicantsPage.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
@@ -36,7 +35,7 @@ const ProgressBar = ({ value, max, label }) => {
 };
 
 function OfferApplicantsPage() {
-    const { offerId } = useParams();
+    const { offerId } = useParams(); // Assurez-vous que votre route utilise :offerId
     
     // --- États des Données ---
     const [applicants, setApplicants] = useState([]);
@@ -51,14 +50,17 @@ function OfferApplicantsPage() {
     // --- États pour la Sélection Automatique ---
     const [topNCount, setTopNCount] = useState(3);
     const [isSelecting, setIsSelecting] = useState(false);
+    const [showBulkModal, setShowBulkModal] = useState(false);
+    const [bulkConfig, setBulkConfig] = useState({
+        actionType: 'INTERVIEW', // ou 'ACCEPT'
+        customMessage: ''
+    });
 
-    // --- États des Modales ---
+    // --- États des Modales IA ---
     const [modalContent, setModalContent] = useState({ isOpen: false, title: '', content: '', type: '' }); 
 
-    // 3. Correction : Utilisation de useCallback pour loadData
-    // Cela permet à la fonction de ne pas être recréée à chaque rendu, satisfaisant le useEffect
     const loadData = useCallback(async () => {
-        if (!offerId) return; // Sécurité
+        if (!offerId) return;
         setLoading(true);
         try {
             // 1. Charger détails offre
@@ -79,19 +81,19 @@ function OfferApplicantsPage() {
         } finally {
             setLoading(false);
         }
-    }, [offerId]); // loadData dépend uniquement de offerId
+    }, [offerId]);
 
     // --- Chargement Initial ---
     useEffect(() => {
         loadData();
-    }, [loadData]); // 4. Maintenant, on peut mettre loadData en dépendance sans créer de boucle infinie
+    }, [loadData]);
 
     // --- Logique Calculée (Stats & Filtres) ---
 
     const stats = useMemo(() => {
         const total = applicants.length;
         const analyzed = applicants.filter(a => a.cvScore !== null).length;
-        const accepted = applicants.filter(a => a.status === 'ACCEPTED').length;
+        const accepted = applicants.filter(a => a.status === 'ACCEPTED' || a.status === 'INTERVIEW_SCHEDULED').length;
         
         const avgScore = analyzed > 0 
             ? Math.round(applicants.reduce((acc, curr) => acc + (curr.cvScore || 0), 0) / analyzed) 
@@ -104,7 +106,7 @@ function OfferApplicantsPage() {
         let list = [...applicants];
         
         if (activeTab === 'SHORTLIST') {
-            return list.filter(a => a.status === 'ACCEPTED')
+            return list.filter(a => a.status === 'ACCEPTED' || a.status === 'INTERVIEW_SCHEDULED')
                        .sort((a, b) => (b.cvScore || 0) - (a.cvScore || 0));
         }
         
@@ -137,7 +139,7 @@ function OfferApplicantsPage() {
         
         setIsAnalyzing(true);
         try {
-            await OfferService.analyzeAllCvs(offerId);
+            await ApplicationService.analyzeAllCvs(offerId); // Appel au nouveau service
             alert("🤖 Analyse lancée en arrière-plan ! Les scores vont apparaître progressivement.");
             
             setTimeout(loadData, 4000);
@@ -148,23 +150,33 @@ function OfferApplicantsPage() {
         }
     };
 
-    const handleSelectTopN = async () => {
+    // Ouverture de la modale de sélection
+    const openBulkModal = () => {
         if (offerDetails?.deadline && !isDeadlinePassed) {
             alert(`⚠️ Impossible de classer avant la date limite du ${new Date(offerDetails.deadline).toLocaleDateString()}.`);
             return;
         }
-        
         if (!offerDetails?.deadline) {
              if(!window.confirm("Attention : Aucune date limite n'est définie pour cette offre.\nVoulez-vous vraiment procéder au classement définitif maintenant ?")) return;
         }
+        setShowBulkModal(true);
+    };
 
+    // Soumission de la sélection de masse
+    const handleBulkSubmit = async (e) => {
+        e.preventDefault();
         setIsSelecting(true);
         try {
-            await ApplicationService.selectTopCandidates(offerId, topNCount);
+            await ApplicationService.bulkSelectCandidates(offerId, {
+                topCount: parseInt(topNCount),
+                actionType: bulkConfig.actionType,
+                message: bulkConfig.customMessage
+            });
             
             await loadData();
             setActiveTab('SHORTLIST');
-            alert(`✅ Top ${topNCount} candidats sélectionnés ! Les autres ont été marqués comme rejetés.`);
+            setShowBulkModal(false);
+            alert(`✅ Opération réussie ! Top ${topNCount} candidats traités.`);
         } catch (e) { 
             alert("Erreur lors de la sélection : " + e.message); 
         } finally { 
@@ -178,9 +190,9 @@ function OfferApplicantsPage() {
         try {
             let res;
             if (type === 'SUMMARY') {
-                res = await OfferService.generateAiSummary(appId);
+                res = await ApplicationService.generateAiSummary(appId); // Vérifiez que cette méthode existe dans ApplicationService
             } else {
-                res = await OfferService.generateAiQuestions(appId);
+                res = await ApplicationService.generateAiQuestions(appId); // Vérifiez que cette méthode existe dans ApplicationService
             }
             
             if (res.success) {
@@ -289,29 +301,16 @@ function OfferApplicantsPage() {
                 </div>
 
                 <div className="selection-tool">
-                    <span className="tool-label">Sélection Automatique :</span>
-                    <label htmlFor="topN" style={{fontSize:'0.85rem', color:'#6b7280'}}>Garder les</label>
-                    <input 
-                        id="topN"
-                        type="number" 
-                        min="1" 
-                        max={stats.total} 
-                        value={topNCount} 
-                        onChange={(e) => setTopNCount(e.target.value)}
-                        className="input-sm"
-                    />
-                    <span style={{fontSize:'0.85rem', color:'#6b7280'}}>premiers</span>
                     <button 
                         className="btn btn-dark btn-sm" 
-                        onClick={handleSelectTopN}
+                        onClick={openBulkModal}
                         disabled={isSelecting || stats.analyzed === 0}
-                        title={!isDeadlinePassed && offerDetails?.deadline ? "Attendre la deadline pour classer" : "Valider le classement"}
                         style={{
                             opacity: (!isDeadlinePassed && offerDetails?.deadline) ? 0.6 : 1,
                             cursor: (!isDeadlinePassed && offerDetails?.deadline) ? 'not-allowed' : 'pointer'
                         }}
                     >
-                        {isSelecting ? '...' : 'Valider'}
+                        🤖 Sélection Automatique
                     </button>
                 </div>
             </div>
@@ -367,7 +366,7 @@ function OfferApplicantsPage() {
                                     📄
                                 </button>
                                 
-                                {app.status === 'ACCEPTED' && (
+                                {(app.status === 'ACCEPTED' || app.status === 'INTERVIEW_SCHEDULED') && (
                                     <>
                                         <button 
                                             className="btn-icon ai-btn" 
@@ -390,6 +389,77 @@ function OfferApplicantsPage() {
                     ))
                 )}
             </div>
+
+            {/* Modale de Sélection Automatique */}
+            {showBulkModal && (
+                <div className="modal-overlay" onClick={() => setShowBulkModal(false)}>
+                    <div className="modal-content-modern" onClick={e => e.stopPropagation()}>
+                        <h2 className="modal-title">✨ Sélection Automatique</h2>
+                        <p className="modal-desc">
+                            Sélectionnez les meilleurs profils et déclenchez les actions N8N automatiquement.
+                        </p>
+
+                        <form onSubmit={handleBulkSubmit}>
+                            
+                            <div className="form-group">
+                                <label>Nombre de candidats (Top N)</label>
+                                <input 
+                                    type="number" 
+                                    className="form-input"
+                                    min="1" 
+                                    max={stats.total}
+                                    value={topNCount}
+                                    onChange={(e) => setTopNCount(e.target.value)}
+                                />
+                                <p className="form-hint">Les candidats seront triés par leur Score IA.</p>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Action à effectuer</label>
+                                <div className="radio-cards">
+                                    <div 
+                                        className={`radio-card ${bulkConfig.actionType === 'INTERVIEW' ? 'active' : ''}`}
+                                        onClick={() => setBulkConfig({...bulkConfig, actionType: 'INTERVIEW'})}
+                                    >
+                                        <h4>📅 Inviter à un entretien</h4>
+                                        <p>Envoie un email de proposition de date.</p>
+                                    </div>
+                                    <div 
+                                        className={`radio-card ${bulkConfig.actionType === 'ACCEPT' ? 'active' : ''}`}
+                                        onClick={() => setBulkConfig({...bulkConfig, actionType: 'ACCEPT'})}
+                                    >
+                                        <h4>✅ Accepter le profil</h4>
+                                        <p>Marque comme accepté et envoie une confirmation.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Message personnalisé (Email)</label>
+                                <textarea 
+                                    className="form-input"
+                                    rows="3"
+                                    placeholder={bulkConfig.actionType === 'INTERVIEW' 
+                                        ? "Ex: Nous aimerions vous rencontrer..." 
+                                        : "Ex: Félicitations, vous êtes sélectionné..."}
+                                    value={bulkConfig.customMessage}
+                                    onChange={(e) => setBulkConfig({...bulkConfig, customMessage: e.target.value})}
+                                ></textarea>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="button" onClick={() => setShowBulkModal(false)} className="btn btn-outline">
+                                    Annuler
+                                </button>
+                                <button type="submit" className="btn btn-primary" disabled={isSelecting}>
+                                    {isSelecting ? 'Traitement...' : 'Lancer la sélection'}
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Modale pour Affichage Contenu IA */}
             {modalContent.isOpen && (
