@@ -1,34 +1,39 @@
 // src/pages/Auth/RegisterPage.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import AuthService from '../../services/AuthService'; // Service pour l'API d'inscription
-import { useAuth } from '../../contexts/AuthContext'; // <-- AJOUT
+import AuthService from '../../services/AuthService';
+import { useAuth } from '../../contexts/AuthContext';
+import './Auth.css';
+
+// Icônes
+const UserIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="input-icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>);
+const MailIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="input-icon"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>);
+const LockIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="input-icon"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>);
+const BriefcaseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>);
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'ROLE_CANDIDAT' // Par défaut 'CANDIDAT'
+    firstName: '', lastName: '', email: '', password: '', confirmPassword: '', role: 'ROLE_CANDIDAT'
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
-  const { login } = useAuth(); // <-- AJOUT
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const selectRole = (role) => {
+    setFormData(prev => ({ ...prev, role }));
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
-    setMessage('');
+    setError(''); setMessage('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Les mots de passe ne correspondent pas.');
@@ -38,163 +43,103 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      // Étape 1: Inscription
       const response = await AuthService.register(
-        formData.firstName,
-        formData.lastName,
-        formData.email,
-        formData.password,
-        formData.role
+        formData.firstName, formData.lastName, formData.email, formData.password, formData.role
       );
-
       setMessage(response.message || 'Inscription réussie !');
-
-      // --- MODIFICATIONS ---
-      
-      // Étape 2: Connexion automatique après inscription
-      await login(formData.email, formData.password, true); // true = rememberMe
-
-      // Étape 3: Définir l'indicateur pour le modal de profil
+      await login(formData.email, formData.password, true);
       sessionStorage.setItem('isFirstLogin', 'true');
-
-      // Étape 4: Rediriger vers le tableau de bord
       navigate('/dashboard'); 
-      
-      // --- FIN DES MODIFICATIONS ---
-
     } catch (err) {
       console.error("Erreur d'inscription:", err);
-      setError(err.message || 'Une erreur est survenue lors de l\'inscription.');
+      setError(err.message || "Une erreur est survenue lors de l'inscription.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="form-card">
-      <h2 className="form-title">Inscription</h2>
+    <div className="auth-container">
+      <div className="auth-card register-card">
+        <div className="auth-header">
+          <h1 className="brand-logo">SmartHire</h1>
+          <p className="auth-subtitle">Rejoignez la plateforme intelligente de recrutement.</p>
+        </div>
 
-      <form onSubmit={handleRegister}>
-        
-        {/* Type de compte (Candidat / RH) */}
-        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-          <label className="form-label" style={{ marginBottom: '0.5rem' }}>Je suis un :</label>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input
-                type="radio"
-                name="role"
-                value="ROLE_CANDIDAT"
-                checked={formData.role === 'ROLE_CANDIDAT'}
-                onChange={handleChange}
-              />
-              Candidat
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input
-                type="radio"
-                name="role"
-                value="ROLE_RH"
-                checked={formData.role === 'ROLE_RH'}
-                onChange={handleChange}
-              />
-              Recruteur
-            </label>
+        <form onSubmit={handleRegister} className="auth-form">
+          
+          {/* Sélection du Rôle stylisée */}
+          <div className="role-selection-group">
+            <label className="group-label">Je souhaite m'inscrire en tant que :</label>
+            <div className="role-cards">
+              <div 
+                className={`role-card ${formData.role === 'ROLE_CANDIDAT' ? 'active' : ''}`}
+                onClick={() => selectRole('ROLE_CANDIDAT')}
+              >
+                <div className="role-icon"><UserIcon /></div>
+                <span>Candidat</span>
+              </div>
+              <div 
+                className={`role-card ${formData.role === 'ROLE_RH' ? 'active' : ''}`}
+                onClick={() => selectRole('ROLE_RH')}
+              >
+                <div className="role-icon"><BriefcaseIcon /></div>
+                <span>Recruteur</span>
+              </div>
+            </div>
           </div>
+
+          <div className="row">
+            <div className="input-group">
+              <label>Prénom</label>
+              <div className="input-wrapper">
+                <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required placeholder="Jean" />
+              </div>
+            </div>
+            <div className="input-group">
+              <label>Nom</label>
+              <div className="input-wrapper">
+                <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required placeholder="Dupont" />
+              </div>
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label>Email</label>
+            <div className="input-wrapper">
+              <MailIcon />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="jean.dupont@email.com" />
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="input-group">
+              <label>Mot de passe</label>
+              <div className="input-wrapper">
+                <LockIcon />
+                <input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" />
+              </div>
+            </div>
+            <div className="input-group">
+              <label>Confirmation</label>
+              <div className="input-wrapper">
+                <LockIcon />
+                <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="••••••••" />
+              </div>
+            </div>
+          </div>
+
+          {error && <div className="message-box error">{error}</div>}
+          {message && <div className="message-box success">{message}</div>}
+
+          <button type="submit" className="btn-auth" disabled={loading}>
+            {loading ? <span className="spinner"></span> : 'Créer mon compte'}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <p>Déjà membre ? <Link to="/login" className="link-highlight">Se connecter</Link></p>
         </div>
-
-        {/* Prénom */}
-        <div className="form-group">
-          <label htmlFor="firstName" className="form-label">Prénom</label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            className="form-input"
-            value={formData.firstName}
-            onChange={handleChange}
-            placeholder="Entrez votre prénom"
-            required
-          />
-        </div>
-
-        {/* Nom */}
-        <div className="form-group">
-          <label htmlFor="lastName" className="form-label">Nom</label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            className="form-input"
-            value={formData.lastName}
-            onChange={handleChange}
-            placeholder="Entrez votre nom"
-            required
-          />
-        </div>
-
-        {/* Email */}
-        <div className="form-group">
-          <label htmlFor="email" className="form-label">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="form-input"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Entrez votre email"
-            required
-            autoComplete="email"
-          />
-        </div>
-
-        {/* Mot de passe */}
-        <div className="form-group">
-          <label htmlFor="password" className="form-label">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            className="form-input"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Créez un mot de passe"
-            required
-            autoComplete="new-password"
-          />
-        </div>
-
-        {/* Confirmer Mot de passe */}
-        <div className="form-group">
-          <label htmlFor="confirmPassword" className="form-label">Confirmer le mot de passe</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            className="form-input"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            placeholder="Confirmez votre mot de passe"
-            required
-            autoComplete="new-password"
-          />
-        </div>
-
-        {/* Affichage des messages */}
-        {error && <div className="message message-error">{error}</div>}
-        {message && <div className="message message-success">{message}</div>}
-
-        {/* Bouton de soumission */}
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading && <span className="loading" style={{ marginRight: '0.5rem' }}></span>}
-          {loading ? 'Inscription...' : 'S\'inscrire'}
-        </button>
-      </form>
-
-      {/* Lien vers la page de connexion */}
-      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-        <p>Déjà un compte ? <Link to="/login" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>Se connecter</Link></p>
       </div>
     </div>
   );
