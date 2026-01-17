@@ -14,13 +14,13 @@ console.log(`AuthService API URL set to: ${AUTH_API_URL}`);
  * @returns {Promise<object>} L'objet de réponse complet du backend ({success, message, status}).
  * @throws {Error} Lance une erreur si l'inscription échoue.
  */
-const register = async (firstName, lastName, email, password, phoneNumber) => {
+const register = async (firstName, lastName, email, password, phoneNumber, role = 'ROLE_CANDIDAT') => {
   const response = await fetch(AUTH_API_URL + "register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ firstName, lastName, email, password, phoneNumber }),
+    body: JSON.stringify({ firstName, lastName, email, password, phoneNumber , role}),
   });
 
   const apiResponse = await response.json();
