@@ -151,7 +151,6 @@ Pour activer les notifications par email, installez n8n et importez le workflow 
 |  |  |
 | *Liste des candidats avec Score IA* | *Justification générée par Gemini* |
 
-*(Ajoutez vos propres captures d'écran dans un dossier `/screenshots` à la racine)*
 
 ---
 
