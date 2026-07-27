@@ -160,6 +160,6 @@ Pour activer les notifications par email, installez n8n et importez le workflow 
 
 * 🎓 Élève Ingénieur en ITIRC à l'**ENSA Oujda**
 * 💼 Full-Stack, Data & IA Enthusiast
-* 📧 [Email](mailto:votre.email@example.com) - [LinkedIn](https://www.google.com/search?q=https://linkedin.com/in/votre-profil)
+* 📧 [Email](aazdag.abdellah@gmail.com) - [LinkedIn](https://www.google.com/search?q=https://linkedin.com/in/aazdag-abdellah)
 
 ---
